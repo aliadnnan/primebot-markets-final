@@ -1,0 +1,21 @@
+# SEO Robot Configuration for PrimeBot Markets
+# This file controls how search engines crawl the website
+
+# Allow all bots to crawl
+User-agent: *
+Allow: /
+
+# Disallow admin pages from search engines
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /auth/
+
+# Specify sitemap location
+Sitemap: https://primebot-markets.com/sitemap.xml
+Sitemap: https://primebot-markets.com/sitemap-index.xml
+
+# Crawl delay to avoid server overload (in seconds)
+Crawl-delay: 2
+
+# Request rate (pages per second)
+Request-rate: 1/2s

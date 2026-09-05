@@ -1,0 +1,230 @@
+'use client'
+
+import { useState } from 'react'
+
+interface AdminOrder {
+  id: string
+  fullName: string
+  email: string
+  selectedBot: string
+  paymentMethod: string
+  transactionId: string
+  paymentProof?: string
+  status: 'pending' | 'verified' | 'rejected' | 'delivered'
+  createdAt: string
+}
+
+export default function AdminDashboard() {
+  const [orders] = useState<AdminOrder[]>([
+    {
+      id: '001',
+      fullName: 'John Doe',
+      email: 'john@example.com',
+      selectedBot: 'PRIME SCALPER EA',
+      paymentMethod: 'JazzCash',
+      transactionId: 'JC123456789',
+      status: 'verified',
+      createdAt: '2024-01-15',
+    },
+    {
+      id: '002',
+      fullName: 'Jane Smith',
+      email: 'jane@example.com',
+      selectedBot: 'PRIME HEDGE EA',
+      paymentMethod: 'Binance',
+      transactionId: 'BIN987654321',
+      status: 'pending',
+      createdAt: '2024-01-14',
+    },
+    {
+      id: '003',
+      fullName: 'Ahmed Khan',
+      email: 'ahmed@example.com',
+      selectedBot: 'PRIME AI ALGORITHM EA',
+      paymentMethod: 'Easypaisa',
+      transactionId: 'EP456789123',
+      status: 'delivered',
+      createdAt: '2024-01-13',
+    },
+  ])
+
+  const [selectedStatus, setSelectedStatus] = useState<string>('all')
+  const [searchTerm, setSearchTerm] = useState<string>('')
+
+  const filteredOrders = orders.filter(order => {
+    const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus
+    const matchesSearch = 
+      order.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.id.includes(searchTerm)
+    return matchesStatus && matchesSearch
+  })
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+      case 'verified':
+        return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+      case 'delivered':
+        return 'bg-green-500/20 text-green-400 border-green-500/30'
+      case 'rejected':
+        return 'bg-red-500/20 text-red-400 border-red-500/30'
+      default:
+        return 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+    }
+  }
+
+  const stats = {
+    total: orders.length,
+    pending: orders.filter(o => o.status === 'pending').length,
+    verified: orders.filter(o => o.status === 'verified').length,
+    delivered: orders.filter(o => o.status === 'delivered').length,
+    rejected: orders.filter(o => o.status === 'rejected').length,
+  }
+
+  return (
+    <div className="min-h-screen py-8">
+      <div className="container-custom max-w-6xl">
+        <div className="mb-12">
+          <h1 className="text-5xl font-bold text-white mb-2">Admin Dashboard</h1>
+          <p className="text-slate-400">Manage customer orders and verify payments</p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-12">
+          {[
+            { label: 'Total Orders', value: stats.total, color: 'blue' },
+            { label: 'Pending', value: stats.pending, color: 'yellow' },
+            { label: 'Verified', value: stats.verified, color: 'blue' },
+            { label: 'Delivered', value: stats.delivered, color: 'green' },
+            { label: 'Rejected', value: stats.rejected, color: 'red' },
+          ].map((stat, i) => (
+            <div key={i} className="card">
+              <p className={`text-${stat.color}-400 text-sm font-semibold mb-2`}>{stat.label}</p>
+              <p className="text-3xl font-bold text-white">{stat.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Filters */}
+        <div className="card mb-8 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-white font-semibold mb-2">Search</label>
+              <input
+                type="text"
+                placeholder="Search by name, email, or ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input-field"
+              />
+            </div>
+            <div>
+              <label className="block text-white font-semibold mb-2">Filter by Status</label>
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="input-field"
+              >
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="verified">Verified</option>
+                <option value="delivered">Delivered</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Orders Table */}
+        <div className="card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-800/50 border-b border-slate-700">
+                <tr>
+                  <th className="text-left py-4 px-6 text-white font-bold">Order ID</th>
+                  <th className="text-left py-4 px-6 text-white font-bold">Customer</th>
+                  <th className="text-left py-4 px-6 text-white font-bold">Email</th>
+                  <th className="text-left py-4 px-6 text-white font-bold">Product</th>
+                  <th className="text-left py-4 px-6 text-white font-bold">Payment Method</th>
+                  <th className="text-left py-4 px-6 text-white font-bold">Transaction ID</th>
+                  <th className="text-left py-4 px-6 text-white font-bold">Status</th>
+                  <th className="text-left py-4 px-6 text-white font-bold">Date</th>
+                  <th className="text-left py-4 px-6 text-white font-bold">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.map((order) => (
+                  <tr key={order.id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
+                    <td className="py-4 px-6 text-white font-semibold">#{order.id}</td>
+                    <td className="py-4 px-6 text-slate-300">{order.fullName}</td>
+                    <td className="py-4 px-6">
+                      <a href={`mailto:${order.email}`} className="text-blue-400 hover:text-blue-300">
+                        {order.email}
+                      </a>
+                    </td>
+                    <td className="py-4 px-6 text-slate-300">{order.selectedBot}</td>
+                    <td className="py-4 px-6 text-slate-300">{order.paymentMethod}</td>
+                    <td className="py-4 px-6 text-slate-300 font-mono text-sm">{order.transactionId}</td>
+                    <td className="py-4 px-6">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(order.status)}`}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-slate-400 text-sm">{order.createdAt}</td>
+                    <td className="py-4 px-6">
+                      <button className="text-blue-400 hover:text-blue-300 text-sm font-semibold">
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {filteredOrders.length === 0 && (
+            <div className="py-12 text-center">
+              <p className="text-slate-400">No orders found matching your search criteria</p>
+            </div>
+          )}
+        </div>
+
+        {/* Instructions */}
+        <div className="mt-12 card">
+          <h2 className="text-2xl font-bold text-white mb-6">Admin Instructions</h2>
+          <div className="space-y-4 text-slate-300">
+            <div>
+              <h3 className="text-white font-semibold mb-2">Order Management Steps:</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm">
+                <li>Review pending orders for payment verification</li>
+                <li>Check transaction IDs against actual payments received</li>
+                <li>Change status to "Verified" once payment is confirmed</li>
+                <li>Send EA file download link to customer email</li>
+                <li>Change status to "Delivered" once customer confirms receipt</li>
+                <li>Mark as "Rejected" if payment is invalid or unverified</li>
+              </ol>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-slate-700">
+              <h3 className="text-white font-semibold mb-2">Status Definitions:</h3>
+              <ul className="space-y-2 text-sm">
+                <li><span className="text-yellow-400">Pending:</span> Awaiting payment verification</li>
+                <li><span className="text-blue-400">Verified:</span> Payment confirmed, EA sent</li>
+                <li><span className="text-green-400">Delivered:</span> Customer received EA file</li>
+                <li><span className="text-red-400">Rejected:</span> Payment invalid or declined</li>
+              </ul>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-slate-700">
+              <p className="text-yellow-500 font-semibold">
+                ⚠️ Always verify payments through actual payment method accounts before confirming orders.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
