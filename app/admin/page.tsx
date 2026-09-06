@@ -5,13 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import toast from 'react-hot-toast'
 import VideoManagement from './VideoManagement'
-<<<<<<< HEAD
-<<<<<<< HEAD
 import CategoryManagement from './CategoryManagement'
-=======
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
-=======
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
 
 interface AdminOrder {
   id: string
@@ -276,23 +270,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-<<<<<<< HEAD
-<<<<<<< HEAD
         <div className="flex gap-4 mb-8 border-b border-slate-700 overflow-x-auto">
           <button
             onClick={() => setActiveTab('orders')}
             className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap ${
-=======
-=======
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
-        <div className="flex gap-4 mb-8 border-b border-slate-700">
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`px-4 py-3 font-semibold transition-colors ${
-<<<<<<< HEAD
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
-=======
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
               activeTab === 'orders'
                 ? 'text-blue-500 border-b-2 border-blue-500'
                 : 'text-slate-400 hover:text-slate-300'
@@ -302,22 +283,12 @@ export default function AdminDashboard() {
           </button>
           <button
             onClick={() => setActiveTab('videos')}
-<<<<<<< HEAD
-<<<<<<< HEAD
             className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap ${
-=======
-            className={`px-4 py-3 font-semibold transition-colors ${
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
-=======
-            className={`px-4 py-3 font-semibold transition-colors ${
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
               activeTab === 'videos'
                 ? 'text-blue-500 border-b-2 border-blue-500'
                 : 'text-slate-400 hover:text-slate-300'
             }`}
           >
-<<<<<<< HEAD
-<<<<<<< HEAD
             Video Management
           </button>
           <button
@@ -329,12 +300,6 @@ export default function AdminDashboard() {
             }`}
           >
             Video Categories
-=======
-            Video Tutorials
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
-=======
-            Video Tutorials
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
           </button>
         </div>
 
@@ -345,8 +310,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         {/* Categories Management Tab */}
         {activeTab === 'categories' && (
           <div>
@@ -354,10 +317,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-=======
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
-=======
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
         {/* Orders Tab */}
         {activeTab === 'orders' && (
           <div>

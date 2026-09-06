@@ -1,16 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-export const dynamic = 'force-dynamic'
-
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
-=======
-export const dynamic = 'force-dynamic'
-
->>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
