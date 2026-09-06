@@ -4,6 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import toast from 'react-hot-toast'
+import VideoManagement from './VideoManagement'
+<<<<<<< HEAD
+<<<<<<< HEAD
+import CategoryManagement from './CategoryManagement'
+=======
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+=======
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
 
 interface AdminOrder {
   id: string
@@ -52,6 +60,7 @@ export default function AdminDashboard() {
   const [actionLoading, setActionLoading] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
   const [showRejectForm, setShowRejectForm] = useState(false)
+  const [activeTab, setActiveTab] = useState('orders')
 
   // Check admin access and load orders
   useEffect(() => {
@@ -266,7 +275,93 @@ export default function AdminDashboard() {
           <p className="text-slate-400">Manage customer orders and verify payments</p>
         </div>
 
-        {/* Statistics */}
+        {/* Tabs */}
+<<<<<<< HEAD
+<<<<<<< HEAD
+        <div className="flex gap-4 mb-8 border-b border-slate-700 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap ${
+=======
+=======
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+        <div className="flex gap-4 mb-8 border-b border-slate-700">
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`px-4 py-3 font-semibold transition-colors ${
+<<<<<<< HEAD
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+=======
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+              activeTab === 'orders'
+                ? 'text-blue-500 border-b-2 border-blue-500'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            Orders & Payments
+          </button>
+          <button
+            onClick={() => setActiveTab('videos')}
+<<<<<<< HEAD
+<<<<<<< HEAD
+            className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap ${
+=======
+            className={`px-4 py-3 font-semibold transition-colors ${
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+=======
+            className={`px-4 py-3 font-semibold transition-colors ${
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+              activeTab === 'videos'
+                ? 'text-blue-500 border-b-2 border-blue-500'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+<<<<<<< HEAD
+<<<<<<< HEAD
+            Video Management
+          </button>
+          <button
+            onClick={() => setActiveTab('categories')}
+            className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap ${
+              activeTab === 'categories'
+                ? 'text-blue-500 border-b-2 border-blue-500'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            Video Categories
+=======
+            Video Tutorials
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+=======
+            Video Tutorials
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+          </button>
+        </div>
+
+        {/* Video Management Tab */}
+        {activeTab === 'videos' && (
+          <div>
+            <VideoManagement />
+          </div>
+        )}
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+        {/* Categories Management Tab */}
+        {activeTab === 'categories' && (
+          <div>
+            <CategoryManagement />
+          </div>
+        )}
+
+=======
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+=======
+>>>>>>> e4fd7c8e2a29c66297856b19d6ac185f4eca72f8
+        {/* Orders Tab */}
+        {activeTab === 'orders' && (
+          <div>
+            {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-12">
           <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
             <p className="text-slate-400 text-sm mb-1">Total Orders</p>
@@ -568,6 +663,8 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+        )}
+            </div>
         )}
       </div>
     </div>

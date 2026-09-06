@@ -110,6 +110,58 @@ export type Database = {
           instructions?: string | null
         }
       }
+      video_categories: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+        }
+        Update: {
+          name?: string
+          description?: string | null
+          updated_at?: string
+        }
+      }
+      videos: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          category_id: string
+          video_url: string
+          thumbnail_url: string | null
+          published: boolean
+          created_by: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          category_id: string
+          video_url: string
+          thumbnail_url?: string | null
+          published?: boolean
+          created_by: string
+        }
+        Update: {
+          title?: string
+          description?: string | null
+          category_id?: string
+          video_url?: string
+          thumbnail_url?: string | null
+          published?: boolean
+          updated_at?: string
+        }
+      }
     }
   }
 }
@@ -120,3 +172,10 @@ export type OrderWithUser = Database['public']['Tables']['orders']['Row'] & {
 }
 
 export type UserProfile = Database['public']['Tables']['users']['Row']
+
+// Video types
+export type VideoCategory = Database['public']['Tables']['video_categories']['Row']
+export type Video = Database['public']['Tables']['videos']['Row']
+export type VideoWithCategory = Video & {
+  video_categories?: VideoCategory | null
+}
