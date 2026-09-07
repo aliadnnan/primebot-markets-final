@@ -28,16 +28,6 @@ export default function VideoManagement() {
     published: false,
   })
 
-  const [uploadMode, setUploadMode] = useState<'file' | 'link'>('file')
-  const [externalLinkData, setExternalLinkData] = useState({
-    title: '',
-    description: '',
-    category_id: '',
-    video_url: '',
-    thumbnail_url: '',
-    published: false,
-  })
-
   const [editData, setEditData] = useState({
     title: '',
     description: '',
@@ -77,68 +67,6 @@ export default function VideoManagement() {
       }
     } catch (error) {
       console.error('Error loading categories:', error)
-    }
-  }
-
-  const detectPlatform = (url: string): string => {
-    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'YouTube'
-    if (url.includes('tiktok.com')) return 'TikTok'
-    if (url.includes('facebook.com') || url.includes('fb.watch')) return 'Facebook'
-    if (url.includes('instagram.com')) return 'Instagram'
-    if (url.includes('vimeo.com')) return 'Vimeo'
-    return 'External Video'
-  }
-
-  const handleExternalLinkSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!externalLinkData.title || !externalLinkData.category_id || !externalLinkData.video_url) {
-      toast.error('Please fill in all required fields')
-      return
-    }
-
-    setUploading(true)
-    try {
-      setUploadProgress(50)
-
-      // Create video record with external link
-      const createResponse = await fetch('/api/admin/videos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: externalLinkData.title,
-          description: externalLinkData.description,
-          category_id: externalLinkData.category_id,
-          video_url: externalLinkData.video_url,
-          thumbnail_url: externalLinkData.thumbnail_url,
-          published: externalLinkData.published,
-        }),
-      })
-
-      const createData = await createResponse.json()
-      if (createData.success) {
-        toast.success('External video link added successfully!')
-        setExternalLinkData({
-          title: '',
-          description: '',
-          category_id: '',
-          video_url: '',
-          thumbnail_url: '',
-          published: false,
-        })
-        setShowUploadModal(false)
-        loadVideos()
-      } else {
-        toast.error(createData.error || 'Failed to add external video link')
-      }
-
-      setUploadProgress(100)
-    } catch (error) {
-      console.error('Error adding external video link:', error)
-      toast.error('An error occurred while adding the video link')
-    } finally {
-      setUploading(false)
-      setUploadProgress(0)
     }
   }
 
@@ -397,9 +325,7 @@ export default function VideoManagement() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-6 flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-white">
-                {uploadMode === 'file' ? 'Upload Video File' : 'Add External Video Link'}
-              </h2>
+              <h2 className="text-2xl font-bold text-white">Upload Video</h2>
               <button
                 onClick={() => {
                   setShowUploadModal(false)
@@ -411,31 +337,7 @@ export default function VideoManagement() {
               </button>
             </div>
 
-            {/* Mode Tabs */}
-            <div className="flex gap-4 p-6 border-b border-slate-700">
-              <button
-                onClick={() => setUploadMode('file')}
-                className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-                  uploadMode === 'file'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                }`}
-              >
-                Upload File (MP4/WebM)
-              </button>
-              <button
-                onClick={() => setUploadMode('link')}
-                className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-                  uploadMode === 'link'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                }`}
-              >
-                External Link (YouTube, TikTok, etc.)
-              </button>
-            </div>
-
-            <form onSubmit={uploadMode === 'file' ? handleUploadSubmit : handleExternalLinkSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleUploadSubmit} className="p-6 space-y-6">
               {/* Title */}
               <div>
                 <label className="block text-sm font-semibold text-slate-300 mb-2">
@@ -443,11 +345,8 @@ export default function VideoManagement() {
                 </label>
                 <input
                   type="text"
-                  value={uploadMode === 'file' ? formData.title : externalLinkData.title}
-                  onChange={(e) => uploadMode === 'file' 
-                    ? setFormData({ ...formData, title: e.target.value })
-                    : setExternalLinkData({ ...externalLinkData, title: e.target.value })
-                  }
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Enter video title"
                   className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                   required
@@ -460,11 +359,8 @@ export default function VideoManagement() {
                   Description
                 </label>
                 <textarea
-                  value={uploadMode === 'file' ? formData.description : externalLinkData.description}
-                  onChange={(e) => uploadMode === 'file'
-                    ? setFormData({ ...formData, description: e.target.value })
-                    : setExternalLinkData({ ...externalLinkData, description: e.target.value })
-                  }
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Enter video description"
                   rows={4}
                   className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
@@ -477,11 +373,8 @@ export default function VideoManagement() {
                   Category *
                 </label>
                 <select
-                  value={uploadMode === 'file' ? formData.category_id : externalLinkData.category_id}
-                  onChange={(e) => uploadMode === 'file'
-                    ? setFormData({ ...formData, category_id: e.target.value })
-                    : setExternalLinkData({ ...externalLinkData, category_id: e.target.value })
-                  }
+                  value={formData.category_id}
+                  onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                   className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
                   required
                 >
@@ -494,86 +387,42 @@ export default function VideoManagement() {
                 </select>
               </div>
 
-              {/* File Upload Mode */}
-              {uploadMode === 'file' ? (
-                <>
-                  {/* Video File */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">
-                      Video File (MP4/WebM) *
-                    </label>
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm"
-                      onChange={(e) => setFormData({ ...formData, video_file: e.target.files?.[0] || null })}
-                      className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-slate-300"
-                      required
-                    />
-                    <p className="text-xs text-slate-400 mt-1">Max size: 500MB. Formats: MP4, WebM</p>
-                  </div>
+              {/* Video File */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  Video File (MP4/WebM) *
+                </label>
+                <input
+                  type="file"
+                  accept="video/mp4,video/webm"
+                  onChange={(e) => setFormData({ ...formData, video_file: e.target.files?.[0] || null })}
+                  className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-slate-300"
+                  required
+                />
+                <p className="text-xs text-slate-400 mt-1">Max size: 500MB. Formats: MP4, WebM</p>
+              </div>
 
-                  {/* Thumbnail */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">
-                      Thumbnail Image
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={(e) => setFormData({ ...formData, thumbnail_file: e.target.files?.[0] || null })}
-                      className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-slate-300"
-                    />
-                    <p className="text-xs text-slate-400 mt-1">Max size: 5MB. Formats: JPEG, PNG, WebP</p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* External Video URL */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">
-                      Video URL *
-                    </label>
-                    <input
-                      type="url"
-                      value={externalLinkData.video_url}
-                      onChange={(e) => setExternalLinkData({ ...externalLinkData, video_url: e.target.value })}
-                      placeholder="https://www.youtube.com/embed/... or https://www.tiktok.com/..."
-                      className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                      required
-                    />
-                    <p className="text-xs text-slate-400 mt-1">
-                      Paste full URL from YouTube, TikTok, Facebook, Instagram, Vimeo, etc.
-                      {externalLinkData.video_url && ` (Detected: ${detectPlatform(externalLinkData.video_url)})`}
-                    </p>
-                  </div>
-
-                  {/* Thumbnail URL (Optional for external links) */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">
-                      Custom Thumbnail URL (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      value={externalLinkData.thumbnail_url}
-                      onChange={(e) => setExternalLinkData({ ...externalLinkData, thumbnail_url: e.target.value })}
-                      placeholder="https://example.com/thumbnail.jpg"
-                      className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                    <p className="text-xs text-slate-400 mt-1">Leave blank to use platform default thumbnail</p>
-                  </div>
-                </>
-              )}
+              {/* Thumbnail */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  Thumbnail Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => setFormData({ ...formData, thumbnail_file: e.target.files?.[0] || null })}
+                  className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-slate-300"
+                />
+                <p className="text-xs text-slate-400 mt-1">Max size: 5MB. Formats: JPEG, PNG, WebP</p>
+              </div>
 
               {/* Published Checkbox */}
               <div className="flex items-center">
                 <input
                   type="checkbox"
                   id="published"
-                  checked={uploadMode === 'file' ? formData.published : externalLinkData.published}
-                  onChange={(e) => uploadMode === 'file'
-                    ? setFormData({ ...formData, published: e.target.checked })
-                    : setExternalLinkData({ ...externalLinkData, published: e.target.checked })
-                  }
+                  checked={formData.published}
+                  onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
                   className="w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"
                 />
                 <label htmlFor="published" className="ml-2 text-sm text-slate-300">
@@ -598,7 +447,7 @@ export default function VideoManagement() {
                   disabled={uploading}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-2 px-4 rounded-lg transition"
                 >
-                  {uploading ? (uploadMode === 'file' ? 'Uploading...' : 'Adding...') : (uploadMode === 'file' ? 'Upload Video' : 'Add Video Link')}
+                  {uploading ? 'Uploading...' : 'Upload Video'}
                 </button>
                 <button
                   type="button"

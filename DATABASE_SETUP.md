@@ -208,6 +208,84 @@ INSERT INTO payment_methods (id, name, description, account_number, account_type
 ON CONFLICT (id) DO NOTHING;
 ```
 
+#### Create Video Categories Table
+
+```sql
+-- Video Categories Table (for organizing tutorial videos)
+CREATE TABLE IF NOT EXISTS video_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL UNIQUE,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create trigger to auto-update the updated_at timestamp
+CREATE OR REPLACE FUNCTION update_video_categories_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS video_categories_updated_at_trigger ON video_categories;
+CREATE TRIGGER video_categories_updated_at_trigger
+BEFORE UPDATE ON video_categories
+FOR EACH ROW
+EXECUTE FUNCTION update_video_categories_updated_at();
+
+-- Insert default video categories
+INSERT INTO video_categories (name, description) VALUES
+  ('Bot Installation', 'How to install and set up trading bots'),
+  ('Bot Setup', 'Configuring bot parameters and settings'),
+  ('MT4/MT5 Tutorials', 'MetaTrader 4/5 platform tutorials'),
+  ('Account Setup', 'Setting up your trading account'),
+  ('Trading Tutorials', 'Trading strategies and techniques'),
+  ('Payment Tutorials', 'Payment methods and processing'),
+  ('General Tutorials', 'General platform features and tips')
+ON CONFLICT (name) DO NOTHING;
+```
+
+#### Create Videos Table
+
+```sql
+-- Videos Table (for storing tutorial and promotional videos)
+CREATE TABLE IF NOT EXISTS videos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  category_id UUID NOT NULL REFERENCES video_categories(id) ON DELETE CASCADE,
+  video_url VARCHAR(500) NOT NULL,
+  thumbnail_url VARCHAR(500),
+  published BOOLEAN DEFAULT FALSE,
+  created_by UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for better query performance
+CREATE INDEX IF NOT EXISTS videos_category_id_idx ON videos(category_id);
+CREATE INDEX IF NOT EXISTS videos_published_idx ON videos(published);
+CREATE INDEX IF NOT EXISTS videos_created_by_idx ON videos(created_by);
+CREATE INDEX IF NOT EXISTS videos_created_at_idx ON videos(created_at);
+
+-- Create trigger to auto-update the updated_at timestamp
+CREATE OR REPLACE FUNCTION update_videos_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS videos_updated_at_trigger ON videos;
+CREATE TRIGGER videos_updated_at_trigger
+BEFORE UPDATE ON videos
+FOR EACH ROW
+EXECUTE FUNCTION update_videos_updated_at();
+```
+
 ### 2. Initial Data (Already Inserted in Section 1)
 
 **This section is informational only.** The initial data for bots and payment methods was already inserted in Section 1 using `INSERT ... ON CONFLICT (id) DO NOTHING`, which makes these inserts safe to re-run.
@@ -215,6 +293,7 @@ ON CONFLICT (id) DO NOTHING;
 **Data Already Loaded:**
 - **3 Trading Bots:** PRIME SCALPER EA ($200), PRIME HEDGE EA ($400), PRIME AI ALGORITHM EA ($600)
 - **4 Payment Methods:** JazzCash (03004587593), Easypaisa (03004587593), Binance Pay (107948393), Bybit (436007452)
+- **7 Video Categories:** Bot Installation, Bot Setup, MT4/MT5 Tutorials, Account Setup, Trading Tutorials, Payment Tutorials, General Tutorials
 
 Do NOT run additional INSERT statements. Section 1 has already populated these tables.
 
@@ -319,6 +398,75 @@ CREATE POLICY "Everyone can see bots"
 ON bots
 FOR SELECT
 USING (true);
+
+-- ============================================
+-- VIDEO_CATEGORIES TABLE - RLS and Policies
+-- ============================================
+ALTER TABLE video_categories ENABLE ROW LEVEL SECURITY;
+
+-- Everyone can read all categories
+DROP POLICY IF EXISTS "Everyone can see video categories" ON video_categories;
+CREATE POLICY "Everyone can see video categories"
+ON video_categories
+FOR SELECT
+USING (true);
+
+-- Only admins can insert, update, delete categories
+DROP POLICY IF EXISTS "Admin can manage video categories" ON video_categories;
+CREATE POLICY "Admin can manage video categories"
+ON video_categories
+FOR ALL
+TO authenticated
+USING (is_admin_user(auth.uid()))
+WITH CHECK (is_admin_user(auth.uid()));
+
+-- ============================================
+-- VIDEOS TABLE - RLS and Policies
+-- ============================================
+ALTER TABLE videos ENABLE ROW LEVEL SECURITY;
+
+-- Everyone can view published videos
+DROP POLICY IF EXISTS "Anyone can view published videos" ON videos;
+CREATE POLICY "Anyone can view published videos"
+ON videos
+FOR SELECT
+USING (published = true);
+
+-- Admins can view all videos (published and unpublished)
+DROP POLICY IF EXISTS "Admin can view all videos" ON videos;
+CREATE POLICY "Admin can view all videos"
+ON videos
+FOR SELECT
+TO authenticated
+USING (is_admin_user(auth.uid()));
+
+-- Only admins can insert videos
+DROP POLICY IF EXISTS "Admin can create videos" ON videos;
+CREATE POLICY "Admin can create videos"
+ON videos
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  is_admin_user(auth.uid())
+  AND created_by = auth.uid()
+);
+
+-- Only admins can update videos
+DROP POLICY IF EXISTS "Admin can update videos" ON videos;
+CREATE POLICY "Admin can update videos"
+ON videos
+FOR UPDATE
+TO authenticated
+USING (is_admin_user(auth.uid()))
+WITH CHECK (is_admin_user(auth.uid()));
+
+-- Only admins can delete videos
+DROP POLICY IF EXISTS "Admin can delete videos" ON videos;
+CREATE POLICY "Admin can delete videos"
+ON videos
+FOR DELETE
+TO authenticated
+USING (is_admin_user(auth.uid()));
 ```
 
 #### RLS Security Summary
@@ -341,6 +489,18 @@ USING (true);
 - ✅ Public read access (USING true allows all authenticated and anonymous users)
 - ✅ No insert/update/delete access for anyone (only SELECT policy defined)
 
+**Video Categories Table:**
+- ✅ Everyone can read all categories
+- ✅ Only admins can create, update, or delete categories
+- ✅ Admin authorization verified via is_admin_user() function
+
+**Videos Table:**
+- ✅ Everyone can view published videos (published = true)
+- ✅ Only admins can view all videos including unpublished ones
+- ✅ Only admins can create, update, delete videos
+- ✅ Video creation tracks created_by to identify admin who added video
+- ✅ Admin authorization verified via is_admin_user() function
+
 **Admin Authorization (Issue #1 Fix - Safe Non-Recursive Pattern):**
 - ✅ Uses SECURITY DEFINER function: `is_admin_user(auth.uid())`
 - ✅ Function has fixed search_path to prevent hijacking
@@ -354,7 +514,7 @@ USING (true);
 - ✅ Customers cannot upload proofs to another customer's order folder
 - ✅ Admin access uses safe SECURITY DEFINER function
 
-### 4. Set Up Private Storage Bucket for Payment Proofs
+### 4. Set Up Private Storage Buckets (Payment Proofs & Video Files)
 
 #### Dashboard Configuration Checklist
 
@@ -466,6 +626,129 @@ WHERE (
 - **Admin Access:** Can access all payment proofs in the bucket (via safe SECURITY DEFINER function)
 - **Anonymous Access:** Completely blocked - no policies for unauthenticated users
 - **Public URLs:** Cannot be generated or used to access files
+
+#### Create Video Storage Buckets (For Tutorial Videos)
+
+Follow these exact steps in your Supabase project dashboard to create buckets for video files and thumbnails:
+
+**Bucket 1: videos-content**
+
+1. In your Supabase project, go to **Storage** (left sidebar)
+2. Click **Create a new bucket** button
+3. Configure bucket settings:
+   - **Bucket name:** `videos-content`
+   - **Public bucket toggle:** OFF (must be turned OFF/disabled)
+   - Click **Create the bucket**
+
+**Bucket 2: video-thumbnails**
+
+1. Click **Create a new bucket** button again
+2. Configure bucket settings:
+   - **Bucket name:** `video-thumbnails`
+   - **Public bucket toggle:** OFF (must be turned OFF/disabled)
+   - Click **Create the bucket**
+
+#### Verify Video Bucket Privacy Settings
+
+After creating both buckets:
+1. Click on the `videos-content` bucket to open it
+2. Click **Settings** (gear icon or tab)
+3. Verify **Public bucket** toggle is OFF (disabled)
+4. Repeat for `video-thumbnails` bucket
+5. Save if prompted
+
+**Critical Security Requirements:**
+- ⚠️ **PUBLIC BUCKET TOGGLE MUST BE OFF** for both buckets
+- ⚠️ **Video files remain private** - only admins can upload/download
+- ⚠️ **Public users cannot upload or access files directly** - access controlled by application logic
+- ⚠️ **Storage security enforced via RLS policies** - see SQL below
+
+#### Add Storage Policies for Video Buckets via SQL
+
+After creating the buckets, go to SQL Editor and run these storage policies:
+
+```sql
+-- Storage Policies for videos-content bucket (PRIVATE)
+-- Only authenticated admins can upload, download, or delete video files
+
+-- Policy 1: Allow admins to upload video files
+DROP POLICY IF EXISTS "Admins can upload videos" ON storage.objects;
+CREATE POLICY "Admins can upload videos"
+ON storage.objects
+FOR INSERT
+WITH CHECK (
+  bucket_id = 'videos-content'
+  AND auth.role() = 'authenticated'
+  AND is_admin_user(auth.uid())
+);
+
+-- Policy 2: Allow admins to view/download all video files
+DROP POLICY IF EXISTS "Admins can view all videos" ON storage.objects;
+CREATE POLICY "Admins can view all videos"
+ON storage.objects
+FOR SELECT
+WHERE (
+  bucket_id = 'videos-content'
+  AND auth.role() = 'authenticated'
+  AND is_admin_user(auth.uid())
+);
+
+-- Policy 3: Allow admins to delete video files
+DROP POLICY IF EXISTS "Admins can delete videos" ON storage.objects;
+CREATE POLICY "Admins can delete videos"
+ON storage.objects
+FOR DELETE
+WHERE (
+  bucket_id = 'videos-content'
+  AND auth.role() = 'authenticated'
+  AND is_admin_user(auth.uid())
+);
+
+-- Storage Policies for video-thumbnails bucket (PRIVATE)
+-- Only authenticated admins can upload, download, or delete thumbnail images
+
+-- Policy 1: Allow admins to upload thumbnails
+DROP POLICY IF EXISTS "Admins can upload thumbnails" ON storage.objects;
+CREATE POLICY "Admins can upload thumbnails"
+ON storage.objects
+FOR INSERT
+WITH CHECK (
+  bucket_id = 'video-thumbnails'
+  AND auth.role() = 'authenticated'
+  AND is_admin_user(auth.uid())
+);
+
+-- Policy 2: Allow admins to view/download all thumbnails
+DROP POLICY IF EXISTS "Admins can view thumbnails" ON storage.objects;
+CREATE POLICY "Admins can view thumbnails"
+ON storage.objects
+FOR SELECT
+WHERE (
+  bucket_id = 'video-thumbnails'
+  AND auth.role() = 'authenticated'
+  AND is_admin_user(auth.uid())
+);
+
+-- Policy 3: Allow admins to delete thumbnails
+DROP POLICY IF EXISTS "Admins can delete thumbnails" ON storage.objects;
+CREATE POLICY "Admins can delete thumbnails"
+ON storage.objects
+FOR DELETE
+WHERE (
+  bucket_id = 'video-thumbnails'
+  AND auth.role() = 'authenticated'
+  AND is_admin_user(auth.uid())
+);
+```
+
+#### Video Storage Security Notes
+
+- **Bucket Privacy:** MUST be PRIVATE (public access OFF) for both buckets
+- **Admin Only Access:** Only authenticated admins can upload/download files
+- **Public Users:** Cannot upload files or access video storage directly
+- **Application Access:** Video URLs stored in database `videos` table
+- **Public Display:** Public users see published videos through `/video-tutorials` page
+- **RLS Protection:** Storage policies use safe `is_admin_user()` function to verify admin status
 
 ### 5. File Upload Security (Application & Database Level)
 
@@ -858,29 +1141,38 @@ SELECT proname FROM pg_proc WHERE proname = 'is_admin_user';
 -- Verify initial data loaded
 SELECT COUNT(*) as bot_count FROM bots;
 SELECT COUNT(*) as method_count FROM payment_methods;
+SELECT COUNT(*) as category_count FROM video_categories;
 
 -- Verify storage policies exist
 SELECT policyname FROM pg_policies WHERE tablename = 'objects' AND schemaname = 'storage';
+
+-- Verify video tables created
+SELECT tablename FROM pg_tables WHERE tablename IN ('video_categories', 'videos');
 ```
 
 Expected results:
-- RLS enabled on: users, orders, payment_methods, bots (4 tables)
-- 9 RLS policies created on database tables
-- 3 storage policies created on payment-proofs bucket
+- RLS enabled on: users, orders, payment_methods, bots, video_categories, videos (6 tables)
+- 16 RLS policies created on database tables (9 original + 7 for videos)
+- 9 storage policies created (3 for payment-proofs + 3 for videos-content + 3 for video-thumbnails)
 - 1 admin function (is_admin_user) exists
 - 3 bots loaded
 - 4 payment methods loaded
+- 7 video categories loaded (Bot Installation, Bot Setup, MT4/MT5 Tutorials, Account Setup, Trading Tutorials, Payment Tutorials, General Tutorials)
 
 ### Ready to Deploy
 
 This database setup is:
 - ✅ Complete and production-ready
+- ✅ Includes video management system for tutorials and trading demonstrations
 - ✅ Secure against all documented threats
 - ✅ Safely re-runnable without data loss
 - ✅ Non-recursive in all admin checks
 - ✅ Properly validated for order ownership
+- ✅ Video categories with 7 pre-loaded defaults
+- ✅ Row-level security on all 6 database tables
+- ✅ Admin-only storage for video files and thumbnails
 - ✅ Clearly documented with ON/OFF settings
-- ✅ Ready for the PrimeBot Markets application
+- ✅ Ready for the PrimeBot Markets application with complete video tutorial system
 
 ---
 

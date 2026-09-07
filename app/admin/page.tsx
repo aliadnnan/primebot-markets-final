@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import toast from 'react-hot-toast'
 import VideoManagement from './VideoManagement'
-import CategoryManagement from './CategoryManagement'
 
 interface AdminOrder {
   id: string
@@ -270,10 +269,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-8 border-b border-slate-700 overflow-x-auto">
+        <div className="flex gap-4 mb-8 border-b border-slate-700">
           <button
             onClick={() => setActiveTab('orders')}
-            className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap ${
+            className={`px-4 py-3 font-semibold transition-colors ${
               activeTab === 'orders'
                 ? 'text-blue-500 border-b-2 border-blue-500'
                 : 'text-slate-400 hover:text-slate-300'
@@ -283,23 +282,13 @@ export default function AdminDashboard() {
           </button>
           <button
             onClick={() => setActiveTab('videos')}
-            className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap ${
+            className={`px-4 py-3 font-semibold transition-colors ${
               activeTab === 'videos'
                 ? 'text-blue-500 border-b-2 border-blue-500'
                 : 'text-slate-400 hover:text-slate-300'
             }`}
           >
-            Video Management
-          </button>
-          <button
-            onClick={() => setActiveTab('categories')}
-            className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap ${
-              activeTab === 'categories'
-                ? 'text-blue-500 border-b-2 border-blue-500'
-                : 'text-slate-400 hover:text-slate-300'
-            }`}
-          >
-            Video Categories
+            Video Tutorials
           </button>
         </div>
 
@@ -307,13 +296,6 @@ export default function AdminDashboard() {
         {activeTab === 'videos' && (
           <div>
             <VideoManagement />
-          </div>
-        )}
-
-        {/* Categories Management Tab */}
-        {activeTab === 'categories' && (
-          <div>
-            <CategoryManagement />
           </div>
         )}
 
