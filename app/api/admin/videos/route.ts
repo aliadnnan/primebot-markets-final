@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { isMissingColumnError, withoutOptionalColumns, MIGRATION_HINT } from '@/lib/video-columns'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
-    const { title, description, category_id, video_url, thumbnail_url, published } = body
+    const { title, description, category_id, video_url, thumbnail_url, published, is_public, autoplay } = body
 
     // Validate required fields
     if (!title || !category_id || !video_url) {
@@ -56,19 +57,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create video
-    const { data: video, error: createError } = await supabaseAdmin.from('videos').insert([
-      {
-        title,
-        description: description || null,
-        category_id,
-        video_url,
-        thumbnail_url: thumbnail_url || null,
-        published: published || false,
-        created_by: userId,
-      },
-    ])
-    .select()
+    const payload = {
+      title,
+      description: description || null,
+      category_id,
+      video_url,
+      thumbnail_url: thumbnail_url || null,
+      published: published || false,
+      // Default to public so existing behaviour (published === visible) is preserved.
+      is_public: is_public === undefined ? true : is_public === true,
+      autoplay: autoplay === true,
+      created_by: userId,
+    }
+
+    // Create video. Retry without the optional visibility columns if the
+    // videos table has not been migrated yet.
+    let migrationPending = false
+    let { data: video, error: createError } = await supabaseAdmin
+      .from('videos')
+      .insert([payload])
+      .select()
+
+    if (createError && isMissingColumnError(createError)) {
+      migrationPending = true
+      const retry = await supabaseAdmin
+        .from('videos')
+        .insert([withoutOptionalColumns(payload)])
+        .select()
+      video = retry.data
+      createError = retry.error
+    }
 
     if (createError) {
       console.error('Error creating video:', createError)
@@ -78,6 +96,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Video created successfully',
+      warning: migrationPending ? MIGRATION_HINT : undefined,
       video: video?.[0],
     })
   } catch (error) {
@@ -146,9 +165,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: fetchError.message }, { status: 400 })
     }
 
+    const videosWithUrls = await Promise.all((videos || []).map(async (video: any) => {
+      const result = { ...video }
+      if (typeof result.video_url === 'string' && !/^https?:\/\//i.test(result.video_url)) {
+        const { data: signed } = await supabaseAdmin.storage.from('videos-content').createSignedUrl(result.video_url, 3600)
+        if (signed?.signedUrl) result.video_url = signed.signedUrl
+      }
+      if (typeof result.thumbnail_url === 'string' && !/^https?:\/\//i.test(result.thumbnail_url)) {
+        const { data: signed } = await supabaseAdmin.storage.from('video-thumbnails').createSignedUrl(result.thumbnail_url, 3600)
+        if (signed?.signedUrl) result.thumbnail_url = signed.signedUrl
+      }
+      return result
+    }))
+
     return NextResponse.json({
       success: true,
-      videos: videos || [],
+      videos: videosWithUrls,
     })
   } catch (error) {
     console.error('Unexpected error:', error)

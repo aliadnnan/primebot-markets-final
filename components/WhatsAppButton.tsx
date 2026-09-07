@@ -1,20 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { getWhatsAppLink } from '@/lib/constants'
 
 export default function WhatsAppButton() {
   const [isHovered, setIsHovered] = useState(false)
-  
-  const whatsappNumber = '03014879047'
-  // Remove any non-digit characters and add country code if needed
-  const phoneNumber = whatsappNumber.replace(/\D/g, '')
-  
-  // Pre-filled message for support
-  const message = "Hi! I need support with my PrimeBot Markets account and trading bots."
-  const encodedMessage = encodeURIComponent(message)
-  
-  // WhatsApp web URL - works on both mobile and desktop
-  const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
+
+  // Built from CONTACT_INFO so the number is in the international format that
+  // wa.me actually accepts (92... rather than the local 03... form).
+  const whatsappURL = getWhatsAppLink()
 
   return (
     <>

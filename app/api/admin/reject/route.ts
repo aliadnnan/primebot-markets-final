@@ -1,4 +1,4 @@
-import { supabaseServer } from '@/lib/supabase/server'
+import { getAdminUserFromRequest, supabaseServer } from '@/lib/supabase/server'
 import { sendPaymentRejectedEmail } from '@/lib/email'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -10,23 +10,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Rejection reason required' }, { status: 400 })
     }
 
-    // Get user from auth
-    const {
-      data: { user },
-    } = await supabaseServer.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check if user is admin
-    const { data: userData, error: userError } = await (supabaseServer as any)
-      .from('users')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single()
-
-    if (userError || !userData || !userData.is_admin) {
+    const adminUser = await getAdminUserFromRequest(request)
+    if (!adminUser) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

@@ -4,16 +4,56 @@ import type { Database } from './client'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase environment variables')
+/**
+ * Whether the server-side Supabase credentials are actually present.
+ *
+ * This module used to `throw` at import time when the variables were missing.
+ * Because API route modules are evaluated during `next build`, that turned a
+ * missing environment variable into a hard build failure on Vercel rather than
+ * a clear runtime error. We now construct the client with placeholders and let
+ * callers report the misconfiguration, so the build always succeeds and the
+ * failure surfaces as an explicit "Supabase is not configured" response.
+ */
+export const isSupabaseServerConfigured = Boolean(supabaseUrl && supabaseServiceKey)
+
+if (!isSupabaseServerConfigured) {
+  console.error(
+    '[supabase] Missing NEXT_PUBLIC_SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY. ' +
+      'Server-side Supabase calls will fail until these are set.'
+  )
 }
 
-export const supabaseServer = createClient<Database>(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-})
+export const supabaseServer = createClient<Database>(
+  supabaseUrl || 'http://localhost:54321',
+  supabaseServiceKey || 'missing-service-role-key',
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  }
+)
+
+
+export async function getAdminUserFromRequest(request: Request) {
+  if (!isSupabaseServerConfigured) return null
+
+  const authorization = request.headers.get('authorization') || request.headers.get('Authorization') || ''
+  const token = authorization.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
+  if (!token) return null
+
+  const { data: authData, error: authError } = await supabaseServer.auth.getUser(token)
+  if (authError || !authData.user) return null
+
+  const { data: profile, error: profileError } = await (supabaseServer as any)
+    .from('users')
+    .select('id, is_admin')
+    .eq('id', authData.user.id)
+    .single()
+
+  if (profileError || !profile?.is_admin) return null
+  return authData.user
+}
 
 // Helper to check if user is admin
 export async function isUserAdmin(userId: string): Promise<boolean> {

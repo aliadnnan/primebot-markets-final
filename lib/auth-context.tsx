@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { supabase } from './supabase/client'
 import type { User } from '@supabase/supabase-js'
 
@@ -8,11 +8,21 @@ interface AuthContextType {
   user: User | null
   loading: boolean
   isAdmin: boolean
+  /**
+   * True once the admin check for the current session has finished.
+   * Consumers MUST wait for this before deciding a user is "not an admin",
+   * otherwise they act on the initial `isAdmin === false` default and
+   * incorrectly reject real administrators.
+   */
+  adminChecked: boolean
+  adminCheckFailed: boolean
+  refreshAdminStatus: () => Promise<void>
   signUp: (email: string, password: string, fullName: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
   updatePassword: (newPassword: string) => Promise<void>
+  getAccessToken: () => Promise<string | null>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -21,37 +31,98 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [adminChecked, setAdminChecked] = useState(false)
+  const [adminCheckFailed, setAdminCheckFailed] = useState(false)
 
-  // Check if user is admin
-  const checkAdminStatus = async (userId: string) => {
+  // Guards against out-of-order async resolution when several auth events
+  // arrive close together (e.g. INITIAL_SESSION followed by SIGNED_IN).
+  const resolutionRef = useRef(0)
+
+  // Ask the server whether the signed-in user is an administrator.
+  // Returns the resolved flag so callers can sequence state updates safely.
+  const fetchAdminStatus = async (): Promise<{ isAdmin: boolean; failed: boolean }> => {
     try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData.session?.access_token
+      if (!token) return { isAdmin: false, failed: false }
+
       const response = await fetch('/api/auth/check-admin', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       })
+
+      // 401 means "not a valid session" -> definitively not an admin.
+      // 5xx means the check itself broke -> do NOT treat that as "not admin".
+      if (response.status >= 500) {
+        console.error('Admin check failed with server error:', response.status)
+        return { isAdmin: false, failed: true }
+      }
+
       const data = await response.json()
-      setIsAdmin(data.isAdmin || false)
+      return { isAdmin: data.isAdmin === true, failed: false }
     } catch (error) {
       console.error('Error checking admin status:', error)
-      setIsAdmin(false)
+      return { isAdmin: false, failed: true }
     }
   }
 
+  // Applies a session to context state. `loading` and `adminChecked` stay
+  // false/true in the correct order so that no consumer ever sees
+  // "signed in, not loading, not admin" while the check is still in flight.
+  const applySession = async (nextUser: User | null) => {
+    const token = ++resolutionRef.current
+
+    setUser(nextUser)
+
+    if (!nextUser) {
+      if (token !== resolutionRef.current) return
+      setIsAdmin(false)
+      setAdminCheckFailed(false)
+      setAdminChecked(true)
+      setLoading(false)
+      return
+    }
+
+    setAdminChecked(false)
+    const result = await fetchAdminStatus()
+
+    // A newer auth event superseded this one - discard the stale result.
+    if (token !== resolutionRef.current) return
+
+    setIsAdmin(result.isAdmin)
+    setAdminCheckFailed(result.failed)
+    setAdminChecked(true)
+    setLoading(false)
+  }
+
+  const refreshAdminStatus = async () => {
+    if (!user) return
+    setAdminChecked(false)
+    const token = resolutionRef.current
+    const result = await fetchAdminStatus()
+    if (token !== resolutionRef.current) return
+    setIsAdmin(result.isAdmin)
+    setAdminCheckFailed(result.failed)
+    setAdminChecked(true)
+  }
+
   useEffect(() => {
-    // Get current session
+    let active = true
+
     const getSession = async () => {
       try {
         const {
           data: { session },
         } = await supabase.auth.getSession()
-        setUser(session?.user || null)
-        if (session?.user) {
-          await checkAdminStatus(session.user.id)
-        }
-        setLoading(false)
+        if (!active) return
+        await applySession(session?.user || null)
       } catch (error) {
         console.error('Error getting session:', error)
+        if (!active) return
+        setAdminChecked(true)
         setLoading(false)
       }
     }
@@ -61,16 +132,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Subscribe to auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user || null)
-      if (session?.user) {
-        await checkAdminStatus(session.user.id)
-      } else {
-        setIsAdmin(false)
-      }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return
+      // Deliberately not awaited: onAuthStateChange callbacks must return
+      // quickly, and applySession sequences its own state updates.
+      void applySession(session?.user || null)
     })
 
     return () => {
+      active = false
       subscription?.unsubscribe()
     }
   }, [])
@@ -127,6 +197,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error
       setUser(null)
       setIsAdmin(false)
+      setAdminCheckFailed(false)
+      setAdminChecked(true)
     } catch (error) {
       console.error('Error signing out:', error)
       throw error
@@ -144,6 +216,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error resetting password:', error)
       throw error
     }
+  }
+
+  const getAccessToken = async (): Promise<string | null> => {
+    const { data } = await supabase.auth.getSession()
+    return data.session?.access_token || null
   }
 
   const updatePassword = async (newPassword: string) => {
@@ -165,11 +242,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         loading,
         isAdmin,
+        adminChecked,
+        adminCheckFailed,
+        refreshAdminStatus,
         signUp,
         signIn,
         signOut,
         resetPassword,
         updatePassword,
+        getAccessToken,
       }}
     >
       {children}

@@ -337,3 +337,22 @@ For deployment issues:
 ---
 
 **Last Updated:** January 2025
+
+## Admin Panel deployment checklist
+
+Before testing `/admin` on Vercel:
+
+1. Add the existing Supabase environment variables to the Vercel project settings. Do not commit service-role keys to GitHub.
+2. Make sure the account that should control the website already exists in Supabase Authentication and has a matching row in the `users` table.
+3. In the Supabase SQL Editor, mark only the intended administrator as admin using:
+
+```sql
+UPDATE users
+SET is_admin = true
+WHERE email = 'YOUR_ADMIN_EMAIL';
+```
+
+4. Redeploy after adding or changing Vercel environment variables.
+5. Log in with the authorized administrator account, then open `/admin` directly.
+
+The public `/api/videos` endpoint only returns published videos. Draft/private videos remain hidden from visitors.
