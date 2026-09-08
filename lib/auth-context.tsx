@@ -70,12 +70,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(currentUser)
 
         if (currentUser) {
-          // Use the last known value immediately, then verify it in the background.
+          // Keep a successful admin result for this browser tab. After an admin
+          // has already been verified, do not re-run verification during normal
+          // token refreshes or tab switches, because that can unmount the admin
+          // UI and cancel an in-progress upload form.
+          let hasCachedAdmin = false
           try {
-            const cached = sessionStorage.getItem(`primebot-admin-${currentUser.id}`)
-            if (cached === 'true') setIsAdmin(true)
+            hasCachedAdmin = sessionStorage.getItem(`primebot-admin-${currentUser.id}`) === 'true'
           } catch {}
-          await checkAdminStatus(currentUser.id, false)
+
+          if (hasCachedAdmin) {
+            setIsAdmin(true)
+          } else {
+            await checkAdminStatus(currentUser.id, false)
+          }
         } else {
           setIsAdmin(false)
         }
@@ -97,13 +105,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      // Do not reset admin state on TOKEN_REFRESHED. Verify in the background.
+      // Do not re-verify on TOKEN_REFRESHED or when the browser tab regains focus.
+      // Server-side admin APIs still validate every protected request, so access
+      // remains protected without resetting the client-side admin dashboard.
       if (event === 'SIGNED_OUT') {
+        try { sessionStorage.removeItem(`primebot-admin-${nextUser?.id || ''}`) } catch {}
         setIsAdmin(false)
-      } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+      } else if (event === 'SIGNED_IN') {
         void checkAdminStatus(nextUser.id, false)
+      } else if (event === 'USER_UPDATED') {
+        // Keep the existing verified state for the current tab. A fresh page load
+        // or explicit sign-out/sign-in will perform a new verification.
       } else if (event === 'TOKEN_REFRESHED') {
-        void checkAdminStatus(nextUser.id, true)
+        // Intentionally do nothing: refreshing a token must not reset an active upload.
       }
     })
 
