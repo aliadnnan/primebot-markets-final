@@ -1,8 +1,27 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
 const adminEmail = process.env.ADMIN_EMAIL || 'chadnan76@gmail.com'
 const emailFrom = process.env.EMAIL_FROM || 'noreply@primebot-markets.com'
+
+/**
+ * Lazily created Resend client.
+ *
+ * `new Resend(undefined)` throws "Missing API key". Because this module is
+ * imported by API routes, doing that at module scope made `next build` fail
+ * outright whenever RESEND_API_KEY was not set at build time - which is the
+ * default on a fresh Vercel project. Creating the client on first use keeps the
+ * build green and turns a missing key into a skipped email instead of a crash.
+ */
+let resendClient: Resend | null = null
+
+function getResend(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) return null
+  if (!resendClient) {
+    resendClient = new Resend(apiKey)
+  }
+  return resendClient
+}
 
 export interface EmailParams {
   to: string
@@ -12,6 +31,15 @@ export interface EmailParams {
 
 // Send email function
 export async function sendEmail({ to, subject, html }: EmailParams) {
+  const resend = getResend()
+
+  // Email is an optional integration. Without a key, skip sending rather than
+  // failing the surrounding operation (e.g. approving an order).
+  if (!resend) {
+    console.warn('RESEND_API_KEY is not set - skipping email to', to)
+    return null
+  }
+
   try {
     const response = await resend.emails.send({
       from: emailFrom,

@@ -3,7 +3,22 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+/**
+ * Browser Supabase client.
+ *
+ * The session options are stated explicitly rather than relying on defaults:
+ * the administrator's session must survive tab switches, navigating away and
+ * coming back, and page refreshes, and must refresh itself before expiring.
+ * Re-authentication should only ever be required when the session has genuinely
+ * expired or the user signed out.
+ */
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+})
 
 export type Database = {
   public: {
@@ -138,6 +153,10 @@ export type Database = {
           video_url: string
           thumbnail_url: string | null
           published: boolean
+          // Added by sql/01_video_visibility_and_autoplay.sql. Optional so the
+          // types stay accurate before that migration has been run.
+          is_public?: boolean
+          autoplay?: boolean
           created_by: string
           created_at: string
           updated_at: string
@@ -150,6 +169,8 @@ export type Database = {
           video_url: string
           thumbnail_url?: string | null
           published?: boolean
+          is_public?: boolean
+          autoplay?: boolean
           created_by: string
         }
         Update: {
@@ -159,6 +180,8 @@ export type Database = {
           video_url?: string
           thumbnail_url?: string | null
           published?: boolean
+          is_public?: boolean
+          autoplay?: boolean
           updated_at?: string
         }
       }

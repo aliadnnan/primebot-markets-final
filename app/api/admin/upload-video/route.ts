@@ -4,7 +4,116 @@ import { NextRequest, NextResponse } from 'next/server'
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024 // 500MB
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm']
 
+/**
+ * Creates a short-lived signed upload URL so the BROWSER can send the file
+ * straight to Supabase Storage.
+ *
+ * Why this exists: the FormData branch below streams the file through this
+ * serverless function, and a serverless request body is capped at about 4.5 MB
+ * on Vercel. The upload form advertises 500 MB, so any realistic video went out
+ * with a body far over that cap and the request was rejected before it reached
+ * this code - which is what made uploads look like they silently cancelled.
+ *
+ * A signed upload URL bypasses the function entirely: the bytes go
+ * browser -> Supabase, so the cap does not apply. Admin authorization is still
+ * enforced here, before the URL is handed out, and the URL is scoped to one
+ * single object path.
+ *
+ * Send `Content-Type: application/json` to use this mode. The FormData mode is
+ * kept as a fallback for small files and local development.
+ */
+async function createSignedUpload(request: NextRequest) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  const authHeader = request.headers.get('Authorization')
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return NextResponse.json({ success: false, error: 'Server configuration error' }, { status: 500 })
+  }
+  if (!authHeader) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+  const supabaseUser = createClient(supabaseUrl, supabaseServiceKey, {
+    global: { headers: { Authorization: authHeader } },
+  })
+
+  const { data: userData, error: userError } = await supabaseUser.auth.getUser()
+  if (userError || !userData.user) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { data: userProfile, error: profileError } = await supabaseAdmin
+    .from('users')
+    .select('is_admin')
+    .eq('id', userData.user.id)
+    .single()
+
+  if (profileError || !userProfile?.is_admin) {
+    return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 })
+  }
+
+  const body = await request.json().catch(() => ({}))
+  const rawName = typeof body?.filename === 'string' ? body.filename : ''
+  const contentType = typeof body?.contentType === 'string' ? body.contentType : ''
+  const size = typeof body?.size === 'number' ? body.size : 0
+
+  if (contentType && !ALLOWED_VIDEO_TYPES.includes(contentType)) {
+    return NextResponse.json(
+      { success: false, error: `Invalid file type. Allowed types: ${ALLOWED_VIDEO_TYPES.join(', ')}` },
+      { status: 400 }
+    )
+  }
+
+  if (size && size > MAX_VIDEO_SIZE) {
+    return NextResponse.json(
+      { success: false, error: `File size exceeds maximum of ${MAX_VIDEO_SIZE / 1024 / 1024}MB` },
+      { status: 400 }
+    )
+  }
+
+  // Server-generated path - the client never chooses where the object lands.
+  const extension = (rawName.split('.').pop() || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)
+  const filename = `videos/${Date.now()}-${Math.random().toString(36).substring(2, 8)}${
+    extension ? `.${extension}` : ''
+  }`
+
+  const { data, error } = await supabaseAdmin.storage
+    .from('videos-content')
+    .createSignedUploadUrl(filename)
+
+  if (error || !data) {
+    console.error('Error creating signed upload URL:', error)
+    return NextResponse.json(
+      { success: false, error: error?.message || 'Could not create upload URL' },
+      { status: 400 }
+    )
+  }
+
+  return NextResponse.json({
+    success: true,
+    mode: 'signed',
+    signedUrl: data.signedUrl,
+    token: data.token,
+    path: filename,
+  })
+}
+
 export async function POST(request: NextRequest) {
+  // JSON body -> hand back a signed upload URL for a direct browser upload.
+  if ((request.headers.get('content-type') || '').includes('application/json')) {
+    try {
+      return await createSignedUpload(request)
+    } catch (error) {
+      console.error('Unexpected error creating signed upload URL:', error)
+      return NextResponse.json(
+        { success: false, error: 'An unexpected error occurred' },
+        { status: 500 }
+      )
+    }
+  }
+
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
