@@ -124,11 +124,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error, stage, code: code ?? null }, { status: 400 })
     }
 
+    const saved = video?.[0]
+
+    if (!saved) {
+      // Should not happen: .select() returned nothing despite no error.
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'The insert reported no error but returned no row, so the video record cannot be confirmed. Check public.videos before retrying.',
+          stage: 'insert-no-row',
+        },
+        { status: 500 }
+      )
+    }
+
+    console.log('[admin/videos] Video row created.', {
+      id: saved.id,
+      published: saved.published,
+      is_public: saved.is_public,
+      category_id: saved.category_id,
+    })
+
     return NextResponse.json({
       success: true,
       message: 'Video created successfully',
       warning: migrationPending ? MIGRATION_HINT : undefined,
-      video: video?.[0],
+      // Echoed back so the UI can confirm what the DATABASE actually stored,
+      // rather than what the form believed it sent.
+      saved: {
+        id: saved.id,
+        published: saved.published === true,
+        is_public: saved.is_public,
+        autoplay: saved.autoplay,
+        category_id: saved.category_id,
+      },
+      video: saved,
     })
   } catch (error) {
     console.error('Unexpected error:', error)
@@ -178,8 +209,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 })
     }
 
-    // Get all videos with categories
-    const { data: videos, error: fetchError } = await supabaseAdmin
+    // Get ALL videos - no published/is_public filter. The Admin Panel must show
+    // published, draft, public and private videos alike.
+    //
+    // The embedded `video_categories (...)` join depends on PostgREST resolving
+    // the foreign key through its schema cache. If that resolution fails, the
+    // WHOLE query errors and every video disappears from the Admin Panel - a
+    // category relationship problem must never be able to hide all videos. So
+    // the join is attempted first and, on any failure, the videos are fetched
+    // without it and category names are attached from a second query.
+    let videos: any[] | null = null
+    let joinWarning: string | undefined
+
+    const withJoin = await supabaseAdmin
       .from('videos')
       .select(`
         *,
@@ -191,26 +233,88 @@ export async function GET(request: NextRequest) {
       `)
       .order('created_at', { ascending: false })
 
-    if (fetchError) {
-      console.error('Error fetching videos:', fetchError)
-      return NextResponse.json({ success: false, error: fetchError.message }, { status: 400 })
+    if (withJoin.error) {
+      console.error(
+        '[admin/videos] Category join query failed, falling back to a join-free query:',
+        withJoin.error
+      )
+
+      const withoutJoin = await supabaseAdmin
+        .from('videos')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (withoutJoin.error) {
+        console.error('[admin/videos] Join-free query also failed:', withoutJoin.error)
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Could not read the videos table: ${withoutJoin.error.message} (code ${
+              (withoutJoin.error as any).code ?? 'none'
+            })`,
+            stage: 'videos-select',
+          },
+          { status: 400 }
+        )
+      }
+
+      // Attach category info separately so the UI still shows names.
+      const { data: categories } = await supabaseAdmin
+        .from('video_categories')
+        .select('id, name, description')
+
+      const byId = new Map((categories || []).map((c: any) => [c.id, c]))
+      videos = (withoutJoin.data || []).map((video: any) => ({
+        ...video,
+        video_categories: byId.get(video.category_id) || null,
+      }))
+
+      joinWarning = `The category relationship query failed (${withJoin.error.message}). Videos are listed without it; category names were attached separately.`
+    } else {
+      videos = withJoin.data
     }
 
-    const videosWithUrls = await Promise.all((videos || []).map(async (video: any) => {
-      const result = { ...video }
-      if (typeof result.video_url === 'string' && !/^https?:\/\//i.test(result.video_url)) {
-        const { data: signed } = await supabaseAdmin.storage.from(VIDEO_BUCKET).createSignedUrl(result.video_url, 3600)
-        if (signed?.signedUrl) result.video_url = signed.signedUrl
-      }
-      if (typeof result.thumbnail_url === 'string' && !/^https?:\/\//i.test(result.thumbnail_url)) {
-        const { data: signed } = await supabaseAdmin.storage.from(THUMBNAIL_BUCKET).createSignedUrl(result.thumbnail_url, 3600)
-        if (signed?.signedUrl) result.thumbnail_url = signed.signedUrl
-      }
-      return result
-    }))
+    // Signing is best-effort and isolated per video: a single missing storage
+    // object must not throw and wipe out the entire listing.
+    const videosWithUrls = await Promise.all(
+      (videos || []).map(async (video: any) => {
+        const result = { ...video }
+
+        if (typeof result.video_url === 'string' && !/^https?:\/\//i.test(result.video_url)) {
+          try {
+            const { data: signed, error: signError } = await supabaseAdmin.storage
+              .from(VIDEO_BUCKET)
+              .createSignedUrl(result.video_url, 3600)
+            if (signed?.signedUrl) result.video_url = signed.signedUrl
+            else if (signError) {
+              result.storage_warning = `Could not sign the video URL from bucket "${VIDEO_BUCKET}": ${signError.message}`
+            }
+          } catch (error) {
+            result.storage_warning = `Could not sign the video URL: ${
+              error instanceof Error ? error.message : String(error)
+            }`
+          }
+        }
+
+        if (typeof result.thumbnail_url === 'string' && !/^https?:\/\//i.test(result.thumbnail_url)) {
+          try {
+            const { data: signed } = await supabaseAdmin.storage
+              .from(THUMBNAIL_BUCKET)
+              .createSignedUrl(result.thumbnail_url, 3600)
+            if (signed?.signedUrl) result.thumbnail_url = signed.signedUrl
+          } catch {
+            // A missing thumbnail is cosmetic - leave the raw path.
+          }
+        }
+
+        return result
+      })
+    )
 
     return NextResponse.json({
       success: true,
+      count: videosWithUrls.length,
+      warning: joinWarning,
       videos: videosWithUrls,
     })
   } catch (error) {

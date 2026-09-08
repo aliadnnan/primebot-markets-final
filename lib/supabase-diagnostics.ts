@@ -77,6 +77,14 @@ export function decodeSupabaseKey(key: string): {
   }
 }
 
+/** Local copy of the missing-column test, to keep this module dependency-light. */
+function isMissingColumnErrorLocal(error: any): boolean {
+  if (!error) return false
+  if (error.code === '42703' || error.code === 'PGRST204') return true
+  const message = `${error.message || ''} ${error.details || ''}`
+  return /is_public|autoplay/.test(message) && /does not exist|could not find/i.test(message)
+}
+
 /** Turns a Supabase Storage error into an explicit, operator-facing sentence. */
 export function describeStorageError(
   bucket: string,
@@ -340,6 +348,143 @@ export async function runSupabaseDiagnostics(): Promise<{
         detail: `Unexpected error: ${error instanceof Error ? error.message : String(error)}`,
       })
     }
+  }
+
+  // --- 5b. VIDEO RECORDS: does the row actually exist, and which query
+  //         hides it? ---------------------------------------------------
+  //
+  // A successful upload to Storage does NOT mean the videos row was created.
+  // These checks read public.videos directly and then re-run the EXACT queries
+  // used by the admin listing and the public page, so a failure can be
+  // attributed to one specific query rather than guessed at.
+  try {
+    // Total rows, ignoring every filter and every join.
+    const { count: totalCount, error: countError } = await (admin as any)
+      .from('videos')
+      .select('*', { count: 'exact', head: true })
+
+    if (countError) {
+      checks.push({
+        name: 'Video rows in public.videos',
+        status: 'fail',
+        detail: `Could not count rows: ${countError.message} (code ${countError.code ?? 'none'})`,
+      })
+    } else {
+      checks.push({
+        name: 'Video rows in public.videos',
+        status: (totalCount ?? 0) > 0 ? 'ok' : 'warn',
+        detail:
+          (totalCount ?? 0) > 0
+            ? `${totalCount} row(s) exist. If the Admin Panel shows none, the listing query or the response handling is at fault, not the insert.`
+            : 'ZERO rows. The file may be in Storage, but no database record was ever created - the insert is failing. Upload again and read the error shown in the form.',
+      })
+    }
+
+    // The newest rows, with every field that matters, no join involved.
+    const { data: newest, error: newestError } = await (admin as any)
+      .from('videos')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    if (newestError) {
+      checks.push({
+        name: 'Newest video records',
+        status: 'fail',
+        detail: `Could not read rows: ${newestError.message} (code ${newestError.code ?? 'none'})`,
+      })
+    } else if (newest && newest.length) {
+      const hasIsPublic = Object.prototype.hasOwnProperty.call(newest[0], 'is_public')
+      const hasAutoplay = Object.prototype.hasOwnProperty.call(newest[0], 'autoplay')
+
+      checks.push({
+        name: 'Columns is_public / autoplay',
+        status: hasIsPublic && hasAutoplay ? 'ok' : 'warn',
+        detail:
+          hasIsPublic && hasAutoplay
+            ? 'Both columns exist.'
+            : `Missing: ${[!hasIsPublic && 'is_public', !hasAutoplay && 'autoplay']
+                .filter(Boolean)
+                .join(', ')}. sql/01_video_visibility_and_autoplay.sql has not been run, so the Public/Private and Autoplay settings are ignored on save. The public page then falls back to filtering on published only.`,
+      })
+
+      newest.forEach((row: any, index: number) => {
+        checks.push({
+          name: `Video #${index + 1}: ${row.title || '(no title)'}`,
+          status: 'ok',
+          detail:
+            `id=${row.id} | published=${row.published} | is_public=${
+              hasIsPublic ? row.is_public : 'column missing'
+            } | autoplay=${hasAutoplay ? row.autoplay : 'column missing'} | category_id=${
+              row.category_id
+            } | video_url=${String(row.video_url ?? '').slice(0, 70)} | thumbnail_url=${
+              row.thumbnail_url ? String(row.thumbnail_url).slice(0, 50) : 'none'
+            } | created_at=${row.created_at}`,
+        })
+      })
+    } else {
+      checks.push({
+        name: 'Newest video records',
+        status: 'warn',
+        detail: 'No rows returned.',
+      })
+    }
+
+    // Re-run the ADMIN listing query exactly as the API does, join included.
+    const { data: adminRows, error: adminError } = await (admin as any)
+      .from('videos')
+      .select('*, video_categories ( id, name, description )')
+      .order('created_at', { ascending: false })
+
+    checks.push({
+      name: 'Admin listing query (with category join)',
+      status: adminError ? 'fail' : 'ok',
+      detail: adminError
+        ? `FAILS: ${adminError.message} (code ${adminError.code ?? 'none'}). This single failure would hide EVERY video from the Admin Panel. The listing now falls back to a join-free query automatically.`
+        : `Returns ${adminRows?.length ?? 0} row(s). This query applies no published/is_public filter, so it should return every video.`,
+    })
+
+    // Re-run the PUBLIC page query exactly as the API does.
+    const { data: publicRows, error: publicError } = await (admin as any)
+      .from('videos')
+      .select('*, video_categories ( id, name, description )')
+      .eq('published', true)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+
+    if (publicError) {
+      const columnMissing = isMissingColumnErrorLocal(publicError)
+      const { data: fallbackRows, error: fallbackError } = await (admin as any)
+        .from('videos')
+        .select('*')
+        .eq('published', true)
+        .order('created_at', { ascending: false })
+
+      checks.push({
+        name: 'Public page query (published + is_public)',
+        status: columnMissing && !fallbackError ? 'warn' : 'fail',
+        detail: columnMissing
+          ? `is_public does not exist yet, so the public page falls back to published=true only, which returns ${
+              fallbackRows?.length ?? 0
+            } row(s). Raw: ${publicError.message}`
+          : `FAILS: ${publicError.message} (code ${publicError.code ?? 'none'})`,
+      })
+    } else {
+      checks.push({
+        name: 'Public page query (published + is_public)',
+        status: (publicRows?.length ?? 0) > 0 ? 'ok' : 'warn',
+        detail:
+          (publicRows?.length ?? 0) > 0
+            ? `Returns ${publicRows?.length} row(s) - these are what visitors see.`
+            : 'Returns ZERO rows. Videos exist but none has published=true AND is_public=true. Use Publish / Make Public in Video Management, or tick both boxes on upload.',
+      })
+    }
+  } catch (error) {
+    checks.push({
+      name: 'Video record inspection',
+      status: 'fail',
+      detail: `Unexpected error: ${error instanceof Error ? error.message : String(error)}`,
+    })
   }
 
   // --- 6. Foreign key prerequisite: at least one category ----------------

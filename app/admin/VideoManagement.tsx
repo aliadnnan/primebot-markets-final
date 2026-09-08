@@ -27,6 +27,8 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
   const [videos, setVideos] = useState<VideoWithCategory[]>([])
   const [categories, setCategories] = useState<VideoCategory[]>([])
   const [categoryError, setCategoryError] = useState<string | null>(null)
+  const [videoLoadError, setVideoLoadError] = useState<string | null>(null)
+  const [listWarning, setListWarning] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [togglingId, setTogglingId] = useState<string | null>(null)
   const [showUploadModal, setShowUploadModal] = useState(false)
@@ -178,16 +180,29 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
   const loadVideos = async () => {
     try {
       setLoading(true)
+      setVideoLoadError(null)
+      setListWarning(null)
+
       const response = await adminFetch('/api/admin/videos')
-      const data = await response.json()
-      if (data.success) {
-        setVideos(data.videos)
+      const data = await response.json().catch(() => null)
+
+      if (response.ok && data?.success) {
+        setVideos(data.videos || [])
+        if (data.warning) setListWarning(data.warning)
       } else {
-        toast.error(data.error || 'Failed to load videos')
+        // A failed request must NOT render as "No videos uploaded yet" - that
+        // is indistinguishable from an empty table and hid the real cause.
+        const message =
+          data?.error || `Could not load videos (HTTP ${response.status})`
+        console.error('[admin] Loading videos failed:', { status: response.status, data })
+        setVideoLoadError(message)
+        toast.error(message)
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to load videos'
       console.error('Error loading videos:', error)
-      toast.error('Failed to load videos')
+      setVideoLoadError(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
@@ -351,7 +366,33 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
         )
       }
 
-      toast.success('Video uploaded and saved successfully')
+      // Report what the DATABASE stored, not what the form believed it sent.
+      const saved = createData.saved
+      if (saved) {
+        const publicState =
+          saved.is_public === undefined
+            ? 'Public/Private not stored (run sql/01)'
+            : saved.is_public
+            ? 'Public'
+            : 'Private'
+        toast.success(
+          `Saved to database. ${saved.published ? 'Published' : 'Draft'} - ${publicState}.`,
+          { duration: 6000 }
+        )
+        if (!saved.published) {
+          toast(
+            'This video is a DRAFT, so it will not appear on the public Video Tutorials page. Use Publish in the list below.',
+            { duration: 9000 }
+          )
+        } else if (saved.is_public === false) {
+          toast(
+            'This video is PRIVATE, so visitors cannot see it. Use Make Public in the list below.',
+            { duration: 9000 }
+          )
+        }
+      } else {
+        toast.success('Video uploaded and saved successfully')
+      }
       if (createData.warning) toast(createData.warning, { duration: 8000 })
       if (thumbnailWarning) {
         toast(`Video saved, but the thumbnail failed: ${thumbnailWarning}`, { duration: 8000 })
@@ -580,6 +621,14 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
         </div>
       )}
 
+      {/* Listing fell back to a join-free query */}
+      {listWarning && (
+        <div className="mb-6 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+          <p className="text-yellow-400 font-semibold text-sm">Category relationship warning</p>
+          <p className="text-xs text-yellow-300/80 mt-1 break-words">{listWarning}</p>
+        </div>
+      )}
+
       {/* Category loading problem / no categories yet */}
       {categoryError ? (
         <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
@@ -614,9 +663,42 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
         <div className="text-center py-12">
           <p className="text-slate-400">Loading videos...</p>
         </div>
+      ) : videoLoadError ? (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6">
+          <p className="text-red-400 font-semibold mb-1">Could not load the video list</p>
+          <p className="text-sm text-red-300/90 mb-2 break-words">{videoLoadError}</p>
+          <p className="text-xs text-slate-400 mb-4">
+            This is a loading failure, not an empty library — your videos may still exist. Run
+            Diagnostics to inspect public.videos directly.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={loadVideos}
+              className="px-4 py-2 border border-red-500/40 text-red-300 rounded-lg hover:bg-red-500/10 transition text-sm"
+            >
+              Try again
+            </button>
+            <button
+              onClick={runDiagnostics}
+              className="px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition text-sm"
+            >
+              Run Diagnostics
+            </button>
+          </div>
+        </div>
       ) : videos.length === 0 ? (
         <div className="text-center py-12 bg-slate-700/50 rounded-lg">
           <p className="text-slate-400">No videos uploaded yet</p>
+          <p className="text-xs text-slate-500 mt-2">
+            The videos table returned zero rows. If you have just uploaded one, run Diagnostics — it
+            reads public.videos directly and reports whether the record was created.
+          </p>
+          <button
+            onClick={runDiagnostics}
+            className="mt-3 text-xs px-3 py-1.5 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition"
+          >
+            Run Diagnostics
+          </button>
           <button
             onClick={() => setShowUploadModal(true)}
             className="mt-4 text-blue-400 hover:text-blue-300"

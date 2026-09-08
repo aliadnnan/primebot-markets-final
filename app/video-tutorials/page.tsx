@@ -163,6 +163,7 @@ export default function VideoTutorialsPage() {
   const [videos, setVideos] = useState<VideoWithCategory[]>([])
   const [categories, setCategories] = useState<VideoCategory[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedVideo, setSelectedVideo] = useState<VideoWithCategory | null>(null)
@@ -175,13 +176,24 @@ export default function VideoTutorialsPage() {
   const loadVideos = async () => {
     try {
       setLoading(true)
+      setLoadError(null)
       const response = await fetch('/api/videos?published=true')
-      const data = await response.json()
-      if (data.success) {
-        setVideos(data.videos)
+      const data = await response.json().catch(() => null)
+      if (response.ok && data?.success) {
+        setVideos(data.videos || [])
+      } else {
+        // Previously a failed request was swallowed, so a server-side problem
+        // looked identical to "no tutorials published yet".
+        const message = data?.error || `Could not load videos (HTTP ${response.status})`
+        console.error('[video-tutorials] Loading videos failed:', {
+          status: response.status,
+          data,
+        })
+        setLoadError(message)
       }
     } catch (error) {
       console.error('Error loading videos:', error)
+      setLoadError(error instanceof Error ? error.message : 'Could not load videos')
     } finally {
       setLoading(false)
     }
@@ -275,6 +287,8 @@ export default function VideoTutorialsPage() {
         <div className="mb-6 text-slate-400">
           {loading ? (
             <p>Loading videos...</p>
+          ) : loadError ? (
+            <p className="text-red-400">Could not load tutorials</p>
           ) : filteredVideos.length === 0 ? (
             <p>No videos found</p>
           ) : (
@@ -286,6 +300,24 @@ export default function VideoTutorialsPage() {
         {loading ? (
           <div className="text-center py-24">
             <p className="text-slate-400">Loading tutorials...</p>
+          </div>
+        ) : loadError ? (
+          <div className="max-w-xl mx-auto bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
+            <p className="text-red-400 font-semibold mb-1">Tutorials could not be loaded</p>
+            <p className="text-sm text-red-300/90 mb-4 break-words">{loadError}</p>
+            <button
+              onClick={loadVideos}
+              className="px-5 py-2 border border-red-500/40 text-red-300 rounded-lg hover:bg-red-500/10 transition"
+            >
+              Try again
+            </button>
+          </div>
+        ) : videos.length === 0 ? (
+          <div className="text-center py-24">
+            <p className="text-slate-400 text-lg">No tutorials have been published yet</p>
+            <p className="text-sm text-slate-500 mt-2">
+              Videos appear here once an administrator publishes them and marks them public.
+            </p>
           </div>
         ) : filteredVideos.length === 0 ? (
           <div className="text-center py-24">
