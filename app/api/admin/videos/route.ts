@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { isMissingColumnError, withoutOptionalColumns, MIGRATION_HINT } from '@/lib/video-columns'
+import { VIDEO_BUCKET, THUMBNAIL_BUCKET } from '@/lib/storage-buckets'
 
 export async function POST(request: NextRequest) {
   try {
@@ -89,8 +90,38 @@ export async function POST(request: NextRequest) {
     }
 
     if (createError) {
-      console.error('Error creating video:', createError)
-      return NextResponse.json({ success: false, error: createError.message }, { status: 400 })
+      console.error('[videos] Database insert failed:', createError)
+
+      // Name the exact database problem instead of passing through raw SQL text.
+      const code = (createError as any).code
+      let error = `Database insert failed: ${createError.message}`
+      let stage = 'database-insert'
+
+      if (code === '23503') {
+        // foreign_key_violation - the referenced category row is gone.
+        error =
+          `Category reference failed: the selected category does not exist in public.video_categories ` +
+          `(foreign key on videos.category_id). It may have been deleted in another tab. ` +
+          `Open Video Categories, confirm the category exists, then reselect it. Raw error: ${createError.message}`
+        stage = 'category-reference'
+      } else if (code === '42P01') {
+        // undefined_table
+        error =
+          `Database table missing: the videos table does not exist in the connected Supabase project. ` +
+          `Run the video schema from DATABASE_SETUP.md in that project. Raw error: ${createError.message}`
+        stage = 'table-missing'
+      } else if (code === '23502') {
+        // not_null_violation
+        error = `A required field was empty: ${createError.message}`
+        stage = 'missing-field'
+      } else if (code === '42501') {
+        error =
+          `Database permission denied inserting into videos - check the RLS policies for this table. ` +
+          `Raw error: ${createError.message}`
+        stage = 'database-permission'
+      }
+
+      return NextResponse.json({ success: false, error, stage, code: code ?? null }, { status: 400 })
     }
 
     return NextResponse.json({
@@ -168,11 +199,11 @@ export async function GET(request: NextRequest) {
     const videosWithUrls = await Promise.all((videos || []).map(async (video: any) => {
       const result = { ...video }
       if (typeof result.video_url === 'string' && !/^https?:\/\//i.test(result.video_url)) {
-        const { data: signed } = await supabaseAdmin.storage.from('videos-content').createSignedUrl(result.video_url, 3600)
+        const { data: signed } = await supabaseAdmin.storage.from(VIDEO_BUCKET).createSignedUrl(result.video_url, 3600)
         if (signed?.signedUrl) result.video_url = signed.signedUrl
       }
       if (typeof result.thumbnail_url === 'string' && !/^https?:\/\//i.test(result.thumbnail_url)) {
-        const { data: signed } = await supabaseAdmin.storage.from('video-thumbnails').createSignedUrl(result.thumbnail_url, 3600)
+        const { data: signed } = await supabaseAdmin.storage.from(THUMBNAIL_BUCKET).createSignedUrl(result.thumbnail_url, 3600)
         if (signed?.signedUrl) result.thumbnail_url = signed.signedUrl
       }
       return result

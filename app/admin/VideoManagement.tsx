@@ -268,14 +268,23 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
 
       if (formData.source_type === 'upload' && formData.video_file) {
         setUploadStage('Uploading video')
-        const result = await uploadAdminFile({
-          kind: 'video',
-          file: formData.video_file,
-          getToken: getAccessToken,
-          onProgress: setUploadProgress,
-          signal: controller.signal,
-        })
-        videoPath = result.path
+        try {
+          const result = await uploadAdminFile({
+            kind: 'video',
+            file: formData.video_file,
+            getToken: getAccessToken,
+            onProgress: setUploadProgress,
+            signal: controller.signal,
+          })
+          videoPath = result.path
+        } catch (videoError) {
+          // Label the stage so it is unambiguous which of the two uploads failed.
+          throw new Error(
+            `Video upload failed. ${
+              videoError instanceof Error ? videoError.message : String(videoError)
+            }`
+          )
+        }
       }
 
       // --- 2. Optional thumbnail ------------------------------------------
@@ -297,8 +306,9 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
           })
           thumbnailPath = thumbResult.path
         } catch (thumbError) {
-          thumbnailWarning =
-            thumbError instanceof Error ? thumbError.message : 'Thumbnail upload failed'
+          thumbnailWarning = `Thumbnail upload failed. ${
+            thumbError instanceof Error ? thumbError.message : String(thumbError)
+          }`
         }
       }
 
@@ -336,7 +346,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
         throw new Error(
           `${createData?.error || `Could not save the video (HTTP ${createResponse.status})`}` +
             (formData.source_type === 'upload'
-              ? ` The file did upload successfully (stored at ${videoPath}), only the database record failed. Your form has been kept - press Upload Video to retry saving.`
+              ? ` The file DID upload successfully to storage (stored at ${videoPath}), only the database record failed. Your form has been kept - press Upload Video to retry saving.`
               : '')
         )
       }

@@ -37,13 +37,13 @@ SELECT id,
        allowed_mime_types,
        created_at
 FROM storage.buckets
-WHERE id IN ('videos-content', 'video-thumbnails')
+WHERE id IN ('video-content', 'video-thumbnils')
 ORDER BY id;
 
 
 -- 2. Every bucket in this project.
---    If 'videos-content' is absent here, that is the missing resource.
---    Watch for near-misses such as 'videos_content', 'videos', 'Videos-Content'.
+--    If 'video-content' is absent here, that is the missing resource.
+--    Watch for near-misses such as 'videos-content', 'video_content', 'Video-Content'.
 SELECT id, name, public, created_at
 FROM storage.buckets
 ORDER BY id;
@@ -60,7 +60,7 @@ ORDER BY policyname;
 -- 4. How many objects are already stored in each bucket?
 SELECT bucket_id, COUNT(*) AS objects
 FROM storage.objects
-WHERE bucket_id IN ('videos-content', 'video-thumbnails')
+WHERE bucket_id IN ('video-content', 'video-thumbnils')
 GROUP BY bucket_id;
 
 
@@ -103,8 +103,8 @@ WHERE tc.constraint_type = 'FOREIGN KEY'
 -- ============================================================================
 -- The bucket(s) are missing from this project. Create them in the Dashboard:
 --   Storage -> New bucket
---     Name: videos-content       Public: OFF    File size limit: 500 MB
---     Name: video-thumbnails     Public: OFF    File size limit: 5 MB
+--     Name: video-content        Public: OFF    File size limit: 500 MB
+--     Name: video-thumbnils      Public: OFF    File size limit: 5 MB
 --
 -- Private is correct — the application generates signed URLs for viewing.
 -- Then apply the storage policies from Section 4 of DATABASE_SETUP.md.

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { isMissingColumnError, withoutOptionalColumns, MIGRATION_HINT } from '@/lib/video-columns'
+import { VIDEO_BUCKET, THUMBNAIL_BUCKET } from '@/lib/storage-buckets'
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -177,10 +178,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       typeof value === 'string' && value.trim().length > 0 && !/^https?:\/\//i.test(value)
 
     if (isStoragePath(video.video_url)) {
-      await supabaseAdmin.storage.from('videos-content').remove([video.video_url])
+      await supabaseAdmin.storage.from(VIDEO_BUCKET).remove([video.video_url])
     }
     if (isStoragePath(video.thumbnail_url)) {
-      await supabaseAdmin.storage.from('video-thumbnails').remove([video.thumbnail_url])
+      await supabaseAdmin.storage.from(THUMBNAIL_BUCKET).remove([video.thumbnail_url])
     }
 
     // Delete video record

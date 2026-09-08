@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { projectRefFromUrl } from '@/lib/supabase-diagnostics'
+import { VIDEO_BUCKET } from '@/lib/storage-buckets'
 
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024 // 500MB
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm']
@@ -109,16 +110,16 @@ async function createSignedUpload(request: NextRequest) {
 
   const availableBuckets = (bucketList || []).map((b: any) => b.id ?? b.name)
 
-  if (!availableBuckets.includes('videos-content')) {
+  if (!availableBuckets.includes(VIDEO_BUCKET)) {
     const message =
-      `Storage bucket "videos-content" does not exist in ${where}. ` +
+      `Storage bucket "${VIDEO_BUCKET}" does not exist in ${where}. ` +
       (availableBuckets.length
         ? `Buckets that DO exist in this project: ${availableBuckets.join(', ')}. `
         : 'This project has no storage buckets at all. ') +
-      `Create a bucket with the exact ID "videos-content" (IDs are case-sensitive) in that project, or point this deployment's environment variables at the Supabase project where it already exists.`
+      `Create a bucket with the exact ID "${VIDEO_BUCKET}" (IDs are case-sensitive) in that project, or point this deployment's environment variables at the Supabase project where it already exists.`
 
     console.error('[upload] Missing bucket.', {
-      expected: 'videos-content',
+      expected: VIDEO_BUCKET,
       projectRef,
       availableBuckets,
     })
@@ -128,7 +129,7 @@ async function createSignedUpload(request: NextRequest) {
         success: false,
         error: message,
         stage: 'bucket-missing',
-        expectedBucket: 'videos-content',
+        expectedBucket: VIDEO_BUCKET,
         availableBuckets,
         projectRef,
       },
@@ -137,7 +138,7 @@ async function createSignedUpload(request: NextRequest) {
   }
 
   const { data, error } = await supabaseAdmin.storage
-    .from('videos-content')
+    .from(VIDEO_BUCKET)
     .createSignedUploadUrl(filename)
 
   if (error || !data) {
@@ -145,7 +146,7 @@ async function createSignedUpload(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: `Signed upload URL could not be generated for bucket "videos-content" in ${where}: ${
+        error: `Signed upload URL could not be generated for bucket "${VIDEO_BUCKET}" in ${where}: ${
           error?.message || 'unknown error'
         }`,
         stage: 'signed-url',
@@ -161,7 +162,7 @@ async function createSignedUpload(request: NextRequest) {
     signedUrl: data.signedUrl,
     token: data.token,
     path: filename,
-    bucket: 'videos-content',
+    bucket: VIDEO_BUCKET,
     projectRef,
   })
 }
@@ -257,7 +258,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-      .from('videos-content')
+      .from(VIDEO_BUCKET)
       .upload(filename, buffer, {
         contentType: file.type,
         upsert: false,

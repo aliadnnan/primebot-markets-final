@@ -6,7 +6,7 @@
  *   2. Do NEXT_PUBLIC_SUPABASE_URL, the anon key and the service role key all
  *      point at the SAME project? (A mismatch here is a common cause of
  *      "the buckets exist but the app cannot see them".)
- *   3. Do the `videos-content` and `video-thumbnails` buckets exist in that
+ *   3. Do the configured video and thumbnail buckets exist in that
  *      project, and with what limits?
  *   4. Are the `videos` and `video_categories` tables reachable?
  *   5. Can a signed upload URL actually be created for each bucket?
@@ -16,12 +16,11 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { REQUIRED_BUCKETS } from './storage-buckets'
 
-/** The two bucket IDs this project expects. Referenced, never re-created. */
-export const REQUIRED_BUCKETS = {
-  video: 'videos-content',
-  thumbnail: 'video-thumbnails',
-} as const
+// Bucket IDs live in lib/storage-buckets.ts. Re-exported here so existing
+// imports keep working, but there is only one definition.
+export { REQUIRED_BUCKETS }
 
 export interface CheckResult {
   name: string

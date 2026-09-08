@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { projectRefFromUrl } from '@/lib/supabase-diagnostics'
+import { THUMBNAIL_BUCKET } from '@/lib/storage-buckets'
 
 const MAX_THUMBNAIL_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
@@ -109,16 +110,16 @@ async function createSignedUpload(request: NextRequest) {
 
   const availableBuckets = (bucketList || []).map((b: any) => b.id ?? b.name)
 
-  if (!availableBuckets.includes('video-thumbnails')) {
+  if (!availableBuckets.includes(THUMBNAIL_BUCKET)) {
     const message =
-      `Storage bucket "video-thumbnails" does not exist in ${where}. ` +
+      `Storage bucket "${THUMBNAIL_BUCKET}" does not exist in ${where}. ` +
       (availableBuckets.length
         ? `Buckets that DO exist in this project: ${availableBuckets.join(', ')}. `
         : 'This project has no storage buckets at all. ') +
-      `Create a bucket with the exact ID "video-thumbnails" (IDs are case-sensitive) in that project, or point this deployment's environment variables at the Supabase project where it already exists.`
+      `Create a bucket with the exact ID "${THUMBNAIL_BUCKET}" (IDs are case-sensitive) in that project, or point this deployment's environment variables at the Supabase project where it already exists.`
 
     console.error('[upload] Missing bucket.', {
-      expected: 'video-thumbnails',
+      expected: THUMBNAIL_BUCKET,
       projectRef,
       availableBuckets,
     })
@@ -128,7 +129,7 @@ async function createSignedUpload(request: NextRequest) {
         success: false,
         error: message,
         stage: 'bucket-missing',
-        expectedBucket: 'video-thumbnails',
+        expectedBucket: THUMBNAIL_BUCKET,
         availableBuckets,
         projectRef,
       },
@@ -137,7 +138,7 @@ async function createSignedUpload(request: NextRequest) {
   }
 
   const { data, error } = await supabaseAdmin.storage
-    .from('video-thumbnails')
+    .from(THUMBNAIL_BUCKET)
     .createSignedUploadUrl(filename)
 
   if (error || !data) {
@@ -145,7 +146,7 @@ async function createSignedUpload(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: `Signed upload URL could not be generated for bucket "video-thumbnails" in ${where}: ${
+        error: `Signed upload URL could not be generated for bucket "${THUMBNAIL_BUCKET}" in ${where}: ${
           error?.message || 'unknown error'
         }`,
         stage: 'signed-url',
@@ -161,7 +162,7 @@ async function createSignedUpload(request: NextRequest) {
     signedUrl: data.signedUrl,
     token: data.token,
     path: filename,
-    bucket: 'video-thumbnails',
+    bucket: THUMBNAIL_BUCKET,
     projectRef,
   })
 }
@@ -257,7 +258,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-      .from('video-thumbnails')
+      .from(THUMBNAIL_BUCKET)
       .upload(filename, buffer, {
         contentType: file.type,
         upsert: false,

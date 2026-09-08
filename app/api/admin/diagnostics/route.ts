@@ -7,7 +7,7 @@ import { runSupabaseDiagnostics } from '@/lib/supabase-diagnostics'
  *
  * Reports which Supabase project the running deployment is actually connected
  * to, whether the URL / anon key / service role key all belong to that same
- * project, whether the `videos-content` and `video-thumbnails` buckets exist in
+ * project, whether the configured video and thumbnail buckets exist in
  * it, and whether the required tables are reachable.
  *
  * No key material is ever returned - only the project ref (already public in

@@ -17,11 +17,8 @@
  */
 
 import { supabase } from './supabase/client'
-import {
-  REQUIRED_BUCKETS,
-  describeStorageError,
-  parseStorageErrorBody,
-} from './supabase-diagnostics'
+import { describeStorageError, parseStorageErrorBody } from './supabase-diagnostics'
+import { REQUIRED_BUCKETS } from './storage-buckets'
 
 export interface UploadResult {
   path: string
@@ -30,7 +27,7 @@ export interface UploadResult {
 }
 
 interface UploadOptions {
-  /** 'video' -> videos-content bucket, 'thumbnail' -> video-thumbnails bucket. */
+  /** Which bucket to target. See lib/storage-buckets.ts for the IDs. */
   kind: 'video' | 'thumbnail'
   file: File
   /** Returns a fresh admin access token. */

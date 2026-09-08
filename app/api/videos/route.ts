@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { isMissingColumnError } from '@/lib/video-columns'
+import { VIDEO_BUCKET, THUMBNAIL_BUCKET } from '@/lib/storage-buckets'
 
 export async function GET(request: NextRequest) {
   try {
@@ -63,13 +64,13 @@ export async function GET(request: NextRequest) {
       const { created_by: _createdBy, ...result } = video as any
       if (typeof result.video_url === 'string' && !/^https?:\/\//i.test(result.video_url)) {
         const { data: signed } = await supabase.storage
-          .from('videos-content')
+          .from(VIDEO_BUCKET)
           .createSignedUrl(result.video_url, 3600)
         if (signed?.signedUrl) result.video_url = signed.signedUrl
       }
       if (typeof result.thumbnail_url === 'string' && !/^https?:\/\//i.test(result.thumbnail_url)) {
         const { data: signed } = await supabase.storage
-          .from('video-thumbnails')
+          .from(THUMBNAIL_BUCKET)
           .createSignedUrl(result.thumbnail_url, 3600)
         if (signed?.signedUrl) result.thumbnail_url = signed.signedUrl
       }
