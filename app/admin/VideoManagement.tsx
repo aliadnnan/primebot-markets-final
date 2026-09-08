@@ -5,22 +5,18 @@ import toast from 'react-hot-toast'
 import { Video, VideoCategory } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/auth-context'
 
+const VIDEO_DRAFT_KEY = 'primebot-video-upload-draft-v1'
+
+
 interface VideoWithCategory extends Video {
   video_categories?: VideoCategory | null
 }
 
-interface VideoManagementProps {
-  /** Switches the Admin Panel to the Video Categories tab. */
-  onManageCategories?: () => void
-}
-
-export default function VideoManagement({ onManageCategories }: VideoManagementProps) {
+export default function VideoManagement() {
   const { getAccessToken } = useAuth()
   const [videos, setVideos] = useState<VideoWithCategory[]>([])
   const [categories, setCategories] = useState<VideoCategory[]>([])
-  const [categoryError, setCategoryError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState<VideoWithCategory | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -37,8 +33,6 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
     source_type: 'upload' as 'upload' | 'link',
     thumbnail_file: null as File | null,
     published: false,
-    is_public: true,
-    autoplay: false,
   })
 
   const [editData, setEditData] = useState({
@@ -46,9 +40,6 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
     description: '',
     category_id: '',
     published: false,
-    is_public: true,
-    autoplay: false,
-    video_url: '',
   })
 
 
@@ -63,7 +54,45 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
   useEffect(() => {
     loadVideos()
     loadCategories()
+    try {
+      const saved = localStorage.getItem(VIDEO_DRAFT_KEY)
+      if (saved) {
+        const draft = JSON.parse(saved)
+        setFormData((current) => ({
+          ...current,
+          title: typeof draft.title === 'string' ? draft.title : current.title,
+          description: typeof draft.description === 'string' ? draft.description : current.description,
+          category_id: typeof draft.category_id === 'string' ? draft.category_id : current.category_id,
+          video_url: typeof draft.video_url === 'string' ? draft.video_url : current.video_url,
+          source_type: draft.source_type === 'link' ? 'link' : 'upload',
+          published: draft.published === true,
+        }))
+      }
+    } catch (error) {
+      console.error('Could not restore video draft:', error)
+    }
   }, [])
+
+  useEffect(() => {
+    try {
+      const { video_file, thumbnail_file, ...draft } = formData
+      localStorage.setItem(VIDEO_DRAFT_KEY, JSON.stringify(draft))
+    } catch (error) {
+      console.error('Could not save video draft:', error)
+    }
+  }, [formData.title, formData.description, formData.category_id, formData.video_url, formData.source_type, formData.published])
+
+  const updateFormData = (patch: Partial<typeof formData>) => {
+    setFormData((current) => ({ ...current, ...patch }))
+  }
+
+  const clearUploadDraft = () => {
+    try { localStorage.removeItem(VIDEO_DRAFT_KEY) } catch {}
+    setFormData({
+      title: '', description: '', category_id: '', video_file: null, video_url: '',
+      source_type: 'upload', thumbnail_file: null, published: false,
+    })
+  }
 
   const loadVideos = async () => {
     try {
@@ -83,24 +112,15 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
     }
   }
 
-  // Loads the categories that populate the Category dropdown.
-  // Failures used to be swallowed here, which is why an empty dropdown gave no
-  // clue about what had gone wrong. Errors are now surfaced in the UI.
   const loadCategories = async () => {
     try {
-      setCategoryError(null)
       const response = await fetch('/api/videos/categories')
       const data = await response.json()
       if (data.success) {
-        setCategories(data.categories || [])
-      } else {
-        setCategories([])
-        setCategoryError(data.error || 'Failed to load categories')
+        setCategories(data.categories)
       }
     } catch (error) {
       console.error('Error loading categories:', error)
-      setCategories([])
-      setCategoryError(error instanceof Error ? error.message : 'Failed to load categories')
     }
   }
 
@@ -162,27 +182,13 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
           video_url: videoPath,
           thumbnail_url: thumbnailPath,
           published: formData.published,
-          is_public: formData.is_public,
-          autoplay: formData.autoplay,
         }),
       })
 
       const createData = await createResponse.json()
       if (createData.success) {
         toast.success('Video created successfully!')
-        if (createData.warning) toast(createData.warning, { duration: 8000 })
-        setFormData({
-          title: '',
-          description: '',
-          category_id: '',
-          video_file: null,
-          video_url: '',
-          source_type: 'upload',
-          thumbnail_file: null,
-          published: false,
-          is_public: true,
-          autoplay: false,
-        })
+        clearUploadDraft()
         setShowUploadModal(false)
         loadVideos()
       } else {
@@ -213,7 +219,6 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
       const data = await response.json()
       if (data.success) {
         toast.success('Video updated successfully!')
-        if (data.warning) toast(data.warning, { duration: 8000 })
         setShowEditModal(false)
         setSelectedVideo(null)
         loadVideos()
@@ -247,40 +252,6 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
     }
   }
 
-  // Quick inline toggles for publish state and public visibility.
-  const toggleVideoFlag = async (
-    video: VideoWithCategory,
-    field: 'published' | 'is_public' | 'autoplay',
-    value: boolean
-  ) => {
-    setTogglingId(video.id)
-    try {
-      const response = await adminFetch(`/api/admin/videos/${video.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [field]: value }),
-      })
-      const data = await response.json()
-      if (data.success) {
-        const labels: Record<string, string> = {
-          published: value ? 'Video published' : 'Video unpublished',
-          is_public: value ? 'Video set to Public' : 'Video set to Private',
-          autoplay: value ? 'Autoplay enabled' : 'Autoplay disabled',
-        }
-        toast.success(labels[field])
-        if (data.warning) toast(data.warning, { duration: 8000 })
-        loadVideos()
-      } else {
-        toast.error(data.error || 'Failed to update video')
-      }
-    } catch (error) {
-      console.error('Error updating video:', error)
-      toast.error('Failed to update video')
-    } finally {
-      setTogglingId(null)
-    }
-  }
-
   const openEditModal = (video: VideoWithCategory) => {
     setSelectedVideo(video)
     setEditData({
@@ -288,11 +259,6 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
       description: video.description || '',
       category_id: video.category_id,
       published: video.published,
-      is_public: video.is_public !== false,
-      autoplay: video.autoplay === true,
-      // Left blank on purpose: only a non-empty value replaces the stored
-      // video source, so the existing upload/link is never clobbered.
-      video_url: '',
     })
     setShowEditModal(true)
   }
@@ -307,57 +273,13 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Video Management</h2>
-        <div className="flex flex-wrap gap-3">
-          {onManageCategories && (
-            <button
-              onClick={onManageCategories}
-              className="px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition"
-            >
-              Manage Categories
-            </button>
-          )}
-          <button
-            onClick={() => {
-              // Refresh categories every time the form opens so a category
-              // added moments ago is immediately selectable.
-              loadCategories()
-              setShowUploadModal(true)
-            }}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition"
-          >
-            + Upload Video
-          </button>
-        </div>
+        <button
+          onClick={() => setShowUploadModal(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+        >
+          + Upload Video
+        </button>
       </div>
-
-      {/* Category loading problem / no categories yet */}
-      {categoryError ? (
-        <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-          <p className="text-red-400 font-semibold text-sm">Categories could not be loaded</p>
-          <p className="text-xs text-red-300/80 mt-1">{categoryError}</p>
-          <button
-            onClick={loadCategories}
-            className="mt-3 text-xs px-3 py-1.5 border border-red-500/40 text-red-300 rounded-lg hover:bg-red-500/10 transition"
-          >
-            Try again
-          </button>
-        </div>
-      ) : categories.length === 0 ? (
-        <div className="mb-6 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-          <p className="text-yellow-400 font-semibold text-sm">No video categories exist yet</p>
-          <p className="text-xs text-yellow-300/80 mt-1">
-            The Category dropdown will stay empty until at least one category is created.
-          </p>
-          {onManageCategories && (
-            <button
-              onClick={onManageCategories}
-              className="mt-3 text-xs px-3 py-1.5 border border-yellow-500/40 text-yellow-300 rounded-lg hover:bg-yellow-500/10 transition"
-            >
-              Add a category
-            </button>
-          )}
-        </div>
-      ) : null}
 
       {/* Videos List */}
       {loading ? (
@@ -404,7 +326,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                       </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 justify-end">
+                    <div className="flex items-center gap-2">
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
                           video.published
@@ -414,20 +336,6 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                       >
                         {video.published ? 'Published' : 'Draft'}
                       </span>
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          video.is_public === false
-                            ? 'bg-slate-500/20 text-slate-300'
-                            : 'bg-blue-500/20 text-blue-400'
-                        }`}
-                      >
-                        {video.is_public === false ? 'Private' : 'Public'}
-                      </span>
-                      {video.autoplay && (
-                        <span className="px-2 py-1 rounded text-xs font-medium bg-purple-500/20 text-purple-300">
-                          Autoplay
-                        </span>
-                      )}
                     </div>
                   </div>
 
@@ -436,33 +344,12 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                   )}
 
                   {/* Actions */}
-                  <div className="flex flex-wrap gap-4 mt-3 items-center">
+                  <div className="flex gap-2 mt-3">
                     <button
                       onClick={() => openEditModal(video)}
                       className="text-blue-400 hover:text-blue-300 text-sm font-medium"
                     >
                       Edit
-                    </button>
-                    <button
-                      onClick={() => toggleVideoFlag(video, 'published', !video.published)}
-                      disabled={togglingId === video.id}
-                      className="text-green-400 hover:text-green-300 disabled:opacity-50 text-sm font-medium"
-                    >
-                      {video.published ? 'Unpublish' : 'Publish'}
-                    </button>
-                    <button
-                      onClick={() => toggleVideoFlag(video, 'is_public', video.is_public === false)}
-                      disabled={togglingId === video.id}
-                      className="text-slate-300 hover:text-white disabled:opacity-50 text-sm font-medium"
-                    >
-                      {video.is_public === false ? 'Make Public' : 'Make Private'}
-                    </button>
-                    <button
-                      onClick={() => toggleVideoFlag(video, 'autoplay', !video.autoplay)}
-                      disabled={togglingId === video.id}
-                      className="text-purple-300 hover:text-purple-200 disabled:opacity-50 text-sm font-medium"
-                    >
-                      {video.autoplay ? 'Disable Autoplay' : 'Enable Autoplay'}
                     </button>
                     <button
                       onClick={() => handleDeleteVideo(video.id)}
@@ -543,11 +430,6 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                     </option>
                   ))}
                 </select>
-                {categories.length === 0 && (
-                  <p className="text-xs text-yellow-400 mt-2">
-                    No categories available. Create one in the Video Categories tab first.
-                  </p>
-                )}
               </div>
 
               {/* Video Source */}
@@ -590,57 +472,18 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                 <p className="text-xs text-slate-400 mt-1">Max size: 5MB. Formats: JPEG, PNG, WebP</p>
               </div>
 
-              {/* Visibility & playback */}
-              <div className="space-y-3 bg-slate-700/40 border border-slate-600 rounded-lg p-4">
-                <p className="text-sm font-semibold text-slate-300">Visibility & Playback</p>
-
-                <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    id="published"
-                    checked={formData.published}
-                    onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
-                    className="mt-1 w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="published" className="ml-2 text-sm text-slate-300">
-                    Publish immediately
-                    <span className="block text-xs text-slate-500">
-                      Unpublished videos stay as drafts and are never shown on the website.
-                    </span>
-                  </label>
-                </div>
-
-                <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    id="is_public"
-                    checked={formData.is_public}
-                    onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
-                    className="mt-1 w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="is_public" className="ml-2 text-sm text-slate-300">
-                    Public - visitors can watch without logging in
-                    <span className="block text-xs text-slate-500">
-                      Uncheck to keep the video private (admin only).
-                    </span>
-                  </label>
-                </div>
-
-                <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    id="autoplay"
-                    checked={formData.autoplay}
-                    onChange={(e) => setFormData({ ...formData, autoplay: e.target.checked })}
-                    className="mt-1 w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="autoplay" className="ml-2 text-sm text-slate-300">
-                    Feature with autoplay on the Video Tutorials page
-                    <span className="block text-xs text-slate-500">
-                      Plays muted when scrolled into view, as required by browser autoplay policies.
-                    </span>
-                  </label>
-                </div>
+              {/* Published Checkbox */}
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="published"
+                  checked={formData.published}
+                  onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                  className="w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor="published" className="ml-2 text-sm text-slate-300">
+                  Publish immediately
+                </label>
               </div>
 
               {/* Progress Bar */}
@@ -730,7 +573,6 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                   onChange={(e) => setEditData({ ...editData, category_id: e.target.value })}
                   className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
                 >
-                  <option value="">Select a category</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
@@ -739,65 +581,18 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                 </select>
               </div>
 
-              {/* Replace video source (optional) */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  Replace Video Link (optional)
-                </label>
+              {/* Published Checkbox */}
+              <div className="flex items-center">
                 <input
-                  type="url"
-                  value={editData.video_url}
-                  onChange={(e) => setEditData({ ...editData, video_url: e.target.value })}
-                  placeholder="Leave blank to keep the current video"
-                  className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  type="checkbox"
+                  id="edit-published"
+                  checked={editData.published}
+                  onChange={(e) => setEditData({ ...editData, published: e.target.checked })}
+                  className="w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"
                 />
-                <p className="text-xs text-slate-400 mt-1">
-                  Paste a YouTube, TikTok, Facebook or direct video URL to swap the source.
-                </p>
-              </div>
-
-              {/* Visibility & playback */}
-              <div className="space-y-3 bg-slate-700/40 border border-slate-600 rounded-lg p-4">
-                <p className="text-sm font-semibold text-slate-300">Visibility & Playback</p>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="edit-published"
-                    checked={editData.published}
-                    onChange={(e) => setEditData({ ...editData, published: e.target.checked })}
-                    className="w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="edit-published" className="ml-2 text-sm text-slate-300">
-                    Published
-                  </label>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="edit-is-public"
-                    checked={editData.is_public}
-                    onChange={(e) => setEditData({ ...editData, is_public: e.target.checked })}
-                    className="w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="edit-is-public" className="ml-2 text-sm text-slate-300">
-                    Public (visible to visitors without login)
-                  </label>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="edit-autoplay"
-                    checked={editData.autoplay}
-                    onChange={(e) => setEditData({ ...editData, autoplay: e.target.checked })}
-                    className="w-4 h-4 rounded bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="edit-autoplay" className="ml-2 text-sm text-slate-300">
-                    Feature with muted autoplay
-                  </label>
-                </div>
+                <label htmlFor="edit-published" className="ml-2 text-sm text-slate-300">
+                  Published
+                </label>
               </div>
 
               {/* Buttons */}

@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-import { isMissingColumnError, withoutOptionalColumns, MIGRATION_HINT } from '@/lib/video-columns'
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -47,53 +46,27 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     // Parse request body
     const body = await request.json()
-    const { title, description, category_id, video_url, thumbnail_url, published, is_public, autoplay } = body
+    const { title, description, category_id, video_url, thumbnail_url, published } = body
 
     // Build update object with only provided fields
     const updateData: any = {}
     if (title !== undefined) updateData.title = title
     if (description !== undefined) updateData.description = description
     if (category_id !== undefined) updateData.category_id = category_id
+    if (video_url !== undefined) updateData.video_url = video_url
     if (thumbnail_url !== undefined) updateData.thumbnail_url = thumbnail_url
     if (published !== undefined) updateData.published = published
-    if (is_public !== undefined) updateData.is_public = is_public === true
-    if (autoplay !== undefined) updateData.autoplay = autoplay === true
-
-    // video_url is only written when a non-empty replacement is supplied.
-    // GET returns signed (temporary) URLs for uploaded files, so blindly
-    // echoing that value back would overwrite the stored storage path with a
-    // URL that expires in an hour.
-    if (typeof video_url === 'string' && video_url.trim()) {
-      updateData.video_url = video_url.trim()
-    }
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ success: false, error: 'No fields to update' }, { status: 400 })
     }
 
-    // Update video, retrying without the optional visibility columns if the
-    // videos table has not been migrated yet.
-    let migrationPending = false
-    let { data: video, error: updateError } = await supabaseAdmin
+    // Update video
+    const { data: video, error: updateError } = await supabaseAdmin
       .from('videos')
       .update(updateData)
       .eq('id', videoId)
       .select()
-
-    if (updateError && isMissingColumnError(updateError)) {
-      const reduced = withoutOptionalColumns(updateData)
-      if (Object.keys(reduced).length === 0) {
-        return NextResponse.json({ success: false, error: MIGRATION_HINT }, { status: 400 })
-      }
-      migrationPending = true
-      const retry = await supabaseAdmin
-        .from('videos')
-        .update(reduced)
-        .eq('id', videoId)
-        .select()
-      video = retry.data
-      updateError = retry.error
-    }
 
     if (updateError) {
       console.error('Error updating video:', updateError)
@@ -107,7 +80,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({
       success: true,
       message: 'Video updated successfully',
-      warning: migrationPending ? MIGRATION_HINT : undefined,
       video: video[0],
     })
   } catch (error) {
@@ -170,16 +142,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ success: false, error: 'Video not found' }, { status: 404 })
     }
 
-    // Delete video files from storage if they exist.
-    // Only stored file PATHS belong to our buckets - external links (YouTube,
-    // TikTok, Facebook, ...) must never be sent to storage.remove().
-    const isStoragePath = (value: unknown): value is string =>
-      typeof value === 'string' && value.trim().length > 0 && !/^https?:\/\//i.test(value)
-
-    if (isStoragePath(video.video_url)) {
+    // Delete video files from storage if they exist
+    if (video.video_url) {
       await supabaseAdmin.storage.from('videos-content').remove([video.video_url])
     }
-    if (isStoragePath(video.thumbnail_url)) {
+    if (video.thumbnail_url) {
       await supabaseAdmin.storage.from('video-thumbnails').remove([video.thumbnail_url])
     }
 

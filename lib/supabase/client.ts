@@ -138,10 +138,6 @@ export type Database = {
           video_url: string
           thumbnail_url: string | null
           published: boolean
-          // Added by sql/01_video_visibility_and_autoplay.sql. Optional so the
-          // types stay accurate before that migration has been run.
-          is_public?: boolean
-          autoplay?: boolean
           created_by: string
           created_at: string
           updated_at: string
@@ -154,8 +150,6 @@ export type Database = {
           video_url: string
           thumbnail_url?: string | null
           published?: boolean
-          is_public?: boolean
-          autoplay?: boolean
           created_by: string
         }
         Update: {
@@ -165,8 +159,6 @@ export type Database = {
           video_url?: string
           thumbnail_url?: string | null
           published?: boolean
-          is_public?: boolean
-          autoplay?: boolean
           updated_at?: string
         }
       }

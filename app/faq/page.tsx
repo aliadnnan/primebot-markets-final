@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { getWhatsAppLink } from '@/lib/constants'
 
 interface FAQItem {
   id: string
@@ -182,7 +181,7 @@ export default function FAQPage() {
                 Contact Support
               </Link>
               <a
-                href={getWhatsAppLink()}
+                href="https://wa.me/03014879047?text=Hi!%20I%20need%20support%20with%20my%20PrimeBot%20Markets%20account%20and%20trading%20bots."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"

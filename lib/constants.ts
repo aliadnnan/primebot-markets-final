@@ -121,30 +121,3 @@ export const BACKTEST_RESULTS = [
 ]
 
 export const SUPPORT_EMAIL = 'chadnan76@gmail.com'
-
-/**
- * Single source of truth for public contact details.
- *
- * Note on formats: wa.me and tel: links need the number in international
- * format WITHOUT the leading zero. Pakistan's country code is 92, so the local
- * number 03014879047 becomes 923014879047. The previous links used the local
- * format directly (wa.me/03014879047), which WhatsApp rejects as an invalid
- * number - that is why the WhatsApp button did not open a chat.
- */
-export const CONTACT_INFO = {
-  /** Voice line, as customers know it. */
-  callDisplay: '03004587593',
-  /** tel: target in international format. */
-  callLink: '+923004587593',
-  /** WhatsApp line, as customers know it. */
-  whatsappDisplay: '03014879047',
-  /** wa.me target: country code + number, digits only, no leading zero. */
-  whatsappNumber: '923014879047',
-  defaultWhatsAppMessage:
-    'Hi! I need support with my PrimeBot Markets account and trading bots.',
-}
-
-/** Builds a wa.me link with an optional pre-filled message. */
-export function getWhatsAppLink(message: string = CONTACT_INFO.defaultWhatsAppMessage) {
-  return `https://wa.me/${CONTACT_INFO.whatsappNumber}?text=${encodeURIComponent(message)}`
-}

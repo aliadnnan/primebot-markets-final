@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import toast from 'react-hot-toast'
 import VideoManagement from './VideoManagement'
-import CategoryManagement from './CategoryManagement'
 
 interface AdminOrder {
   id: string
@@ -37,15 +36,7 @@ interface AdminStats {
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const {
-    user,
-    loading: authLoading,
-    isAdmin,
-    adminChecked,
-    adminCheckFailed,
-    refreshAdminStatus,
-    getAccessToken,
-  } = useAuth()
+  const { user, loading: authLoading, isAdmin, getAccessToken } = useAuth()
   const [orders, setOrders] = useState<AdminOrder[]>([])
   const [stats, setStats] = useState<AdminStats>({
     total: 0,
@@ -73,28 +64,24 @@ export default function AdminDashboard() {
     return fetch(input, { ...init, headers })
   }
 
-  // Gate access, then load admin data.
-  //
-  // IMPORTANT: we wait for `adminChecked` as well as `authLoading`. The admin
-  // status is resolved by an async server call, so immediately after sign-in
-  // the context briefly reports "signed in, not loading, isAdmin === false".
-  // The previous version acted on that intermediate state and pushed real
-  // administrators back to the public homepage. Non-admins are now shown an
-  // in-page Access Denied panel instead of being redirected, so /admin never
-  // silently bounces to /.
+  // Check admin access and load orders
   useEffect(() => {
-    if (authLoading || !adminChecked) return
+    if (!authLoading) {
+      if (!user) {
+        router.push('/auth/login')
+        return
+      }
 
-    if (!user) {
-      router.push('/auth/login?redirect=/admin')
-      return
+      if (!isAdmin) {
+        toast.error('You do not have admin access')
+        router.push('/')
+        return
+      }
+
+      loadOrders()
+      loadStats()
     }
-
-    if (!isAdmin) return
-
-    loadOrders()
-    loadStats()
-  }, [user, authLoading, isAdmin, adminChecked, router])
+  }, [user, authLoading, isAdmin])
 
   const loadOrders = async () => {
     try {
@@ -269,70 +256,16 @@ export default function AdminDashboard() {
     })
   }
 
-  // Still resolving the session or the admin check - never render a decision yet.
-  if (authLoading || !adminChecked) {
+  if (authLoading) {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
-        <p className="text-slate-400">Verifying admin access...</p>
+        <p className="text-slate-400">Loading...</p>
       </div>
     )
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen py-12 flex items-center justify-center">
-        <p className="text-slate-400">Redirecting to login...</p>
-      </div>
-    )
-  }
-
-  // The admin check itself failed (network / server error). Do not pretend the
-  // user is not an admin - let them retry.
-  if (adminCheckFailed) {
-    return (
-      <div className="min-h-screen py-12 flex items-center justify-center px-6">
-        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold text-white mb-2">Could not verify access</h1>
-          <p className="text-slate-400 mb-6">
-            We could not confirm your administrator permissions. This is usually a temporary
-            connection problem.
-          </p>
-          <button
-            onClick={() => refreshAdminStatus()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen py-12 flex items-center justify-center px-6">
-        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
-          <p className="text-slate-400 mb-6">
-            This area is restricted to PrimeBot Markets administrators.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => router.push('/')}
-              className="px-6 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition"
-            >
-              Back to website
-            </button>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition"
-            >
-              My Orders
-            </button>
-          </div>
-        </div>
-      </div>
-    )
+  if (!user || !isAdmin) {
+    return null
   }
 
   return (
@@ -366,29 +299,12 @@ export default function AdminDashboard() {
           >
             Video Tutorials
           </button>
-          <button
-            onClick={() => setActiveTab('categories')}
-            className={`px-4 py-3 font-semibold transition-colors ${
-              activeTab === 'categories'
-                ? 'text-blue-500 border-b-2 border-blue-500'
-                : 'text-slate-400 hover:text-slate-300'
-            }`}
-          >
-            Video Categories
-          </button>
         </div>
 
         {/* Video Management Tab */}
         {activeTab === 'videos' && (
           <div>
-            <VideoManagement onManageCategories={() => setActiveTab('categories')} />
-          </div>
-        )}
-
-        {/* Video Categories Tab */}
-        {activeTab === 'categories' && (
-          <div>
-            <CategoryManagement onBackToVideos={() => setActiveTab('videos')} />
+            <VideoManagement />
           </div>
         )}
 
