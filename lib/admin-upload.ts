@@ -17,6 +17,11 @@
  */
 
 import { supabase } from './supabase/client'
+import {
+  REQUIRED_BUCKETS,
+  describeStorageError,
+  parseStorageErrorBody,
+} from './supabase-diagnostics'
 
 export interface UploadResult {
   path: string
@@ -42,8 +47,8 @@ const ENDPOINTS: Record<UploadOptions['kind'], string> = {
 }
 
 const BUCKETS: Record<UploadOptions['kind'], string> = {
-  video: 'videos-content',
-  thumbnail: 'video-thumbnails',
+  video: REQUIRED_BUCKETS.video,
+  thumbnail: REQUIRED_BUCKETS.thumbnail,
 }
 
 /**
@@ -83,6 +88,8 @@ async function fetchWithTimeout(
 function putToSignedUrl(
   signedUrl: string,
   file: File,
+  bucket: string,
+  projectRef: string | null,
   onProgress?: (percent: number) => void,
   signal?: AbortSignal
 ): Promise<void> {
@@ -129,15 +136,23 @@ function putToSignedUrl(
         resolve()
         return
       }
-      let message = `Storage upload failed (HTTP ${xhr.status})`
-      try {
-        const parsed = JSON.parse(xhr.responseText)
-        if (parsed?.message) message = parsed.message
-        else if (parsed?.error) message = parsed.error
-      } catch {
-        if (xhr.responseText) message = `${message}: ${xhr.responseText.slice(0, 200)}`
-      }
-      reject(new Error(message))
+      // Translate the raw storage response into an explicit statement of
+      // which resource failed, rather than passing through a bare
+      // "The related resource does not exist".
+      const parsed = parseStorageErrorBody(xhr.responseText)
+      console.error('[upload] Storage rejected the upload.', {
+        bucket,
+        projectRef,
+        httpStatus: xhr.status,
+        code: parsed.code,
+        message: parsed.message,
+        responseBody: xhr.responseText?.slice(0, 500),
+      })
+      reject(
+        new Error(
+          describeStorageError(bucket, projectRef, xhr.status, parsed.code, parsed.message)
+        )
+      )
     }
 
     xhr.onerror = () => {
@@ -190,6 +205,8 @@ export async function uploadAdminFile({
   // --- Step 1: request a signed upload URL -------------------------------
   let signed: { signedUrl: string; token: string; path: string } | null = null
   let signedUrlError = ''
+  let projectRef: string | null = null
+  const bucket = BUCKETS[kind]
 
   try {
     const response = await fetchWithTimeout(endpoint, {
@@ -207,12 +224,24 @@ export async function uploadAdminFile({
 
     const data = await response.json().catch(() => null)
 
+    projectRef = typeof data?.projectRef === 'string' ? data.projectRef : null
+
     if (response.ok && data?.success && data.signedUrl && data.token && data.path) {
       signed = { signedUrl: data.signedUrl, token: data.token, path: data.path }
     } else {
       signedUrlError = data?.error || `Could not prepare the upload (HTTP ${response.status})`
-      // A validation rejection (wrong type / too large) is final - do not
-      // silently retry it through the proxy and report a vaguer error.
+      if (data?.stage) {
+        console.error('[upload] Preparation failed.', {
+          stage: data.stage,
+          expectedBucket: data.expectedBucket,
+          availableBuckets: data.availableBuckets,
+          projectRef: data.projectRef,
+          error: data.error,
+        })
+      }
+      // A validation rejection, a missing bucket or a project mismatch is
+      // final - do not silently retry through the proxy and report something
+      // vaguer than the exact resource that is missing.
       if (response.status === 400 || response.status === 403) {
         throw new Error(signedUrlError)
       }
@@ -226,14 +255,14 @@ export async function uploadAdminFile({
   if (signed) {
     try {
       onProgress?.(0)
-      await putToSignedUrl(signed.signedUrl, file, onProgress, signal)
+      await putToSignedUrl(signed.signedUrl, file, bucket, projectRef, onProgress, signal)
       onProgress?.(100)
       return { path: signed.path, via: 'signed-direct' }
     } catch (directError) {
       if (signal?.aborted) throw directError
 
       const { error: clientError } = await supabase.storage
-        .from(BUCKETS[kind])
+        .from(bucket)
         .uploadToSignedUrl(signed.path, signed.token, file, {
           contentType: file.type || undefined,
         })
@@ -243,8 +272,18 @@ export async function uploadAdminFile({
         return { path: signed.path, via: 'signed-client' }
       }
 
+      console.error('[upload] Client-library retry also failed.', {
+        bucket,
+        projectRef,
+        error: clientError,
+      })
+
+      // Prefer the already-translated message from the direct attempt; it
+      // names the exact failing resource.
       throw new Error(
-        `${directError instanceof Error ? directError.message : 'Upload failed'} (retry also failed: ${clientError.message})`
+        `${
+          directError instanceof Error ? directError.message : 'Upload failed'
+        } The client-library retry failed as well: ${clientError.message}`
       )
     }
   }

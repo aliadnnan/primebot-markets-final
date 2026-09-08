@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { projectRefFromUrl } from '@/lib/supabase-diagnostics'
 
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024 // 500MB
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm']
@@ -79,14 +80,77 @@ async function createSignedUpload(request: NextRequest) {
     extension ? `.${extension}` : ''
   }`
 
+  const projectRef = projectRefFromUrl(supabaseUrl)
+  const where = projectRef ? `Supabase project "${projectRef}"` : 'the connected Supabase project'
+
+  // PREFLIGHT: confirm the bucket actually exists before handing out a URL.
+  //
+  // createSignedUploadUrl() only signs a token for <bucket>/<path>; it does NOT
+  // verify the bucket exists. Without this check a missing bucket produces a
+  // perfectly valid-looking URL, and the failure only surfaces later when the
+  // browser PUTs the file, as a confusing 404 "The related resource does not
+  // exist" (storage-api's RelatedResourceNotFound, raised when an object write
+  // has no related bucket row). Checking here turns that into an exact,
+  // immediate message that names the bucket and the project.
+  const { data: bucketList, error: bucketListError } = await supabaseAdmin.storage.listBuckets()
+
+  if (bucketListError) {
+    console.error('[upload] Could not list storage buckets:', bucketListError)
+    return NextResponse.json(
+      {
+        success: false,
+        error: `Could not read the storage buckets of ${where}: ${bucketListError.message}. If this is an authorization error, SUPABASE_SERVICE_ROLE_KEY may belong to a different Supabase project than NEXT_PUBLIC_SUPABASE_URL.`,
+        stage: 'list-buckets',
+        projectRef,
+      },
+      { status: 400 }
+    )
+  }
+
+  const availableBuckets = (bucketList || []).map((b: any) => b.id ?? b.name)
+
+  if (!availableBuckets.includes('videos-content')) {
+    const message =
+      `Storage bucket "videos-content" does not exist in ${where}. ` +
+      (availableBuckets.length
+        ? `Buckets that DO exist in this project: ${availableBuckets.join(', ')}. `
+        : 'This project has no storage buckets at all. ') +
+      `Create a bucket with the exact ID "videos-content" (IDs are case-sensitive) in that project, or point this deployment's environment variables at the Supabase project where it already exists.`
+
+    console.error('[upload] Missing bucket.', {
+      expected: 'videos-content',
+      projectRef,
+      availableBuckets,
+    })
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: message,
+        stage: 'bucket-missing',
+        expectedBucket: 'videos-content',
+        availableBuckets,
+        projectRef,
+      },
+      { status: 400 }
+    )
+  }
+
   const { data, error } = await supabaseAdmin.storage
     .from('videos-content')
     .createSignedUploadUrl(filename)
 
   if (error || !data) {
-    console.error('Error creating signed upload URL:', error)
+    console.error('[upload] Could not create signed upload URL:', error)
     return NextResponse.json(
-      { success: false, error: error?.message || 'Could not create upload URL' },
+      {
+        success: false,
+        error: `Signed upload URL could not be generated for bucket "videos-content" in ${where}: ${
+          error?.message || 'unknown error'
+        }`,
+        stage: 'signed-url',
+        projectRef,
+      },
       { status: 400 }
     )
   }
@@ -97,6 +161,8 @@ async function createSignedUpload(request: NextRequest) {
     signedUrl: data.signedUrl,
     token: data.token,
     path: filename,
+    bucket: 'videos-content',
+    projectRef,
   })
 }
 

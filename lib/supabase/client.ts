@@ -12,13 +12,31 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
  * Re-authentication should only ever be required when the session has genuinely
  * expired or the user signed out.
  */
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const isSupabaseClientConfigured = Boolean(supabaseUrl && supabaseAnonKey)
+
+if (!isSupabaseClientConfigured) {
+  // createClient('') throws "supabaseUrl is required" at module scope, and
+  // Next.js evaluates this module while prerendering pages - so a missing
+  // variable would fail `next build` with an error that never names the
+  // variable. Placeholders keep the build green; the Admin Panel's
+  // "Run Diagnostics" button then reports exactly which variable is unset.
+  console.error(
+    '[supabase] Missing NEXT_PUBLIC_SUPABASE_URL and/or NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
+      'Set them in your Vercel project settings - all Supabase calls will fail until you do.'
+  )
+}
+
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-anon-key',
+  {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
   },
-})
+  }
+)
 
 export type Database = {
   public: {

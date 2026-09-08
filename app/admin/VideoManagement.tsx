@@ -37,6 +37,8 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
   const [uploadStage, setUploadStage] = useState('')
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [draftRestored, setDraftRestored] = useState(false)
+  const [diagnostics, setDiagnostics] = useState<any | null>(null)
+  const [runningDiagnostics, setRunningDiagnostics] = useState(false)
   const [missingFileName, setMissingFileName] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
@@ -209,6 +211,24 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
       console.error('Error loading categories:', error)
       setCategories([])
       setCategoryError(error instanceof Error ? error.message : 'Failed to load categories')
+    }
+  }
+
+  // Reports exactly which Supabase project this deployment is connected to and
+  // whether the required buckets and tables exist in it.
+  const runDiagnostics = async () => {
+    setRunningDiagnostics(true)
+    setDiagnostics(null)
+    try {
+      const response = await adminFetch('/api/admin/diagnostics')
+      const data = await response.json()
+      setDiagnostics(data)
+      if (!data.success) toast.error(data.error || 'Diagnostics failed')
+    } catch (error) {
+      console.error('Diagnostics failed:', error)
+      toast.error(error instanceof Error ? error.message : 'Diagnostics failed')
+    } finally {
+      setRunningDiagnostics(false)
     }
   }
 
@@ -468,6 +488,13 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
             </button>
           )}
           <button
+            onClick={runDiagnostics}
+            disabled={runningDiagnostics}
+            className="px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition disabled:opacity-50"
+          >
+            {runningDiagnostics ? 'Checking...' : 'Run Diagnostics'}
+          </button>
+          <button
             onClick={() => {
               // Refresh categories every time the form opens so a category
               // added moments ago is immediately selectable. Any existing draft
@@ -482,6 +509,66 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
           </button>
         </div>
       </div>
+
+      {/* Connection diagnostics results */}
+      {diagnostics && (
+        <div className="mb-6 bg-slate-900/60 border border-slate-700 rounded-lg p-5">
+          <div className="flex flex-wrap gap-3 justify-between items-start mb-3">
+            <div>
+              <h3 className="text-white font-semibold">Supabase Connection Diagnostics</h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Connected project: <span className="text-slate-200">{diagnostics.projectRef || 'unknown'}</span>
+              </p>
+            </div>
+            <button
+              onClick={() => setDiagnostics(null)}
+              className="text-slate-400 hover:text-white text-sm"
+            >
+              Hide
+            </button>
+          </div>
+
+          {diagnostics.summary && (
+            <p
+              className={`text-sm mb-4 ${
+                diagnostics.checks?.some((c: any) => c.status === 'fail')
+                  ? 'text-red-400'
+                  : 'text-green-400'
+              }`}
+            >
+              {diagnostics.summary}
+            </p>
+          )}
+
+          <div className="space-y-2">
+            {(diagnostics.checks || []).map((check: any, index: number) => (
+              <div key={index} className="flex gap-3 text-sm">
+                <span
+                  className={`flex-shrink-0 font-mono text-xs px-2 py-0.5 rounded h-fit ${
+                    check.status === 'ok'
+                      ? 'bg-green-500/20 text-green-400'
+                      : check.status === 'fail'
+                      ? 'bg-red-500/20 text-red-400'
+                      : check.status === 'warn'
+                      ? 'bg-yellow-500/20 text-yellow-400'
+                      : 'bg-slate-600/40 text-slate-400'
+                  }`}
+                >
+                  {check.status.toUpperCase()}
+                </span>
+                <span className="min-w-0">
+                  <span className="text-slate-200 font-medium">{check.name}</span>
+                  <span className="block text-xs text-slate-400 break-words">{check.detail}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {!diagnostics.success && diagnostics.error && (
+            <p className="text-sm text-red-400 mt-4 break-words">{diagnostics.error}</p>
+          )}
+        </div>
+      )}
 
       {/* Category loading problem / no categories yet */}
       {categoryError ? (
