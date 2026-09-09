@@ -36,6 +36,8 @@ export default function PaymentPage() {
     paymentFile?: string
   }>({})
   const [orderId, setOrderId] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitStage, setSubmitStage] = useState('')
 
   const selected = selectedBot ? BOTS.find((b) => b.id === selectedBot) : null
   const paymentSelected = selectedPayment ? PAYMENT_METHODS.find((p) => p.id === selectedPayment) : null
@@ -127,44 +129,74 @@ export default function PaymentPage() {
     if (!validateStep4() || !user || !selected || !paymentSelected) return
 
     setLoading(true)
+    setSubmitError(null)
+
     try {
       // Track payment proof submission
       trackPaymentProofSubmitted(paymentSelected.name, selected.name, selected.price)
 
-      // 1. Create order
-      const orderResult = await createNewOrder(
+      // ---- 1. Create the order, ONCE ----------------------------------
+      //
+      // If a previous attempt already created the order and only the proof
+      // upload failed, that order id is reused. Creating a second order on
+      // retry is what produced duplicates. A new order is only created when
+      // `orderId` is null, i.e. this is a genuinely new checkout.
+      let currentOrderId = orderId
+
+      if (!currentOrderId) {
+        setSubmitStage('Creating your order')
+        const orderResult = await createNewOrder(
+          user.id,
+          selected.id,
+          selected.name,
+          selected.price,
+          paymentSelected.name,
+          transactionId,
+          user.email || '',
+          fullName
+        )
+
+        if (!orderResult?.orderId) {
+          throw new Error('The order was created but no order id was returned.')
+        }
+
+        currentOrderId = orderResult.orderId
+        setOrderId(currentOrderId)
+        trackOrderCreated(currentOrderId, selected.name, selected.price, paymentSelected.name)
+      }
+
+      // ---- 2. Upload the payment proof --------------------------------
+      //
+      // A failure here must NOT be swallowed and must NOT advance the user to
+      // the confirmation step. The real error is shown, the selected file is
+      // kept, and the order id is retained so the retry attaches the proof to
+      // the SAME order.
+      if (!paymentFile) {
+        throw new Error('Please select your payment proof file before submitting.')
+      }
+
+      setSubmitStage('Uploading payment proof')
+      await uploadPaymentProofFile(
         user.id,
-        selected.id,
-        selected.name,
-        selected.price,
-        paymentSelected.name,
-        transactionId,
+        currentOrderId,
+        paymentFile,
         user.email || '',
         fullName
       )
 
-      if (!orderResult.orderId) throw new Error('Failed to create order')
-
-      setOrderId(orderResult.orderId)
-
-      // Track order creation
-      trackOrderCreated(orderResult.orderId, selected.name, selected.price, paymentSelected.name)
-
-      // 2. Upload payment proof
-      if (paymentFile) {
-        try {
-          await uploadPaymentProofFile(user.id, orderResult.orderId, paymentFile, user.email || '', fullName)
-        } catch (uploadError) {
-          console.error('Upload error:', uploadError)
-          // Continue even if upload fails - order is created
-        }
-      }
-
-      toast.success('Order submitted! Moving to confirmation...')
-      setTimeout(() => handleNext(), 1000)
+      // Only now is the order genuinely complete.
+      toast.success('Order submitted and payment proof attached.')
+      setSubmitStage('')
+      setTimeout(() => handleNext(), 800)
     } catch (error: any) {
-      console.error('Order submission error:', error)
-      toast.error(error?.message || 'Failed to submit order. Please try again.')
+      const message =
+        error?.message || 'Failed to submit order. Please try again.'
+      console.error('[checkout] Order submission failed:', error)
+
+      // Deliberately: no step advance, no file clearing, no orderId reset.
+      setSubmitError(message)
+      setSubmitStage('')
+      toast.error(message, { duration: 9000 })
     } finally {
       setLoading(false)
     }
@@ -435,10 +467,30 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            <div className="flex gap-4">
+            {/* Real failure detail - shown instead of silently continuing */}
+            {submitError && (
+              <div className="mt-6 bg-red-500/10 border border-red-500/30 rounded-lg p-5">
+                <p className="text-red-400 font-semibold mb-1">Your order was not completed</p>
+                <p className="text-sm text-red-300/90 break-words">{submitError}</p>
+                {orderId && (
+                  <p className="text-xs text-slate-300 mt-3">
+                    Your order has already been created (ID{' '}
+                    <span className="font-mono text-slate-200">{orderId}</span>). Pressing Submit
+                    again will attach the payment proof to that same order — it will
+                    <strong> not</strong> create a duplicate order.
+                  </p>
+                )}
+                <p className="text-xs text-slate-400 mt-2">
+                  Nothing was cleared. Your details and selected file have been kept.
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-4 mt-6">
               <button
                 onClick={handleBack}
-                className="flex-1 px-6 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition"
+                disabled={loading}
+                className="flex-1 px-6 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition disabled:opacity-50"
               >
                 Back
               </button>
@@ -447,7 +499,13 @@ export default function PaymentPage() {
                 disabled={loading}
                 className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Submitting...' : 'Submit Order'}
+                {loading
+                  ? `${submitStage || 'Submitting'}...`
+                  : submitError
+                  ? orderId
+                    ? 'Retry Payment Proof Upload'
+                    : 'Try Again'
+                  : 'Submit Order'}
               </button>
             </div>
           </div>

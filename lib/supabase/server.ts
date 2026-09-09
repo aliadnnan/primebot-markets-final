@@ -97,22 +97,56 @@ export async function createOrder(
   transactionId: string,
   paymentProofUrl?: string
 ) {
-  const { data, error } = await (supabaseServer as any).from('orders').insert([
-    {
-      user_id: userId,
-      bot_id: botId,
-      bot_name: botName,
-      bot_price: botPrice,
-      payment_method: paymentMethod,
-      transaction_id: transactionId,
-      payment_proof_url: paymentProofUrl,
-      status: 'pending_verification',
-    },
-  ])
+  // `.select().single()` is REQUIRED here.
+  //
+  // supabase-js v2 returns `data: null` for a bare `.insert()` - the row is
+  // written, but nothing comes back. This function previously ended with
+  // `return data`, so callers always received null and could never read the new
+  // order's id. `createNewOrder` treated that as failure and threw
+  // "Failed to create order" on every single order.
+  //
+  // `.single()` also guarantees one object (not an array), so the id is
+  // available immediately, before the payment proof is attached.
+  const { data, error } = await (supabaseServer as any)
+    .from('orders')
+    .insert([
+      {
+        user_id: userId,
+        bot_id: botId,
+        bot_name: botName,
+        bot_price: botPrice,
+        payment_method: paymentMethod,
+        transaction_id: transactionId,
+        payment_proof_url: paymentProofUrl ?? null,
+        status: 'pending_verification',
+      },
+    ])
+    .select()
+    .single()
 
   if (error) {
-    console.error('Error creating order:', error)
-    throw error
+    console.error('[orders] Error creating order:', error)
+    const code = (error as any).code
+    if (code === '23503') {
+      throw new Error(
+        `Order could not be created: a referenced record does not exist (foreign key). ` +
+          `Check that the user and bot ids are valid. Raw error: ${error.message}`
+      )
+    }
+    if (code === '42501') {
+      throw new Error(
+        `Order could not be created: permission denied by row level security on the orders table. ` +
+          `Raw error: ${error.message}`
+      )
+    }
+    throw new Error(`Order could not be created: ${error.message}`)
+  }
+
+  if (!data?.id) {
+    // Should be unreachable: no error but no row returned.
+    throw new Error(
+      'The order insert reported no error but returned no row, so the order id could not be read.'
+    )
   }
 
   return data
@@ -177,22 +211,73 @@ export async function getUserOrders(userId: string) {
   return data || []
 }
 
+/**
+ * Payment proof storage bucket - the EXISTING private bucket, unchanged.
+ * Declared once so the upload helper and the signed-URL helper can never drift
+ * apart. Unrelated to the video buckets in lib/storage-buckets.ts.
+ */
+export const PAYMENT_PROOF_BUCKET = 'payment-proofs'
+
 // Helper to upload payment proof
 // Returns the file PATH (not URL) - payment-proofs bucket is PRIVATE
 export async function uploadPaymentProof(
   userId: string,
   orderId: string,
   file: File
-): Promise<string | null> {
-  const fileName = `${userId}/${orderId}/${Date.now()}-${file.name}`
+): Promise<string> {
+  // The original name is sanitised: storage object keys reject some characters,
+  // and an odd filename would otherwise fail the upload for a reason the user
+  // could never work out.
+  const safeName =
+    file.name
+      .replace(/[^a-zA-Z0-9._-]/g, '_')
+      .replace(/_{2,}/g, '_')
+      .slice(-80) || 'proof'
 
-  const { data, error } = await supabaseServer.storage
-    .from('payment-proofs')
-    .upload(fileName, file)
+  const fileName = `${userId}/${orderId}/${Date.now()}-${safeName}`
+
+  const { error } = await supabaseServer.storage
+    .from(PAYMENT_PROOF_BUCKET)
+    .upload(fileName, file, {
+      contentType: file.type || undefined,
+      upsert: false,
+    })
 
   if (error) {
-    console.error('Error uploading payment proof:', error)
-    return null
+    // Previously this returned null, which discarded the real reason and left
+    // the caller with a generic "Failed to upload payment proof". The actual
+    // Supabase Storage message is now propagated.
+    console.error('[orders] Error uploading payment proof:', {
+      bucket: PAYMENT_PROOF_BUCKET,
+      path: fileName,
+      error,
+    })
+
+    const message = error.message || 'unknown error'
+    const lower = message.toLowerCase()
+
+    if (lower.includes('bucket not found') || lower.includes('related resource does not exist')) {
+      throw new Error(
+        `Payment proof upload failed: the storage bucket "${PAYMENT_PROOF_BUCKET}" does not exist in the connected Supabase project. Raw error: ${message}`
+      )
+    }
+    if (lower.includes('exceeded') || lower.includes('too large')) {
+      throw new Error(
+        `Payment proof upload failed: the file is larger than the limit set on the "${PAYMENT_PROOF_BUCKET}" bucket. Raw error: ${message}`
+      )
+    }
+    if (lower.includes('mime') || lower.includes('content type')) {
+      throw new Error(
+        `Payment proof upload failed: the "${PAYMENT_PROOF_BUCKET}" bucket does not allow this file type (${file.type || 'unknown'}). Raw error: ${message}`
+      )
+    }
+    if (lower.includes('row-level security') || lower.includes('denied') || lower.includes('unauthorized')) {
+      throw new Error(
+        `Payment proof upload failed: storage policies on "${PAYMENT_PROOF_BUCKET}" denied the upload. Raw error: ${message}`
+      )
+    }
+
+    throw new Error(`Payment proof upload failed: ${message}`)
   }
 
   // Return the file PATH (not URL)
@@ -205,7 +290,7 @@ export async function uploadPaymentProof(
 export async function getSignedPaymentProofUrl(path: string, expiresIn: number = 3600): Promise<string | null> {
   try {
     const { data, error } = await supabaseServer.storage
-      .from('payment-proofs')
+      .from(PAYMENT_PROOF_BUCKET)
       .createSignedUrl(path, expiresIn)
 
     if (error) {

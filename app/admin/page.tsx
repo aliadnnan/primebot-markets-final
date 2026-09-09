@@ -14,7 +14,10 @@ interface AdminOrder {
   bot_price: number
   payment_method: string
   transaction_id: string
-  payment_proof_url?: string
+  payment_proof_url?: string | null
+  payment_proof_path?: string
+  payment_proof_signed?: boolean
+  payment_proof_error?: string
   status: 'pending_verification' | 'verified' | 'rejected' | 'delivered'
   rejection_reason?: string
   created_at: string
@@ -649,17 +652,39 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Payment Proof */}
-                {selectedOrder.payment_proof_url && (
+                {(selectedOrder.payment_proof_url || selectedOrder.payment_proof_path) && (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-400 uppercase mb-3">Payment Proof</h3>
-                    <a
-                      href={selectedOrder.payment_proof_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 break-all text-sm"
-                    >
-                      View Screenshot
-                    </a>
+                    {selectedOrder.payment_proof_url ? (
+                      <>
+                        <a
+                          href={selectedOrder.payment_proof_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300 break-all text-sm"
+                        >
+                          View Screenshot
+                        </a>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Secure link, valid for 1 hour.
+                        </p>
+                      </>
+                    ) : (
+                      <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                        <p className="text-yellow-400 text-sm font-medium">
+                          Proof recorded but not viewable
+                        </p>
+                        <p className="text-xs text-yellow-300/80 mt-1">
+                          {selectedOrder.payment_proof_error ||
+                            'The file could not be signed for viewing.'}
+                        </p>
+                        {selectedOrder.payment_proof_path && (
+                          <p className="text-xs text-slate-400 mt-2 break-all">
+                            Stored path: {selectedOrder.payment_proof_path}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 

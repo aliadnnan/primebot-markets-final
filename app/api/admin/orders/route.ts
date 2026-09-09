@@ -22,18 +22,56 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
     }
 
-    // Generate signed URLs for payment proofs
+    // Generate signed URLs for payment proofs.
+    //
+    // The stored value is a storage PATH, not a URL. The previous version fell
+    // back to that raw path in `payment_proof_url` when signing failed, and the
+    // Admin Panel put it straight into an href - producing a broken relative
+    // link (e.g. /admin/<uuid>/<uuid>/proof.png) with nothing to explain why.
+    // The path and the signed URL are now reported as separate fields so the UI
+    // can tell the difference.
     const ordersWithSignedUrls = await Promise.all(
       (data || []).map(async (order: any) => {
-        if (order.payment_proof_url) {
-          // payment_proof_url is the file PATH, generate a signed URL for access
-          const signedUrl = await getSignedPaymentProofUrl(order.payment_proof_url, 3600)
+        if (!order.payment_proof_url) return order
+
+        const storedPath: string = order.payment_proof_url
+
+        // Already a full URL (legacy rows stored public URLs) - pass through.
+        if (/^https?:\/\//i.test(storedPath)) {
+          return { ...order, payment_proof_path: storedPath, payment_proof_signed: true }
+        }
+
+        try {
+          const signedUrl = await getSignedPaymentProofUrl(storedPath, 3600)
+          if (signedUrl) {
+            return {
+              ...order,
+              payment_proof_url: signedUrl,
+              payment_proof_path: storedPath,
+              payment_proof_signed: true,
+            }
+          }
+
+          console.error('[admin/orders] Could not sign payment proof:', { path: storedPath })
           return {
             ...order,
-            payment_proof_url: signedUrl || order.payment_proof_url, // fallback to path if signing fails
+            payment_proof_url: null,
+            payment_proof_path: storedPath,
+            payment_proof_signed: false,
+            payment_proof_error:
+              'The proof file could not be signed for viewing. It may be missing from the payment-proofs bucket.',
+          }
+        } catch (signError) {
+          console.error('[admin/orders] Signing threw:', signError)
+          return {
+            ...order,
+            payment_proof_url: null,
+            payment_proof_path: storedPath,
+            payment_proof_signed: false,
+            payment_proof_error:
+              signError instanceof Error ? signError.message : 'Could not sign the proof file.',
           }
         }
-        return order
       })
     )
 
