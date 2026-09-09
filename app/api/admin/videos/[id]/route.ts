@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { isUserAdmin } from '@/lib/supabase/server'
 import { isMissingColumnError, withoutOptionalColumns, MIGRATION_HINT } from '@/lib/video-columns'
 import { VIDEO_BUCKET, THUMBNAIL_BUCKET } from '@/lib/storage-buckets'
 
@@ -35,14 +36,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     const userId = userData.user.id
 
-    // Check if user is admin
-    const { data: userProfile, error: profileError } = await supabaseAdmin
-      .from('users')
-      .select('is_admin')
-      .eq('id', userId)
-      .single()
-
-    if (profileError || !userProfile?.is_admin) {
+    // Admin authorization: ONE shared definition, in lib/supabase/server.ts,
+    // backed by the locked-down admin_users table. Previously each of these
+    // routes carried its own copy of this check against users.is_admin, so a
+    // change in one place could silently leave the others behind.
+    if (!(await isUserAdmin(userId))) {
       return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 })
     }
 
@@ -149,14 +147,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     const userId = userData.user.id
 
-    // Check if user is admin
-    const { data: userProfile, error: profileError } = await supabaseAdmin
-      .from('users')
-      .select('is_admin')
-      .eq('id', userId)
-      .single()
-
-    if (profileError || !userProfile?.is_admin) {
+    // Admin authorization: ONE shared definition, in lib/supabase/server.ts,
+    // backed by the locked-down admin_users table. Previously each of these
+    // routes carried its own copy of this check against users.is_admin, so a
+    // change in one place could silently leave the others behind.
+    if (!(await isUserAdmin(userId))) {
       return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 })
     }
 

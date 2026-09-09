@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { PAYMENT_PROOF_BUCKET, BOT_DELIVERY_BUCKET } from '../storage-buckets'
 import type { Database } from './client'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
@@ -35,6 +36,40 @@ export const supabaseServer = createClient<Database>(
 )
 
 
+/**
+ * Resolves the authenticated user from the request's Bearer token.
+ *
+ * This exists because `supabaseServer` is the SERVICE ROLE client, created with
+ * `persistSession: false` and no user context. Calling
+ * `supabaseServer.auth.getUser()` with no argument therefore always returns
+ * null - which is exactly why /api/orders/list returned 401 for everyone.
+ *
+ * The token must be verified against Supabase rather than decoded locally, so
+ * a forged token cannot impersonate a user. `getUser(token)` does that
+ * server-side check.
+ *
+ * Returns null when there is no valid session. Never trust a user id sent in a
+ * request body - always use the value returned here.
+ */
+export async function getUserFromRequest(
+  request: Request
+): Promise<{ id: string; email: string | null } | null> {
+  if (!isSupabaseServerConfigured) return null
+
+  const authorization = request.headers.get('authorization') || ''
+  const token = authorization.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
+  if (!token) return null
+
+  try {
+    const { data, error } = await supabaseServer.auth.getUser(token)
+    if (error || !data?.user) return null
+    return { id: data.user.id, email: data.user.email ?? null }
+  } catch (error) {
+    console.error('[auth] Could not resolve user from request:', error)
+    return null
+  }
+}
+
 export async function getAdminUserFromRequest(request: Request) {
   if (!isSupabaseServerConfigured) return null
 
@@ -42,33 +77,86 @@ export async function getAdminUserFromRequest(request: Request) {
   const token = authorization.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
   if (!token) return null
 
+  // The token is verified against Supabase - never decoded locally - so a
+  // forged or edited token cannot impersonate anyone.
   const { data: authData, error: authError } = await supabaseServer.auth.getUser(token)
   if (authError || !authData.user) return null
 
-  const { data: profile, error: profileError } = await (supabaseServer as any)
-    .from('users')
-    .select('id, is_admin')
-    .eq('id', authData.user.id)
-    .single()
+  const authorized = await isUserAdmin(authData.user.id)
+  if (!authorized) return null
 
-  if (profileError || !profile?.is_admin) return null
   return authData.user
 }
 
-// Helper to check if user is admin
+/**
+ * THE single definition of "is this user an administrator".
+ *
+ * Authoritative source: the `admin_users` table, created by
+ * sql/06_admin_authorization.sql. That table has RLS enabled and NO policies,
+ * so neither the anon key nor any signed-in user's key can read or write it -
+ * only the service role, which exists solely on the server. A customer
+ * therefore cannot grant themselves admin by editing localStorage,
+ * sessionStorage, a client-side variable, a URL, or frontend JavaScript, and
+ * cannot do it by calling any API directly either.
+ *
+ * `users.is_admin` is used ONLY as a fallback for the window before
+ * sql/06 has been run, detected by the table-missing error code. Once
+ * `admin_users` exists it is used exclusively - a stale `is_admin = true` on a
+ * users row grants nothing. This ordering is deliberate: it makes the new
+ * source authoritative without the possibility of locking the real admin out
+ * before the migration is applied.
+ */
 export async function isUserAdmin(userId: string): Promise<boolean> {
-  const { data, error } = await (supabaseServer as any)
-    .from('users')
-    .select('is_admin')
-    .eq('id', userId)
-    .single()
+  if (!isSupabaseServerConfigured || !userId) return false
 
-  if (error) {
-    console.error('Error checking admin status:', error)
+  const { data, error } = await (supabaseServer as any)
+    .from('admin_users')
+    .select('user_id')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!error) {
+    return Boolean(data?.user_id)
+  }
+
+  // 42P01 = undefined_table, PGRST205 = table not found in schema cache.
+  const tableMissing =
+    (error as any).code === '42P01' ||
+    (error as any).code === 'PGRST205' ||
+    /admin_users/.test(`${error.message || ''}`)
+
+  if (!tableMissing) {
+    // A real failure (network, permissions) must FAIL CLOSED, not grant access.
+    console.error('[auth] admin_users lookup failed; denying admin access:', error)
     return false
   }
 
-  return data?.is_admin ?? false
+  console.warn(
+    '[auth] admin_users table not found - falling back to users.is_admin. ' +
+      'Run sql/06_admin_authorization.sql to enable the separate admin authorization table.'
+  )
+
+  const { data: profile, error: profileError } = await (supabaseServer as any)
+    .from('users')
+    .select('is_admin')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (profileError) {
+    console.error('[auth] Fallback admin check failed; denying access:', profileError)
+    return false
+  }
+
+  return profile?.is_admin === true
+}
+
+/** True when the separate admin_users table is present and in use. */
+export async function isAdminTablePresent(): Promise<boolean> {
+  if (!isSupabaseServerConfigured) return false
+  const { error } = await (supabaseServer as any)
+    .from('admin_users')
+    .select('user_id', { head: true, count: 'exact' })
+  return !error
 }
 
 // Helper to get user by ID
@@ -216,77 +304,32 @@ export async function getUserOrders(userId: string) {
  * Declared once so the upload helper and the signed-URL helper can never drift
  * apart. Unrelated to the video buckets in lib/storage-buckets.ts.
  */
-export const PAYMENT_PROOF_BUCKET = 'payment-proofs'
+// Bucket IDs live in lib/storage-buckets.ts (single source of truth).
+// Imported so they are in scope here, and re-exported so existing imports of
+// these names from this module keep working.
+export { PAYMENT_PROOF_BUCKET, BOT_DELIVERY_BUCKET }
+
 
 // Helper to upload payment proof
 // Returns the file PATH (not URL) - payment-proofs bucket is PRIVATE
-export async function uploadPaymentProof(
-  userId: string,
-  orderId: string,
-  file: File
-): Promise<string> {
-  // The original name is sanitised: storage object keys reject some characters,
-  // and an odd filename would otherwise fail the upload for a reason the user
-  // could never work out.
-  const safeName =
-    file.name
-      .replace(/[^a-zA-Z0-9._-]/g, '_')
-      .replace(/_{2,}/g, '_')
-      .slice(-80) || 'proof'
+/*
+ * REMOVED: uploadPaymentProof(userId, orderId, file: File)
+ *
+ * This was the last remaining obsolete payment-proof upload path. It streamed
+ * the File through the server, which (a) duplicated the signed-upload flow and
+ * (b) was the shape that produced "Only plain objects, and a few built-ins, can
+ * be passed to Server Actions" when it was reachable from a 'use server'
+ * module.
+ *
+ * There is now exactly ONE payment-proof upload flow:
+ *   lib/payment-proof-upload.ts  (browser)
+ *     -> POST /api/orders/payment-proof/signed-url
+ *     -> PUT direct to Supabase Storage
+ *     -> POST /api/orders/payment-proof/finalize
+ *
+ * Admin viewing still uses getSignedPaymentProofUrl() below.
+ */
 
-  const fileName = `${userId}/${orderId}/${Date.now()}-${safeName}`
-
-  const { error } = await supabaseServer.storage
-    .from(PAYMENT_PROOF_BUCKET)
-    .upload(fileName, file, {
-      contentType: file.type || undefined,
-      upsert: false,
-    })
-
-  if (error) {
-    // Previously this returned null, which discarded the real reason and left
-    // the caller with a generic "Failed to upload payment proof". The actual
-    // Supabase Storage message is now propagated.
-    console.error('[orders] Error uploading payment proof:', {
-      bucket: PAYMENT_PROOF_BUCKET,
-      path: fileName,
-      error,
-    })
-
-    const message = error.message || 'unknown error'
-    const lower = message.toLowerCase()
-
-    if (lower.includes('bucket not found') || lower.includes('related resource does not exist')) {
-      throw new Error(
-        `Payment proof upload failed: the storage bucket "${PAYMENT_PROOF_BUCKET}" does not exist in the connected Supabase project. Raw error: ${message}`
-      )
-    }
-    if (lower.includes('exceeded') || lower.includes('too large')) {
-      throw new Error(
-        `Payment proof upload failed: the file is larger than the limit set on the "${PAYMENT_PROOF_BUCKET}" bucket. Raw error: ${message}`
-      )
-    }
-    if (lower.includes('mime') || lower.includes('content type')) {
-      throw new Error(
-        `Payment proof upload failed: the "${PAYMENT_PROOF_BUCKET}" bucket does not allow this file type (${file.type || 'unknown'}). Raw error: ${message}`
-      )
-    }
-    if (lower.includes('row-level security') || lower.includes('denied') || lower.includes('unauthorized')) {
-      throw new Error(
-        `Payment proof upload failed: storage policies on "${PAYMENT_PROOF_BUCKET}" denied the upload. Raw error: ${message}`
-      )
-    }
-
-    throw new Error(`Payment proof upload failed: ${message}`)
-  }
-
-  // Return the file PATH (not URL)
-  // The bucket is PRIVATE - signed URLs are generated on-demand in API routes
-  return fileName
-}
-
-// Helper to get signed URL for payment proof (for secure, time-limited access)
-// Used by admin endpoints to generate temporary access URLs
 export async function getSignedPaymentProofUrl(path: string, expiresIn: number = 3600): Promise<string | null> {
   try {
     const { data, error } = await supabaseServer.storage

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { isUserAdmin } from '@/lib/supabase/server'
 import { projectRefFromUrl } from '@/lib/supabase-diagnostics'
 import { VIDEO_BUCKET } from '@/lib/storage-buckets'
 
@@ -46,13 +47,8 @@ async function createSignedUpload(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { data: userProfile, error: profileError } = await supabaseAdmin
-    .from('users')
-    .select('is_admin')
-    .eq('id', userData.user.id)
-    .single()
-
-  if (profileError || !userProfile?.is_admin) {
+  // Shared admin authorization - see lib/supabase/server.ts.
+  if (!(await isUserAdmin(userData.user.id))) {
     return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 })
   }
 
@@ -211,14 +207,11 @@ export async function POST(request: NextRequest) {
 
     const userId = userData.user.id
 
-    // Check if user is admin
-    const { data: userProfile, error: profileError } = await supabaseAdmin
-      .from('users')
-      .select('is_admin')
-      .eq('id', userId)
-      .single()
-
-    if (profileError || !userProfile?.is_admin) {
+    // Admin authorization: ONE shared definition, in lib/supabase/server.ts,
+    // backed by the locked-down admin_users table. Previously each of these
+    // routes carried its own copy of this check against users.is_admin, so a
+    // change in one place could silently leave the others behind.
+    if (!(await isUserAdmin(userId))) {
       return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 })
     }
 

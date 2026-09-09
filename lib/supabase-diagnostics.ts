@@ -16,7 +16,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
-import { REQUIRED_BUCKETS } from './storage-buckets'
+import { REQUIRED_BUCKETS, ALL_REQUIRED_BUCKETS } from './storage-buckets'
 
 // Bucket IDs live in lib/storage-buckets.ts. Re-exported here so existing
 // imports keep working, but there is only one definition.
@@ -264,7 +264,7 @@ export async function runSupabaseDiagnostics(): Promise<{
           : `Project ${urlRef ?? '(unknown)'} has NO storage buckets at all.`,
       })
 
-      for (const bucket of Object.values(REQUIRED_BUCKETS)) {
+      for (const bucket of ALL_REQUIRED_BUCKETS) {
         const found = (data || []).find((b: any) => (b.id ?? b.name) === bucket)
         if (found) {
           const limit = (found as any).file_size_limit
@@ -283,7 +283,7 @@ export async function runSupabaseDiagnostics(): Promise<{
           checks.push({
             name: `Bucket "${bucket}"`,
             status: 'fail',
-            detail: `DOES NOT EXIST in project ${urlRef ?? '(unknown)'}. This is the cause of "The related resource does not exist" during upload. Create a bucket with this exact ID (case-sensitive), or repoint the environment variables at the project that has it.`,
+            detail: `DOES NOT EXIST in project ${urlRef ?? '(unknown)'}. This is the cause of "The related resource does not exist" during upload. Create a bucket with this exact ID (case-sensitive) - sql/07_storage_buckets_setup.sql creates payment-proofs and bot-deliveries with the correct settings - or repoint the environment variables at the project that has it.`,
           })
         }
       }

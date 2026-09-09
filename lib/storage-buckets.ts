@@ -45,7 +45,32 @@ export const THUMBNAIL_BUCKET =
   process.env.SUPABASE_THUMBNAIL_BUCKET ||
   'video-thumbnils'
 
-/** Both required buckets, keyed by upload kind. */
+/**
+ * Private bucket holding customer payment proofs.
+ * Overridable with NEXT_PUBLIC_SUPABASE_PAYMENT_PROOF_BUCKET in case the bucket
+ * in your Supabase project is named differently - the same mismatch that broke
+ * the video uploads (`videos-content` vs `video-content`).
+ */
+export const PAYMENT_PROOF_BUCKET =
+  process.env.NEXT_PUBLIC_SUPABASE_PAYMENT_PROOF_BUCKET ||
+  process.env.SUPABASE_PAYMENT_PROOF_BUCKET ||
+  'payment-proofs'
+
+/** Private bucket holding purchasable EA/bot delivery files. */
+export const BOT_DELIVERY_BUCKET =
+  process.env.NEXT_PUBLIC_SUPABASE_DELIVERY_BUCKET ||
+  process.env.SUPABASE_DELIVERY_BUCKET ||
+  'bot-deliveries'
+
+/** Every bucket this application requires. Used by Run Diagnostics. */
+export const ALL_REQUIRED_BUCKETS = [
+  VIDEO_BUCKET,
+  THUMBNAIL_BUCKET,
+  PAYMENT_PROOF_BUCKET,
+  BOT_DELIVERY_BUCKET,
+] as const
+
+/** Both required video buckets, keyed by upload kind. */
 export const REQUIRED_BUCKETS = {
   video: VIDEO_BUCKET,
   thumbnail: THUMBNAIL_BUCKET,

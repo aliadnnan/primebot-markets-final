@@ -25,9 +25,17 @@ export interface PaymentMethod {
   id: string;
   name: string;
   description: string;
+  /** camelCase throughout the UI. Database columns are snake_case and are
+   *  normalised by normalisePaymentMethod() in lib/payment-methods.ts. */
   accountNumber: string;
   accountType: string;
   instructions: string;
+  /** Name the customer should send the payment to. Optional until configured. */
+  accountHolderName?: string;
+  /** Public URL or storage path of a QR code image, if the admin uploaded one. */
+  qrCodeUrl?: string;
+  isActive?: boolean;
+  displayOrder?: number;
 }
 
 export interface PerformanceData {

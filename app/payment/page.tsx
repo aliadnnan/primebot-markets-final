@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 import { BOTS, PAYMENT_METHODS } from '@/lib/constants'
-import { createNewOrder } from '@/app/actions/orders'
-import { uploadPaymentProofFile } from '@/app/actions/orders'
+import { uploadPaymentProofDirect } from '@/lib/payment-proof-upload'
 import toast from 'react-hot-toast'
 import {
   trackCheckoutStarted,
@@ -18,7 +17,7 @@ import {
 
 export default function PaymentPage() {
   const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, getAccessToken } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [fullName, setFullName] = useState('')
@@ -38,9 +37,69 @@ export default function PaymentPage() {
   const [orderId, setOrderId] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitStage, setSubmitStage] = useState('')
+  const [uploadProgress, setUploadProgress] = useState(0)
 
-  const selected = selectedBot ? BOTS.find((b) => b.id === selectedBot) : null
-  const paymentSelected = selectedPayment ? PAYMENT_METHODS.find((p) => p.id === selectedPayment) : null
+  // Bots and payment methods come from the database so an admin can change
+  // prices and account numbers without a code change. lib/constants.ts is the
+  // fallback only. The PRICE CHARGED is always re-read on the server in
+  // /api/orders/create, so what is shown here can never be used to underpay.
+  const [bots, setBots] = useState(BOTS)
+  // Starts EMPTY on purpose. Payment methods are only ever shown from the
+  // database - never from hard-coded constants - because displaying a stale
+  // account number would send a customer's money to the wrong account.
+  const [methods, setMethods] = useState<any[]>([])
+  const [methodsLoading, setMethodsLoading] = useState(true)
+  const [methodsError, setMethodsError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+
+    const load = async () => {
+      try {
+        const [botRes, methodRes] = await Promise.all([
+          fetch('/api/bots'),
+          fetch('/api/payment-methods'),
+        ])
+        const botData = await botRes.json().catch(() => null)
+        const methodData = await methodRes.json().catch(() => null)
+        if (!active) return
+
+        if (botData?.success && Array.isArray(botData.bots) && botData.bots.length) {
+          setBots(botData.bots)
+        }
+
+        if (methodData?.success && Array.isArray(methodData.methods) && methodData.methods.length) {
+          setMethods(methodData.methods)
+          setMethodsError(null)
+        } else {
+          setMethods([])
+          setMethodsError(
+            methodData?.error ||
+              'No active payment methods are configured. Please contact support before paying.'
+          )
+        }
+      } catch (error) {
+        console.error('[checkout] Could not load bots/payment methods:', error)
+        if (!active) return
+        setMethods([])
+        setMethodsError(
+          'Payment methods could not be loaded. Please check your connection and reload, or contact support.'
+        )
+      } finally {
+        if (active) setMethodsLoading(false)
+      }
+    }
+
+    load()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const selected = selectedBot ? bots.find((b: any) => b.id === selectedBot) : null
+  const paymentSelected = selectedPayment
+    ? methods.find((p: any) => p.id === selectedPayment)
+    : null
 
   // Redirect to login if not authenticated
   if (!authLoading && !user) {
@@ -132,70 +191,86 @@ export default function PaymentPage() {
     setSubmitError(null)
 
     try {
-      // Track payment proof submission
+      const accessToken = await getAccessToken()
+      if (!accessToken) {
+        throw new Error('Your session has expired. Please sign in again and retry.')
+      }
+
       trackPaymentProofSubmitted(paymentSelected.name, selected.name, selected.price)
 
-      // ---- 1. Create the order, ONCE ----------------------------------
+      // ---- 1. Create the order, ONCE, on the server -------------------
+      //
+      // Only IDs are sent. The server resolves the user from the token and
+      // reads the authoritative bot price from the database, so nothing that
+      // affects money is taken from the browser.
       //
       // If a previous attempt already created the order and only the proof
-      // upload failed, that order id is reused. Creating a second order on
-      // retry is what produced duplicates. A new order is only created when
-      // `orderId` is null, i.e. this is a genuinely new checkout.
+      // upload failed, that order ID is reused - creating a second order on
+      // retry is what produced duplicates.
       let currentOrderId = orderId
 
       if (!currentOrderId) {
         setSubmitStage('Creating your order')
-        const orderResult = await createNewOrder(
-          user.id,
-          selected.id,
-          selected.name,
-          selected.price,
-          paymentSelected.name,
-          transactionId,
-          user.email || '',
-          fullName
-        )
 
-        if (!orderResult?.orderId) {
-          throw new Error('The order was created but no order id was returned.')
+        const createResponse = await fetch('/api/orders/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            botId: selected.id,
+            paymentMethodId: paymentSelected.id,
+            transactionId: transactionId.trim(),
+            fullName,
+          }),
+        })
+
+        const createData = await createResponse.json().catch(() => null)
+
+        if (!createResponse.ok || !createData?.success) {
+          throw new Error(
+            createData?.error || `Could not create your order (HTTP ${createResponse.status})`
+          )
         }
 
-        currentOrderId = orderResult.orderId
+        currentOrderId = createData.orderId as string
         setOrderId(currentOrderId)
         trackOrderCreated(currentOrderId, selected.name, selected.price, paymentSelected.name)
       }
 
       // ---- 2. Upload the payment proof --------------------------------
       //
-      // A failure here must NOT be swallowed and must NOT advance the user to
-      // the confirmation step. The real error is shown, the selected file is
-      // kept, and the order id is retained so the retry attaches the proof to
-      // the SAME order.
+      // Browser -> signed URL -> Supabase Storage -> server finalize.
+      // The File never crosses a Server Action boundary (the cause of the
+      // "Only plain objects... can be passed to Server Actions" error) and
+      // never passes through a Vercel serverless request body.
       if (!paymentFile) {
         throw new Error('Please select your payment proof file before submitting.')
       }
 
-      setSubmitStage('Uploading payment proof')
-      await uploadPaymentProofFile(
-        user.id,
-        currentOrderId,
-        paymentFile,
-        user.email || '',
-        fullName
-      )
+      await uploadPaymentProofDirect({
+        orderId: currentOrderId,
+        file: paymentFile,
+        fullName,
+        getToken: getAccessToken,
+        onStage: setSubmitStage,
+        onProgress: setUploadProgress,
+      })
 
       // Only now is the order genuinely complete.
       toast.success('Order submitted and payment proof attached.')
       setSubmitStage('')
+      setUploadProgress(0)
       setTimeout(() => handleNext(), 800)
     } catch (error: any) {
-      const message =
-        error?.message || 'Failed to submit order. Please try again.'
+      const message = error?.message || 'Failed to submit order. Please try again.'
       console.error('[checkout] Order submission failed:', error)
 
       // Deliberately: no step advance, no file clearing, no orderId reset.
       setSubmitError(message)
       setSubmitStage('')
+      setUploadProgress(0)
       toast.error(message, { duration: 9000 })
     } finally {
       setLoading(false)
@@ -250,7 +325,7 @@ export default function PaymentPage() {
             <p className="text-slate-400 mb-8">Select the Expert Advisor that matches your trading style</p>
 
             <div className="space-y-4 mb-12">
-              {BOTS.map((bot) => (
+              {bots.map((bot) => (
                 <button
                   key={bot.id}
                   onClick={() => {
@@ -300,7 +375,24 @@ export default function PaymentPage() {
             <p className="text-slate-400 mb-8">Choose how you want to pay for {selected?.name}</p>
 
             <div className="space-y-4 mb-12">
-              {PAYMENT_METHODS.map((method) => (
+              {methodsLoading && (
+                <p className="text-slate-400 text-sm">Loading payment methods...</p>
+              )}
+
+              {!methodsLoading && methodsError && (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-5">
+                  <p className="text-red-400 font-semibold mb-1">
+                    Payment methods are unavailable
+                  </p>
+                  <p className="text-sm text-red-300/90 break-words">{methodsError}</p>
+                  <p className="text-xs text-slate-400 mt-2">
+                    No account details are shown rather than risk showing an outdated number.
+                    Please reload, or contact support before sending any payment.
+                  </p>
+                </div>
+              )}
+
+              {methods.map((method: any) => (
                 <button
                   key={method.id}
                   onClick={() => {
@@ -348,14 +440,51 @@ export default function PaymentPage() {
             {paymentSelected && (
               <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 mb-12">
                 <div className="mb-6">
-                  <p className="text-slate-400 text-sm mb-2">Account Type:</p>
+                  <p className="text-slate-400 text-sm mb-2">Payment Method:</p>
+                  <p className="text-white text-lg font-medium">{paymentSelected.name}</p>
+                </div>
+
+                {paymentSelected.accountHolderName && (
+                  <div className="mb-6">
+                    <p className="text-slate-400 text-sm mb-2">Account Holder Name:</p>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="text-white text-lg font-medium">
+                        {paymentSelected.accountHolderName}
+                      </p>
+                      <button
+                        onClick={() =>
+                          copyToClipboard(
+                            paymentSelected.accountHolderName as string,
+                            `${paymentSelected.id}-holder`
+                          )
+                        }
+                        className={`px-3 py-1 rounded text-xs transition ${
+                          copiedLabel === `${paymentSelected.id}-holder`
+                            ? 'bg-green-600 text-white'
+                            : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                        }`}
+                      >
+                        {copiedLabel === `${paymentSelected.id}-holder` ? '✓ Copied' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <p className="text-slate-400 text-sm mb-2">
+                    {paymentSelected.accountType || 'Account'}:
+                  </p>
                   <p className="text-white text-lg font-medium">{paymentSelected.accountType}</p>
                 </div>
 
                 <div className="mb-8 p-6 bg-slate-700/50 rounded-lg border border-slate-600">
-                  <p className="text-slate-400 text-sm mb-2">Account Number:</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-white text-3xl font-bold font-mono">{paymentSelected.accountNumber}</p>
+                  <p className="text-slate-400 text-sm mb-2">
+                    {paymentSelected.accountType || 'Account Number'}:
+                  </p>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-white text-2xl sm:text-3xl font-bold font-mono break-all">
+                      {paymentSelected.accountNumber || 'Not configured'}
+                    </p>
                     <button
                       onClick={() => copyToClipboard(paymentSelected.accountNumber, paymentSelected.id)}
                       className={`px-4 py-2 rounded-lg transition ${
@@ -369,9 +498,38 @@ export default function PaymentPage() {
                   </div>
                 </div>
 
-                <div className="mb-6">
-                  <p className="text-slate-300 text-sm">{paymentSelected.instructions}</p>
-                </div>
+                {!paymentSelected.accountNumber && (
+                  <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                    <p className="text-red-400 text-sm font-semibold">
+                      This payment method has no account number configured
+                    </p>
+                    <p className="text-xs text-red-300/80 mt-1">
+                      Please choose another method or contact support — do not send a payment until
+                      you have the correct details.
+                    </p>
+                  </div>
+                )}
+
+                {paymentSelected.qrCodeUrl && (
+                  <div className="mb-6">
+                    <p className="text-slate-400 text-sm mb-2">Scan to pay:</p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={paymentSelected.qrCodeUrl}
+                      alt={`${paymentSelected.name} payment QR code`}
+                      className="w-48 h-48 object-contain bg-white rounded-lg p-2"
+                    />
+                  </div>
+                )}
+
+                {paymentSelected.instructions && (
+                  <div className="mb-6">
+                    <p className="text-slate-400 text-sm mb-2">Instructions:</p>
+                    <p className="text-slate-300 text-sm whitespace-pre-line">
+                      {paymentSelected.instructions}
+                    </p>
+                  </div>
+                )}
 
                 <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4">
                   <p className="text-yellow-400 text-sm">
