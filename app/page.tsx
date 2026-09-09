@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import PricingCard from '@/components/PricingCard'
 import RiskDisclaimer from '@/components/RiskDisclaimer'
-import { getActiveBots } from '@/lib/bots-server'
+import { BOTS } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'PrimeBot Markets - Smart Trading. Powered by Automation.',
@@ -29,9 +29,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function Home() {
-  const BOTS = await getActiveBots()
-
+export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
