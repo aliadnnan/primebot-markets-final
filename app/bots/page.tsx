@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import PricingCard from '@/components/PricingCard'
 import RiskDisclaimer from '@/components/RiskDisclaimer'
-import { BOTS } from '@/lib/constants'
+import { getActiveBots } from '@/lib/bots-server'
 
-export default function BotsPage() {
+export default async function BotsPage() {
+  const BOTS = await getActiveBots()
+
   return (
     <div className="min-h-screen">
       {/* Hero */}

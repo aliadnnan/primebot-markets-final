@@ -35,6 +35,40 @@ export const supabaseServer = createClient<Database>(
 )
 
 
+/**
+ * Resolves the authenticated user from the request's Bearer token.
+ *
+ * This exists because `supabaseServer` is the SERVICE ROLE client, created with
+ * `persistSession: false` and no user context. Calling
+ * `supabaseServer.auth.getUser()` with no argument therefore always returns
+ * null - which is exactly why /api/orders/list returned 401 for everyone.
+ *
+ * The token must be verified against Supabase rather than decoded locally, so
+ * a forged token cannot impersonate a user. `getUser(token)` does that
+ * server-side check.
+ *
+ * Returns null when there is no valid session. Never trust a user id sent in a
+ * request body - always use the value returned here.
+ */
+export async function getUserFromRequest(
+  request: Request
+): Promise<{ id: string; email: string | null } | null> {
+  if (!isSupabaseServerConfigured) return null
+
+  const authorization = request.headers.get('authorization') || ''
+  const token = authorization.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
+  if (!token) return null
+
+  try {
+    const { data, error } = await supabaseServer.auth.getUser(token)
+    if (error || !data?.user) return null
+    return { id: data.user.id, email: data.user.email ?? null }
+  } catch (error) {
+    console.error('[auth] Could not resolve user from request:', error)
+    return null
+  }
+}
+
 export async function getAdminUserFromRequest(request: Request) {
   if (!isSupabaseServerConfigured) return null
 
@@ -217,6 +251,14 @@ export async function getUserOrders(userId: string) {
  * apart. Unrelated to the video buckets in lib/storage-buckets.ts.
  */
 export const PAYMENT_PROOF_BUCKET = 'payment-proofs'
+
+/**
+ * Private bucket holding the purchasable EA/bot files delivered to customers.
+ * Must be created once in the Supabase Dashboard - see sql/05_future_proof_setup.sql.
+ * Never served publicly: downloads go through /api/orders/[id]/download, which
+ * verifies ownership and mints a short-lived signed URL.
+ */
+export const BOT_DELIVERY_BUCKET = 'bot-deliveries'
 
 // Helper to upload payment proof
 // Returns the file PATH (not URL) - payment-proofs bucket is PRIVATE
