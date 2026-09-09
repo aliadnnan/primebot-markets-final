@@ -6,6 +6,8 @@ import { useAuth } from '@/lib/auth-context'
 import toast from 'react-hot-toast'
 import VideoManagement from './VideoManagement'
 import CategoryManagement from './CategoryManagement'
+import BotManagement from './BotManagement'
+import PaymentMethodManagement from './PaymentMethodManagement'
 
 interface AdminOrder {
   id: string
@@ -18,6 +20,9 @@ interface AdminOrder {
   payment_proof_path?: string
   payment_proof_signed?: boolean
   payment_proof_error?: string
+  delivery_file_path?: string | null
+  delivery_file_name?: string | null
+  delivered_at?: string | null
   status: 'pending_verification' | 'verified' | 'rejected' | 'delivered'
   rejection_reason?: string
   created_at: string
@@ -291,6 +296,94 @@ export default function AdminDashboard() {
     })
   }
 
+  // ---- Bot delivery file upload -------------------------------------
+  // Browser -> signed URL -> private bot-deliveries bucket -> server records
+  // the path. The file never passes through a Vercel request body.
+  const [deliveryFile, setDeliveryFile] = useState<File | null>(null)
+  const [deliveryBusy, setDeliveryBusy] = useState(false)
+  const [deliveryError, setDeliveryError] = useState<string | null>(null)
+
+  const handleDeliveryUpload = async (order: AdminOrder, markDelivered: boolean) => {
+    if (!deliveryFile) {
+      setDeliveryError('Choose the EA/bot file to deliver first.')
+      return
+    }
+
+    setDeliveryBusy(true)
+    setDeliveryError(null)
+
+    try {
+      const token = await getAccessToken()
+      if (!token) throw new Error('Admin session not found. Reload and sign in again.')
+
+      // 1. Signed upload URL
+      const prep = await fetch(`/api/admin/orders/${order.id}/delivery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          filename: deliveryFile.name,
+          contentType: deliveryFile.type,
+          size: deliveryFile.size,
+        }),
+      })
+      const prepData = await prep.json().catch(() => null)
+      if (!prep.ok || !prepData?.success) {
+        throw new Error(prepData?.error || `Could not prepare the upload (HTTP ${prep.status})`)
+      }
+
+      // 2. Direct upload to the private bucket
+      const form = new FormData()
+      form.append('cacheControl', '3600')
+      form.append('', deliveryFile)
+      const put = await fetch(prepData.signedUrl, {
+        method: 'PUT',
+        headers: { 'x-upsert': 'false' },
+        body: form,
+      })
+      if (!put.ok) {
+        let detail = `HTTP ${put.status}`
+        try {
+          const parsed = await put.json()
+          detail = parsed?.message || parsed?.error || detail
+        } catch {
+          /* keep the status */
+        }
+        throw new Error(`Uploading the delivery file to storage failed: ${detail}`)
+      }
+
+      // 3. Record it against the order
+      const finalize = await fetch(`/api/admin/orders/${order.id}/delivery`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          path: prepData.path,
+          filename: deliveryFile.name,
+          markDelivered,
+        }),
+      })
+      const finalizeData = await finalize.json().catch(() => null)
+      if (!finalize.ok || !finalizeData?.success) {
+        throw new Error(
+          finalizeData?.error ||
+            `The file uploaded but attaching it to the order failed (HTTP ${finalize.status}).`
+        )
+      }
+
+      toast.success(finalizeData.message || 'Delivery file attached')
+      setDeliveryFile(null)
+      setSelectedOrder(null)
+      loadOrders()
+      loadStats()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Delivery upload failed'
+      console.error('[admin] Delivery upload failed:', error)
+      setDeliveryError(message)
+      toast.error(message, { duration: 9000 })
+    } finally {
+      setDeliveryBusy(false)
+    }
+  }
+
   // A verified administrator whose authorization was later revoked server-side.
   if (verifiedOnce && adminChecked && !isAdmin && !adminCheckFailed && user) {
     return (
@@ -423,6 +516,26 @@ export default function AdminDashboard() {
           >
             Video Categories
           </button>
+          <button
+            onClick={() => setActiveTab('bots')}
+            className={`px-4 py-3 font-semibold transition-colors ${
+              activeTab === 'bots'
+                ? 'text-blue-500 border-b-2 border-blue-500'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            Bot Management
+          </button>
+          <button
+            onClick={() => setActiveTab('payments')}
+            className={`px-4 py-3 font-semibold transition-colors ${
+              activeTab === 'payments'
+                ? 'text-blue-500 border-b-2 border-blue-500'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            Payment Methods
+          </button>
         </div>
 
         {/*
@@ -441,6 +554,20 @@ export default function AdminDashboard() {
         {activeTab === 'categories' && (
           <div>
             <CategoryManagement onBackToVideos={() => setActiveTab('videos')} />
+          </div>
+        )}
+
+        {/* Bot Management Tab */}
+        {activeTab === 'bots' && (
+          <div>
+            <BotManagement />
+          </div>
+        )}
+
+        {/* Payment Method Management Tab */}
+        {activeTab === 'payments' && (
+          <div>
+            <PaymentMethodManagement />
           </div>
         )}
 
@@ -687,6 +814,89 @@ export default function AdminDashboard() {
                     )}
                   </div>
                 )}
+
+                {/* Bot Delivery */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-400 uppercase mb-3">
+                    Bot File Delivery
+                  </h3>
+
+                  {selectedOrder.delivery_file_path ? (
+                    <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mb-3">
+                      <p className="text-green-400 text-sm font-medium">Delivery file attached</p>
+                      <p className="text-xs text-slate-300 mt-1 break-all">
+                        {selectedOrder.delivery_file_name || selectedOrder.delivery_file_path}
+                      </p>
+                      {selectedOrder.delivered_at && (
+                        <p className="text-xs text-slate-500 mt-1">
+                          Delivered {new Date(selectedOrder.delivered_at).toLocaleString()}
+                        </p>
+                      )}
+                      <p className="text-xs text-slate-500 mt-2">
+                        The customer downloads this through a short-lived signed URL. Uploading
+                        another file below replaces it.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400 mb-3">
+                      No delivery file attached yet. The customer cannot download anything until one
+                      is uploaded.
+                    </p>
+                  )}
+
+                  {selectedOrder.status === 'pending_verification' && (
+                    <p className="text-xs text-yellow-400 mb-3">
+                      Approve the payment before marking this order delivered.
+                    </p>
+                  )}
+
+                  <input
+                    type="file"
+                    onChange={(e) => {
+                      setDeliveryFile(e.target.files?.[0] || null)
+                      setDeliveryError(null)
+                    }}
+                    disabled={deliveryBusy}
+                    className="w-full px-3 py-2 rounded-lg bg-slate-700 border border-slate-600 text-slate-300 text-sm"
+                  />
+                  {deliveryFile && (
+                    <p className="text-xs text-green-400 mt-1">
+                      Selected: {deliveryFile.name} (
+                      {(deliveryFile.size / 1024 / 1024).toFixed(1)} MB)
+                    </p>
+                  )}
+                  <p className="text-xs text-slate-500 mt-1">
+                    Stored privately in the bot-deliveries bucket. Max 100MB.
+                  </p>
+
+                  {deliveryError && (
+                    <div className="mt-3 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                      <p className="text-xs text-red-300 break-words">{deliveryError}</p>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-3 mt-3">
+                    <button
+                      onClick={() => handleDeliveryUpload(selectedOrder, false)}
+                      disabled={deliveryBusy || !deliveryFile}
+                      className="px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition disabled:opacity-50 text-sm"
+                    >
+                      {deliveryBusy ? 'Uploading...' : 'Attach file only'}
+                    </button>
+                    <button
+                      onClick={() => handleDeliveryUpload(selectedOrder, true)}
+                      disabled={
+                        deliveryBusy ||
+                        !deliveryFile ||
+                        selectedOrder.status === 'pending_verification' ||
+                        selectedOrder.status === 'rejected'
+                      }
+                      className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 text-sm"
+                    >
+                      {deliveryBusy ? 'Uploading...' : 'Attach & mark delivered'}
+                    </button>
+                  </div>
+                </div>
 
                 {/* Rejection Reason */}
                 {selectedOrder.status === 'rejected' && selectedOrder.rejection_reason && (
