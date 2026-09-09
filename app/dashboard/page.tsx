@@ -17,47 +17,13 @@ interface Order {
   created_at: string
   updated_at: string
   payment_proof_url?: string
-  has_payment_proof?: boolean
-  has_delivery_file?: boolean
-  delivery_file_name?: string | null
-  delivered_at?: string | null
 }
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user, loading: authLoading, getAccessToken } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
-  const [downloadingId, setDownloadingId] = useState<string | null>(null)
-
-  // Secure download: the server verifies the signed-in customer owns this order
-  // and that payment is verified, then returns a 5-minute signed URL.
-  const handleDownload = async (orderId: string) => {
-    setDownloadingId(orderId)
-    try {
-      const token = await getAccessToken()
-      if (!token) throw new Error('Your session has expired. Please sign in again.')
-
-      const response = await fetch(`/api/orders/${orderId}/download`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await response.json().catch(() => null)
-
-      if (!response.ok || !data?.success || !data.downloadUrl) {
-        throw new Error(data?.error || `Could not get your download (HTTP ${response.status})`)
-      }
-
-      window.open(data.downloadUrl, '_blank', 'noopener,noreferrer')
-      toast.success('Your download has started.')
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Download failed'
-      console.error('[dashboard] Download failed:', error)
-      toast.error(message, { duration: 9000 })
-    } finally {
-      setDownloadingId(null)
-    }
-  }
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   useEffect(() => {
@@ -74,35 +40,20 @@ export default function DashboardPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true)
-      setLoadError(null)
-
-      // The Bearer token is REQUIRED. /api/orders/list resolves the user from
-      // it; without it the request is anonymous and correctly rejected.
-      const token = await getAccessToken()
-      if (!token) {
-        setLoadError('Your session has expired. Please sign in again.')
-        return
-      }
-
       const response = await fetch('/api/orders/list', {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
       })
 
-      const data = await response.json().catch(() => null)
-      if (response.ok && data?.success) {
+      const data = await response.json()
+      if (data.success) {
         setOrders(data.orders || [])
       } else {
-        const message = data?.error || `Could not load your orders (HTTP ${response.status})`
-        console.error('[dashboard] Loading orders failed:', { status: response.status, data })
-        setLoadError(message)
+        toast.error(data.error || 'Failed to fetch orders')
       }
     } catch (error) {
       console.error('Error fetching orders:', error)
-      setLoadError(error instanceof Error ? error.message : 'Failed to load orders')
+      toast.error('Failed to load orders')
     } finally {
       setLoading(false)
     }
@@ -179,22 +130,6 @@ export default function DashboardPage() {
           <div className="text-center py-12">
             <p className="text-slate-400">Loading your orders...</p>
           </div>
-        ) : loadError ? (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 text-center">
-            <h2 className="text-xl font-bold text-red-400 mb-2">Could not load your orders</h2>
-            <p className="text-sm text-red-300/90 mb-6 break-words">{loadError}</p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={fetchOrders}
-                className="px-5 py-2 border border-red-500/40 text-red-300 rounded-lg hover:bg-red-500/10 transition"
-              >
-                Try again
-              </button>
-              <Link href="/auth/login" className="btn-primary inline-block">
-                Sign in again
-              </Link>
-            </div>
-          </div>
         ) : orders.length === 0 ? (
           <div className="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center">
             <h2 className="text-2xl font-bold text-white mb-4">No Orders Yet</h2>
@@ -206,8 +141,9 @@ export default function DashboardPage() {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <div
+              <button
                 key={order.id}
+                onClick={() => setSelectedOrder(order)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition text-left"
               >
                 <div className="flex justify-between items-start mb-4">
@@ -235,51 +171,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Delivery status - always visible so the customer knows
-                    where their purchase stands. */}
-                <div className="border-t border-slate-700 pt-4 mt-2">
-                  {order.status === 'delivered' || order.has_delivery_file ? (
-                    <div className="flex flex-wrap items-center gap-3 justify-between">
-                      <div>
-                        <p className="text-green-400 text-sm font-medium">
-                          Your bot file is ready to download
-                        </p>
-                        {order.delivered_at && (
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            Delivered {formatDate(order.delivered_at)}
-                          </p>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => handleDownload(order.id)}
-                        disabled={downloadingId === order.id}
-                        className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold py-2 px-5 rounded-lg transition text-sm"
-                      >
-                        {downloadingId === order.id ? 'Preparing...' : 'Download Bot File'}
-                      </button>
-                    </div>
-                  ) : order.status === 'verified' ? (
-                    <p className="text-sm text-blue-400">
-                      Payment verified. Your bot file is being prepared and will appear here shortly.
-                    </p>
-                  ) : order.status === 'rejected' ? (
-                    <p className="text-sm text-red-400">
-                      This payment was not accepted. See the details for the reason.
-                    </p>
-                  ) : (
-                    <p className="text-sm text-slate-400">
-                      Awaiting payment verification. Your download will appear here once approved.
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => setSelectedOrder(order)}
-                  className="text-blue-400 hover:text-blue-300 text-xs mt-3"
-                >
-                  View full details
-                </button>
-              </div>
+                <p className="text-slate-400 text-xs">Click to view details</p>
+              </button>
             ))}
           </div>
         )}
