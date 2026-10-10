@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import PricingCard from '@/components/PricingCard'
 import RiskDisclaimer from '@/components/RiskDisclaimer'
-import { getActiveBots } from '@/lib/bots-server'
+import BotVideo from '@/components/BotVideo'
+import { getActiveBots, getBotVideos } from '@/lib/bots-server'
 
 export default async function BotsPage() {
-  const BOTS = await getActiveBots()
+  const [BOTS, botVideos] = await Promise.all([getActiveBots(), getBotVideos()])
 
   return (
     <div className="min-h-screen">
@@ -26,7 +27,14 @@ export default async function BotsPage() {
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {BOTS.map((bot) => (
-              <PricingCard key={bot.id} bot={bot} />
+              <div key={bot.id}>
+                <PricingCard bot={bot} />
+                {/* Per-bot video (admin-assigned, videos.bot_id). Renders only
+                    when this bot has a published, public video. */}
+                {botVideos[bot.id] && (
+                  <BotVideo botName={bot.name} video={botVideos[bot.id]} />
+                )}
+              </div>
             ))}
           </div>
         </div>

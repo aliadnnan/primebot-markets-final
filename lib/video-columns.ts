@@ -1,14 +1,15 @@
 /**
  * Optional `videos` columns.
  *
- * `is_public` and `autoplay` are added by sql/01_video_visibility_and_autoplay.sql.
- * That SQL has to be run manually in the Supabase SQL Editor, so the app must
- * keep working before it has been run. Every write that touches these columns
- * therefore retries once without them if Postgres reports that the column does
- * not exist, and every read falls back to filtering on `published` alone.
+ * `is_public` and `autoplay` are added by sql/01_video_visibility_and_autoplay.sql,
+ * `bot_id` by sql/10_bot_videos.sql. Those SQL files have to be run manually in
+ * the Supabase SQL Editor, so the app must keep working before they have been
+ * run. Every write that touches these columns therefore retries once without
+ * them if Postgres reports that the column does not exist, and every read falls
+ * back to filtering on `published` alone.
  */
 
-export const OPTIONAL_VIDEO_COLUMNS = ['is_public', 'autoplay'] as const
+export const OPTIONAL_VIDEO_COLUMNS = ['is_public', 'autoplay', 'bot_id'] as const
 
 /** True when a PostgREST/Postgres error was caused by a missing column. */
 export function isMissingColumnError(error: any): boolean {
@@ -34,4 +35,4 @@ export function withoutOptionalColumns<T extends Record<string, any>>(payload: T
 
 /** Message shown to the admin when the optional columns are not present yet. */
 export const MIGRATION_HINT =
-  'Saved, but the Public/Private and Autoplay settings were ignored because the videos table does not have the is_public and autoplay columns yet. Run sql/01_video_visibility_and_autoplay.sql in the Supabase SQL Editor to enable them.'
+  'Saved, but one or more optional video settings (Public/Private, Autoplay, Bot assignment) were ignored because the videos table does not have those columns yet. Run sql/01_video_visibility_and_autoplay.sql and sql/10_bot_videos.sql in the Supabase SQL Editor to enable them.'

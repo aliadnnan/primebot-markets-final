@@ -191,6 +191,9 @@ export type Database = {
           // types stay accurate before that migration has been run.
           is_public?: boolean
           autoplay?: boolean
+          // Added by sql/10_bot_videos.sql (TEXT, FK -> bots.id). Optional for
+          // the same reason as is_public/autoplay above.
+          bot_id?: string | null
           created_by: string
           created_at: string
           updated_at: string
@@ -205,6 +208,7 @@ export type Database = {
           published?: boolean
           is_public?: boolean
           autoplay?: boolean
+          bot_id?: string | null
           created_by: string
         }
         Update: {
@@ -216,6 +220,7 @@ export type Database = {
           published?: boolean
           is_public?: boolean
           autoplay?: boolean
+          bot_id?: string | null
           updated_at?: string
         }
       }

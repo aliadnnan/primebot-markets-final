@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
-    const { title, description, category_id, video_url, thumbnail_url, published, is_public, autoplay } = body
+    const { title, description, category_id, video_url, thumbnail_url, published, is_public, autoplay, bot_id } = body
 
     // Validate required fields
     if (!title || !category_id || !video_url) {
@@ -54,6 +54,28 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'Missing required fields: title, category_id, video_url' },
         { status: 400 }
       )
+    }
+
+    // bot_id is optional (sql/10_bot_videos.sql): NULL means the video is not
+    // attached to any bot's card. Validate up front so a bad assignment fails
+    // here with a clear message instead of as a raw foreign-key error below.
+    const botId = typeof bot_id === 'string' && bot_id.trim() ? bot_id.trim() : null
+    if (botId) {
+      const { data: bot, error: botError } = await supabaseAdmin
+        .from('bots')
+        .select('id')
+        .eq('id', botId)
+        .maybeSingle()
+      if (botError || !bot) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Bot not found: no bot with id "${botId}" exists in the bots table. Reselect the bot or leave it unassigned.`,
+            stage: 'bot-reference',
+          },
+          { status: 400 }
+        )
+      }
     }
 
     const payload = {
@@ -66,6 +88,7 @@ export async function POST(request: NextRequest) {
       // Default to public so existing behaviour (published === visible) is preserved.
       is_public: is_public === undefined ? true : is_public === true,
       autoplay: autoplay === true,
+      bot_id: botId,
       created_by: userId,
     }
 
@@ -95,7 +118,14 @@ export async function POST(request: NextRequest) {
       let error = `Database insert failed: ${createError.message}`
       let stage = 'database-insert'
 
-      if (code === '23503') {
+      if (code === '23503' && /bot_id|videos_bot_id_fkey/.test(createError.message || '')) {
+        // foreign_key_violation on the bot assignment (sql/10).
+        error =
+          `Bot reference failed: the selected bot does not exist in public.bots ` +
+          `(foreign key on videos.bot_id). It may have been deleted in another tab. ` +
+          `Reselect the bot or leave it unassigned, then save again. Raw error: ${createError.message}`
+        stage = 'bot-reference'
+      } else if (code === '23503') {
         // foreign_key_violation - the referenced category row is gone.
         error =
           `Category reference failed: the selected category does not exist in public.video_categories ` +
@@ -142,6 +172,7 @@ export async function POST(request: NextRequest) {
       published: saved.published,
       is_public: saved.is_public,
       category_id: saved.category_id,
+      bot_id: saved.bot_id,
     })
 
     return NextResponse.json({
@@ -156,6 +187,7 @@ export async function POST(request: NextRequest) {
         is_public: saved.is_public,
         autoplay: saved.autoplay,
         category_id: saved.category_id,
+        bot_id: saved.bot_id ?? null,
       },
       video: saved,
     })

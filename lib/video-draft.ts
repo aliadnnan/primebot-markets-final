@@ -36,6 +36,8 @@ export interface VideoUploadDraft {
   title: string
   description: string
   category_id: string
+  /** Bot assignment (videos.bot_id, sql/10). '' = not assigned to a bot. */
+  bot_id?: string
   video_url: string
   source_type: 'upload' | 'link'
   published: boolean

@@ -17,6 +17,13 @@ interface VideoWithCategory extends Video {
   video_categories?: VideoCategory | null
 }
 
+/** Minimal shape of a row from GET /api/admin/bots, for the Bot selector. */
+interface BotOption {
+  id: string
+  name: string
+  price?: number
+}
+
 interface VideoManagementProps {
   /** Switches the Admin Panel to the Video Categories tab. */
   onManageCategories?: () => void
@@ -26,7 +33,9 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
   const { getAccessToken } = useAuth()
   const [videos, setVideos] = useState<VideoWithCategory[]>([])
   const [categories, setCategories] = useState<VideoCategory[]>([])
+  const [bots, setBots] = useState<BotOption[]>([])
   const [categoryError, setCategoryError] = useState<string | null>(null)
+  const [botError, setBotError] = useState<string | null>(null)
   const [videoLoadError, setVideoLoadError] = useState<string | null>(null)
   const [listWarning, setListWarning] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -49,6 +58,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
     title: '',
     description: '',
     category_id: '',
+    bot_id: '',
     video_file: null as File | null,
     video_url: '',
     source_type: 'upload' as 'upload' | 'link',
@@ -62,6 +72,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
     title: '',
     description: '',
     category_id: '',
+    bot_id: '',
     published: false,
     is_public: true,
     autoplay: false,
@@ -80,6 +91,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
   useEffect(() => {
     loadVideos()
     loadCategories()
+    loadBots()
   }, [])
 
   // Restore any draft left behind by a refresh or by navigating away. Done in
@@ -97,6 +109,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
       title: draft.title || '',
       description: draft.description || '',
       category_id: draft.category_id || '',
+      bot_id: draft.bot_id || '',
       video_url: draft.video_url || '',
       source_type: draft.source_type === 'link' ? 'link' : 'upload',
       published: draft.published === true,
@@ -128,6 +141,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
       title: formData.title,
       description: formData.description,
       category_id: formData.category_id,
+      bot_id: formData.bot_id,
       video_url: formData.video_url,
       source_type: formData.source_type,
       published: formData.published,
@@ -155,6 +169,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
       title: '',
       description: '',
       category_id: '',
+      bot_id: '',
       video_file: null,
       video_url: '',
       source_type: 'upload',
@@ -226,6 +241,33 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
       console.error('Error loading categories:', error)
       setCategories([])
       setCategoryError(error instanceof Error ? error.message : 'Failed to load categories')
+    }
+  }
+
+  // Loads the bots that populate the Bot selector. The Bot assignment is
+  // optional, so a failure only empties the selector and says why - it must
+  // never block uploading a video.
+  const loadBots = async () => {
+    try {
+      setBotError(null)
+      const response = await adminFetch('/api/admin/bots')
+      const data = await response.json().catch(() => null)
+      if (response.ok && data?.success) {
+        setBots(
+          (data.bots || []).map((bot: any) => ({
+            id: bot.id,
+            name: bot.name,
+            price: bot.price,
+          }))
+        )
+      } else {
+        setBots([])
+        setBotError(data?.error || `Could not load the bot list (HTTP ${response.status})`)
+      }
+    } catch (error) {
+      console.error('Error loading bots:', error)
+      setBots([])
+      setBotError(error instanceof Error ? error.message : 'Could not load the bot list')
     }
   }
 
@@ -343,6 +385,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
           title: formData.title.trim(),
           description: formData.description,
           category_id: formData.category_id,
+          bot_id: formData.bot_id || null,
           video_url: videoPath,
           thumbnail_url: thumbnailPath,
           published: formData.published,
@@ -509,6 +552,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
       title: video.title,
       description: video.description || '',
       category_id: video.category_id,
+      bot_id: video.bot_id || '',
       published: video.published,
       is_public: video.is_public !== false,
       autoplay: video.autoplay === true,
@@ -522,6 +566,12 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
   const getCategoryName = (categoryId: string) => {
     const category = categories.find((c) => c.id === categoryId)
     return category?.name || 'Unknown'
+  }
+
+  const getBotName = (botId?: string | null) => {
+    if (!botId) return ''
+    const bot = bots.find((b) => b.id === botId)
+    return bot?.name || botId
   }
 
   return (
@@ -551,6 +601,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
               // added moments ago is immediately selectable. Any existing draft
               // is deliberately left intact.
               loadCategories()
+              loadBots()
               setUploadError(null)
               setShowUploadModal(true)
             }}
@@ -731,6 +782,12 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                       <p className="text-sm text-slate-400 mt-1">
                         Category: <span className="text-slate-300">{getCategoryName(video.category_id)}</span>
                       </p>
+                      {video.bot_id && (
+                        <p className="text-sm text-slate-400 mt-1">
+                          Bot: <span className="text-amber-300 font-medium">{getBotName(video.bot_id)}</span>
+                          <span className="text-slate-500"> — plays on this bot's card on the Bots page</span>
+                        </p>
+                      )}
                       <p className="text-xs text-slate-500 mt-1">
                         {new Date(video.created_at).toLocaleDateString()}
                       </p>
@@ -917,6 +974,38 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                 )}
               </div>
 
+              {/* Bot assignment (optional) */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  Bot (optional)
+                </label>
+                <select
+                  value={formData.bot_id}
+                  onChange={(e) => setFormData({ ...formData, bot_id: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
+                >
+                  <option value="">Not assigned to a bot</option>
+                  {bots.map((bot) => (
+                    <option key={bot.id} value={bot.id}>
+                      {bot.name}
+                      {typeof bot.price === 'number' ? ` — $${bot.price}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-400 mt-1">
+                  Assigning a bot shows this video on that bot&apos;s card on the Bots page
+                  (e.g. the bot&apos;s Urdu explainer video). The category above still controls
+                  the Video Tutorials page. Requires sql/10_bot_videos.sql; until it has been
+                  run, the assignment is not stored.
+                </p>
+                {botError && (
+                  <p className="text-xs text-yellow-400 mt-2">
+                    Bot list could not be loaded ({botError}). You can still upload; leave the
+                    bot unassigned and set it later from Edit.
+                  </p>
+                )}
+              </div>
+
               {/* Video Source */}
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-slate-300">Video Source *</label>
@@ -1079,6 +1168,7 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                         title: formData.title,
                         description: formData.description,
                         category_id: formData.category_id,
+                        bot_id: formData.bot_id,
                         video_url: formData.video_url,
                         source_type: formData.source_type,
                         published: formData.published,
@@ -1160,6 +1250,35 @@ export default function VideoManagement({ onManageCategories }: VideoManagementP
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Bot assignment (optional) */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  Bot (optional)
+                </label>
+                <select
+                  value={editData.bot_id}
+                  onChange={(e) => setEditData({ ...editData, bot_id: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-blue-500"
+                >
+                  <option value="">Not assigned to a bot</option>
+                  {bots.map((bot) => (
+                    <option key={bot.id} value={bot.id}>
+                      {bot.name}
+                      {typeof bot.price === 'number' ? ` — $${bot.price}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-400 mt-1">
+                  The newest published, public video assigned to a bot plays on that bot&apos;s
+                  card on the Bots page. Requires sql/10_bot_videos.sql.
+                </p>
+                {botError && (
+                  <p className="text-xs text-yellow-400 mt-2">
+                    Bot list could not be loaded ({botError}).
+                  </p>
+                )}
               </div>
 
               {/* Replace video source (optional) */}

@@ -46,7 +46,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     // Parse request body
     const body = await request.json()
-    const { title, description, category_id, video_url, thumbnail_url, published, is_public, autoplay } = body
+    const { title, description, category_id, video_url, thumbnail_url, published, is_public, autoplay, bot_id } = body
 
     // Build update object with only provided fields
     const updateData: any = {}
@@ -57,6 +57,33 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (published !== undefined) updateData.published = published
     if (is_public !== undefined) updateData.is_public = is_public === true
     if (autoplay !== undefined) updateData.autoplay = autoplay === true
+
+    // bot_id (sql/10_bot_videos.sql): a bot id assigns the video to that bot's
+    // card on the Bots page; null/empty clears the assignment. Only written
+    // when the field is present in the request, so flag toggles (published /
+    // is_public / autoplay) never disturb an existing assignment. Validated
+    // up front so a stale selection fails with a clear message.
+    if (bot_id !== undefined) {
+      const botId = typeof bot_id === 'string' && bot_id.trim() ? bot_id.trim() : null
+      if (botId) {
+        const { data: bot, error: botError } = await supabaseAdmin
+          .from('bots')
+          .select('id')
+          .eq('id', botId)
+          .maybeSingle()
+        if (botError || !bot) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Bot not found: no bot with id "${botId}" exists in the bots table. Reselect the bot or leave it unassigned.`,
+              stage: 'bot-reference',
+            },
+            { status: 400 }
+          )
+        }
+      }
+      updateData.bot_id = botId
+    }
 
     // video_url is only written when a non-empty replacement is supplied.
     // GET returns signed (temporary) URLs for uploaded files, so blindly
