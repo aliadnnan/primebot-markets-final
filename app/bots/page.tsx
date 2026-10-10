@@ -2,10 +2,16 @@ import Link from 'next/link'
 import PricingCard from '@/components/PricingCard'
 import RiskDisclaimer from '@/components/RiskDisclaimer'
 import BotVideo from '@/components/BotVideo'
+import BotReviews from '@/components/BotReviews'
 import { getActiveBots, getBotVideos } from '@/lib/bots-server'
+import { getBotReviewSummaries } from '@/lib/reviews-server'
 
 export default async function BotsPage() {
-  const [BOTS, botVideos] = await Promise.all([getActiveBots(), getBotVideos()])
+  const [BOTS, botVideos, reviewSummaries] = await Promise.all([
+    getActiveBots(),
+    getBotVideos(),
+    getBotReviewSummaries(),
+  ])
 
   return (
     <div className="min-h-screen">
@@ -28,12 +34,14 @@ export default async function BotsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {BOTS.map((bot) => (
               <div key={bot.id}>
-                <PricingCard bot={bot} />
+                <PricingCard bot={bot} rating={reviewSummaries[bot.id]} />
                 {/* Per-bot video (admin-assigned, videos.bot_id). Renders only
                     when this bot has a published, public video. */}
                 {botVideos[bot.id] && (
                   <BotVideo botName={bot.name} video={botVideos[bot.id]} />
                 )}
+                {/* Buyer reviews: approved reviews + submission form. */}
+                <BotReviews botId={bot.id} botName={bot.name} summary={reviewSummaries[bot.id]} />
               </div>
             ))}
           </div>

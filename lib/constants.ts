@@ -158,13 +158,20 @@ export const BACKTEST_RESULTS = [
 export const SUPPORT_EMAIL = 'chadnan76@gmail.com'
 
 /**
+ * WhatsApp support number (owner-provided 2026-10-10: 03014879047, Pakistan).
+ *
+ * Stored in INTERNATIONAL format: country code + number, digits only, no
+ * leading zero (Pakistan = 92, so local 03014879047 becomes 923014879047).
+ * wa.me rejects the local 03... form, so the international form is required.
+ */
+export const WHATSAPP_SUPPORT_NUMBER = '923014879047'
+
+/**
  * Single source of truth for public contact details.
  *
- * Note on formats: wa.me and tel: links need the number in international
- * format WITHOUT the leading zero. Pakistan's country code is 92, so the local
- * number 03014879047 becomes 923014879047. The previous links used the local
- * format directly (wa.me/03014879047), which WhatsApp rejects as an invalid
- * number - that is why the WhatsApp button did not open a chat.
+ * NOTE: WhatsApp goes through WHATSAPP_SUPPORT_NUMBER above (owner's real
+ * number: 03014879047 -> 923014879047). CONTACT_INFO.whatsappNumber below is
+ * kept for reference only and is no longer used by the site.
  */
 export const CONTACT_INFO = {
   /** Voice line, as customers know it. */
@@ -173,7 +180,7 @@ export const CONTACT_INFO = {
   callLink: '+923004587593',
   /** WhatsApp line, as customers know it. */
   whatsappDisplay: '03014879047',
-  /** wa.me target: country code + number, digits only, no leading zero. */
+  /** @deprecated Use WHATSAPP_SUPPORT_NUMBER instead. */
   whatsappNumber: '923014879047',
   defaultWhatsAppMessage:
     'Hi! I need support with my PrimeBot Markets account and trading bots.',
@@ -181,5 +188,5 @@ export const CONTACT_INFO = {
 
 /** Builds a wa.me link with an optional pre-filled message. */
 export function getWhatsAppLink(message: string = CONTACT_INFO.defaultWhatsAppMessage) {
-  return `https://wa.me/${CONTACT_INFO.whatsappNumber}?text=${encodeURIComponent(message)}`
+  return `https://wa.me/${WHATSAPP_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}`
 }

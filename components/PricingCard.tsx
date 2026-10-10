@@ -2,13 +2,15 @@
 
 import Link from 'next/link'
 import { Bot } from '@/types'
+import ReviewStars from './ReviewStars'
 
 interface PricingCardProps {
   bot: Bot
   featured?: boolean
+  rating?: { average: number; count: number }
 }
 
-export default function PricingCard({ bot, featured = false }: PricingCardProps) {
+export default function PricingCard({ bot, featured = false, rating }: PricingCardProps) {
   // Top tiers get their own premium badges (owner order 2026-10-10):
   // PRIME ELITE EA ($1000) outranks PRIME QUANTUM EA ($800).
   const isElite = bot.id === 'elite' || bot.price >= 1000
@@ -40,6 +42,11 @@ export default function PricingCard({ bot, featured = false }: PricingCardProps)
       <div className="mb-6">
         <h3 className="text-2xl font-bold text-white mb-2">{bot.name}</h3>
         <p className="text-amber-400 text-sm font-semibold">{bot.type}</p>
+        {rating && rating.count > 0 && (
+          <div className="mt-2">
+            <ReviewStars average={rating.average} count={rating.count} size="sm" />
+          </div>
+        )}
       </div>
 
       <div className="mb-6">

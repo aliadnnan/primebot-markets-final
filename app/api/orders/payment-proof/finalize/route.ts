@@ -4,10 +4,12 @@ import {
   getUserFromRequest,
   isSupabaseServerConfigured,
   PAYMENT_PROOF_BUCKET,
+  BOT_DELIVERY_BUCKET,
 } from '@/lib/supabase/server'
 import {
   sendPaymentApprovedEmail,
   sendPaymentRejectedEmail,
+  sendBotDeliveredEmail,
 } from '@/lib/email'
 import {
   buyerFailMessage,
@@ -72,7 +74,7 @@ export async function POST(request: NextRequest) {
       const { data, error } = await (supabaseServer as any)
         .from('orders')
         .select(
-          'id, user_id, bot_name, bot_price, payment_method, transaction_id, payer_name, amount_paid, delivery_email, verification_detail'
+          'id, user_id, bot_id, bot_name, bot_price, payment_method, transaction_id, payer_name, amount_paid, delivery_email, verification_detail'
         )
         .eq('id', orderId)
         .maybeSingle()
@@ -81,7 +83,7 @@ export async function POST(request: NextRequest) {
         // sql/11 has not been run yet: read the order without the new columns.
         const { data: legacy, error: legacyError } = await (supabaseServer as any)
           .from('orders')
-          .select('id, user_id, bot_name')
+          .select('id, user_id, bot_id, bot_name')
           .eq('id', orderId)
           .maybeSingle()
         if (legacyError) {
@@ -287,6 +289,24 @@ export async function POST(request: NextRequest) {
             orderId,
             order.bot_name || 'your bot'
           )
+
+          // AUTO EMAIL DELIVERY (owner order 2026-10-10): the moment the
+          // verification gate approves an order, the buyer is emailed the bot
+          // file automatically - no admin click needed. The file is the one
+          // the admin attached ONCE per bot (bots.delivery_file_path,
+          // sql/12). A 7-day signed URL is generated from the private
+          // bot-deliveries bucket and emailed; the order keeps the permanent
+          // delivered_to_email record and the file path, so the in-dashboard
+          // download works too. Never runs for failed/rejected orders. The
+          // manual admin "Attach & mark delivered" path still works as a
+          // fallback / re-send.
+          await autoDeliverBotFile({
+            orderId,
+            botId: (order as any).bot_id ?? null,
+            notifyEmail,
+            buyerName: fullName || notifyEmail,
+            botName: order.bot_name || 'your bot',
+          })
         }
       } catch (emailError) {
         console.error('[payment-proof/finalize] Email failed (decision kept):', emailError)
@@ -313,6 +333,106 @@ export async function POST(request: NextRequest) {
       { success: false, error: 'An unexpected error occurred.' },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * AUTO EMAIL DELIVERY on verified approval.
+ *
+ * When the verification gate approves an order, the buyer is emailed the bot
+ * file immediately - no admin click needed. The file is the per-bot delivery
+ * file the admin attached once in Bot Management (bots.delivery_file_path,
+ * sql/12). A 7-day signed URL is generated from the private bot-deliveries
+ * bucket and emailed to the buyer's delivery email; the order keeps the
+ * permanent delivered_to_email record and the file path, so the in-dashboard
+ * download works too.
+ *
+ * Best-effort: any failure is logged and the (already persisted) approval is
+ * untouched. The manual admin "Attach & mark delivered" path still works as a
+ * fallback / re-send. If the bot has no delivery file attached yet, this is a
+ * no-op and the admin attaches it per order as before.
+ */
+const EMAIL_LINK_TTL_SECONDS = 7 * 24 * 60 * 60 // 7 days
+
+async function autoDeliverBotFile(args: {
+  orderId: string
+  botId: string | null
+  notifyEmail: string
+  buyerName: string
+  botName: string
+}): Promise<void> {
+  const { orderId, botId, notifyEmail, buyerName, botName } = args
+  if (!botId) {
+    console.warn('[auto-deliver] No bot_id on order, skipping auto email:', orderId)
+    return
+  }
+
+  // Read the bot's pre-attached delivery file. If sql/12 has not been run,
+  // the columns do not exist - fall back gracefully (admin path still works).
+  let bot: any = null
+  {
+    const first = await (supabaseServer as any)
+      .from('bots')
+      .select('id, delivery_file_path, delivery_file_name')
+      .eq('id', botId)
+      .maybeSingle()
+    if (first.error) {
+      if (/delivery_file_path|delivery_file_name/.test(first.error.message || '')) {
+        console.warn('[auto-deliver] sql/12 not run yet - skipping auto email:', orderId)
+        return
+      }
+      console.error('[auto-deliver] Could not read bot:', first.error)
+      return
+    }
+    bot = first.data
+  }
+  const filePath = bot?.delivery_file_path as string | null
+  if (!filePath) {
+    // The admin has not attached a delivery file to this bot yet. The order
+    // stays approved; the admin attaches the file per order as before.
+    console.warn('[auto-deliver] Bot has no delivery file attached, skipping auto email:', {
+      orderId,
+      botId,
+    })
+    return
+  }
+  const fileName = (bot?.delivery_file_name as string) || botName
+
+  const { data: signed, error: signError } = await supabaseServer.storage
+    .from(BOT_DELIVERY_BUCKET)
+    .createSignedUrl(filePath, EMAIL_LINK_TTL_SECONDS, { download: fileName })
+
+  if (signError || !signed?.signedUrl) {
+    console.error('[auto-deliver] Could not sign delivery link:', { orderId, error: signError })
+    return
+  }
+
+  await sendBotDeliveredEmail(
+    notifyEmail,
+    buyerName,
+    orderId,
+    botName,
+    signed.signedUrl,
+    'This secure link expires in 7 days. You can also download the file anytime from your account dashboard.'
+  )
+
+  // Permanent record: which email the bot was delivered to, plus the file
+  // path so the in-dashboard download works immediately.
+  const { error: updateError } = await (supabaseServer as any)
+    .from('orders')
+    .update({
+      delivered_to_email: notifyEmail,
+      delivery_file_path: filePath,
+      delivery_file_name: fileName,
+    })
+    .eq('id', orderId)
+
+  if (updateError) {
+    // sql/11 or sql/05 columns may be missing on an old database - the email
+    // already went out, so only log. The admin path can repair the record.
+    console.error('[auto-deliver] Delivery record update failed (email sent):', updateError)
+  } else {
+    console.log('[auto-deliver] Auto-delivered', botName, 'to', notifyEmail, 'for order', orderId)
   }
 }
 

@@ -8,6 +8,7 @@ import VideoManagement from './VideoManagement'
 import CategoryManagement from './CategoryManagement'
 import BotManagement from './BotManagement'
 import PaymentMethodManagement from './PaymentMethodManagement'
+import ReviewManagement from './ReviewManagement'
 
 interface AdminOrder {
   id: string
@@ -606,6 +607,16 @@ export default function AdminDashboard() {
           >
             Payment Methods
           </button>
+          <button
+            onClick={() => setActiveTab('reviews')}
+            className={`px-4 py-3 font-semibold transition-colors ${
+              activeTab === 'reviews'
+                ? 'text-blue-500 border-b-2 border-blue-500'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            Reviews
+          </button>
         </div>
 
         {/*
@@ -638,6 +649,13 @@ export default function AdminDashboard() {
         {activeTab === 'payments' && (
           <div>
             <PaymentMethodManagement />
+          </div>
+        )}
+
+        {/* Review Moderation Tab */}
+        {activeTab === 'reviews' && (
+          <div>
+            <ReviewManagement />
           </div>
         )}
 

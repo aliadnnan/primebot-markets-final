@@ -44,6 +44,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     update.available_for_purchase = body.available_for_purchase === true
   }
   if (body?.display_order !== undefined) update.display_order = Number(body.display_order) || 0
+  // Per-bot delivery file (sql/12): the EA file attached ONCE per bot, emailed
+  // automatically to every verified buyer. Stored as a path in the private
+  // bot-deliveries bucket.
+  if (body?.delivery_file_path !== undefined) {
+    const p = String(body.delivery_file_path).trim()
+    update.delivery_file_path = p || null
+  }
+  if (body?.delivery_file_name !== undefined) {
+    const n = String(body.delivery_file_name).trim()
+    update.delivery_file_name = n || null
+  }
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ success: false, error: 'No fields to update.' }, { status: 400 })
@@ -60,11 +71,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   let { data, error } = attempt
 
   // Retry without the columns added by sql/05 if that SQL has not been run.
-  if (error && /is_active|available_for_purchase|display_order|updated_at/.test(error.message || '')) {
+  if (error && /is_active|available_for_purchase|display_order|updated_at|delivery_file_path|delivery_file_name/.test(error.message || '')) {
     const reduced = { ...update }
     delete reduced.is_active
     delete reduced.available_for_purchase
     delete reduced.display_order
+    delete reduced.delivery_file_path
+    delete reduced.delivery_file_name
     if (Object.keys(reduced).length === 0) {
       return NextResponse.json(
         {

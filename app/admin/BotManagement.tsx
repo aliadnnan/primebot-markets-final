@@ -14,6 +14,8 @@ interface BotRow {
   is_active?: boolean
   available_for_purchase?: boolean
   display_order?: number
+  delivery_file_name?: string | null
+  delivery_file_path?: string | null
 }
 
 const emptyBot = {
@@ -385,6 +387,9 @@ export default function BotManagement() {
                       ID: <span className="font-mono">{bot.id}</span> ·{' '}
                       {(bot.features || []).length} feature(s)
                     </p>
+                    {/* Per-bot delivery file: attached ONCE per bot, emailed
+                        automatically to every verified buyer. */}
+                    <BotDeliveryFile bot={bot} onAttached={load} />
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <button
@@ -422,5 +427,102 @@ export default function BotManagement() {
         </div>
       )}
     </div>
+  )
+}
+
+/**
+ * Per-bot delivery file attach: the EA file the admin attaches ONCE per bot.
+ * When a buyer's payment is verified, the server emails them this file
+ * automatically (7-day signed link) - no per-order admin attach needed.
+ */
+function BotDeliveryFile({
+  bot,
+  onAttached,
+}: {
+  bot: BotRow
+  onAttached: () => void
+}) {
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+      <span className="text-slate-500">Delivery file:</span>
+      {bot.delivery_file_name ? (
+        <span className="text-green-400 font-medium truncate max-w-[220px]" title={bot.delivery_file_path || undefined}>
+          ✓ {bot.delivery_file_name}
+        </span>
+      ) : (
+        <span className="text-amber-400/90">not attached - verified buyers get no auto email</span>
+      )}
+      <BotDeliveryFileInput botId={bot.id} onDone={onAttached} />
+    </div>
+  )
+}
+
+function BotDeliveryFileInput({ botId, onDone }: { botId: string; onDone: () => void }) {
+  const { getAccessToken } = useAuth()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleFile(file: File) {
+    setBusy(true)
+    setError(null)
+    try {
+      const token = await getAccessToken()
+      if (!token) throw new Error('Admin session not found')
+      const headers = { Authorization: `Bearer ${token}` }
+
+      // 1. Signed upload URL from the server.
+      const initRes = await fetch(`/api/admin/bots/${botId}/delivery-file`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size }),
+      })
+      const initData = await initRes.json().catch(() => null)
+      if (!initRes.ok || !initData?.success) {
+        throw new Error(initData?.error || `Could not start upload (HTTP ${initRes.status})`)
+      }
+
+      // 2. Upload the file direct to the private bucket.
+      const putRes = await fetch(initData.signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      })
+      if (!putRes.ok) throw new Error(`Upload failed (HTTP ${putRes.status})`)
+
+      // 3. Record the path on the bot.
+      const doneRes = await fetch(`/api/admin/bots/${botId}/delivery-file`, {
+        method: 'PUT',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: initData.path, filename: file.name }),
+      })
+      const doneData = await doneRes.json().catch(() => null)
+      if (!doneRes.ok || !doneData?.success) {
+        throw new Error(doneData?.error || `Could not attach file (HTTP ${doneRes.status})`)
+      }
+
+      toast.success('Delivery file attached - verified buyers now get it by email automatically')
+      onDone()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Upload failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <label className="cursor-pointer text-blue-400 hover:text-blue-300 font-medium">
+      {busy ? 'Uploading...' : 'Attach file'}
+      <input
+        type="file"
+        className="hidden"
+        disabled={busy}
+        onChange={(e) => {
+          const f = e.target.files?.[0]
+          e.target.value = ''
+          if (f) void handleFile(f)
+        }}
+      />
+      {error && <span className="text-red-400 ml-2">{error}</span>}
+    </label>
   )
 }
