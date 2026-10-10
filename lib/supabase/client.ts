@@ -87,6 +87,14 @@ export type Database = {
           payment_method: string
           transaction_id: string
           payment_proof_url: string | null
+          payer_name: string | null
+          amount_paid: number | null
+          verification_status: 'pending' | 'verified' | 'failed' | null
+          verification_detail: Record<string, any> | null
+          delivery_email: string | null
+          delivered_to_email: string | null
+          buyer_phone: string | null
+          buyer_whatsapp: string | null
           status: 'pending_verification' | 'verified' | 'rejected' | 'delivered'
           rejection_reason: string | null
           created_at: string
@@ -100,12 +108,26 @@ export type Database = {
           payment_method: string
           transaction_id: string
           payment_proof_url?: string | null
+          payer_name?: string | null
+          amount_paid?: number | null
+          verification_status?: 'pending' | 'verified' | 'failed' | null
+          verification_detail?: Record<string, any> | null
+          delivery_email?: string | null
+          delivered_to_email?: string | null
+          buyer_phone?: string | null
+          buyer_whatsapp?: string | null
         }
         Update: {
           status?: 'pending_verification' | 'verified' | 'rejected' | 'delivered'
           rejection_reason?: string | null
           updated_at?: string
           payment_proof_url?: string | null
+          verification_status?: 'pending' | 'verified' | 'failed' | null
+          verification_detail?: Record<string, any> | null
+          delivery_email?: string | null
+          delivered_to_email?: string | null
+          buyer_phone?: string | null
+          buyer_whatsapp?: string | null
         }
       }
       bots: {

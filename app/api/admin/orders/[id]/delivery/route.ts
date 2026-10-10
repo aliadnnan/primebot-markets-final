@@ -4,10 +4,15 @@ import {
   getAdminUserFromRequest,
   BOT_DELIVERY_BUCKET,
 } from '@/lib/supabase/server'
+import { sendBotDeliveredEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
 const MAX_DELIVERY_SIZE = 100 * 1024 * 1024 // 100 MB
+// Email delivery link lifetime: 7 days. The link is a bearer URL, so it is
+// only ever sent to the buyer's own delivery email; the in-dashboard download
+// uses a separate 5-minute signed URL via /api/orders/[id]/download.
+const EMAIL_LINK_TTL_SECONDS = 7 * 24 * 60 * 60
 
 /**
  * Admin: attach the EA/bot delivery file to an order.
@@ -134,18 +139,38 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     )
   }
 
-  const { data: order, error: orderError } = await (supabaseServer as any)
-    .from('orders')
-    .select('id, status')
-    .eq('id', params.id)
-    .maybeSingle()
-
-  if (orderError || !order) {
-    return NextResponse.json(
-      { success: false, error: orderError?.message || 'Order not found.' },
-      { status: orderError ? 400 : 404 }
-    )
+  let order: any = null
+  {
+    const first = await (supabaseServer as any)
+      .from('orders')
+      .select('id, status, delivery_email, bot_name, payer_name')
+      .eq('id', params.id)
+      .maybeSingle()
+    if (first.error && (first.error as any).code === '42703') {
+      // sql/11 has not been run yet: delivery_email does not exist.
+      const retry = await (supabaseServer as any)
+        .from('orders')
+        .select('id, status, bot_name, payer_name')
+        .eq('id', params.id)
+        .maybeSingle()
+      if (retry.error || !retry.data) {
+        return NextResponse.json(
+          { success: false, error: retry.error?.message || 'Order not found.' },
+          { status: retry.error ? 400 : 404 }
+        )
+      }
+      order = { ...retry.data, delivery_email: null }
+    } else {
+      if (first.error || !first.data) {
+        return NextResponse.json(
+          { success: false, error: first.error?.message || 'Order not found.' },
+          { status: first.error ? 400 : 404 }
+        )
+      }
+      order = first.data
+    }
   }
+  const deliveryEmail = (order.delivery_email as string | null) || null
 
   // An order may only be marked delivered once payment has been verified.
   if (markDelivered && order.status !== 'verified' && order.status !== 'delivered') {
@@ -187,38 +212,100 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   if (markDelivered) {
     update.status = 'delivered'
     update.delivered_at = new Date().toISOString()
+    // Permanent delivery record: which email the bot was delivered to, so the
+    // owner can later prove "we delivered this bot to this email".
+    update.delivered_to_email = deliveryEmail
   }
 
-  const { data, error } = await (supabaseServer as any)
-    .from('orders')
-    .update(update)
-    .eq('id', params.id)
-    .select()
-
-  if (error) {
-    const missingColumn = /delivery_file_path|delivery_file_name|delivered_at/.test(
-      error.message || ''
-    )
-    return NextResponse.json(
-      {
-        success: false,
-        error: missingColumn
-          ? `The delivery columns do not exist yet. Run sql/05_future_proof_setup.sql in Supabase. Raw error: ${error.message}`
-          : `The file uploaded (${path}) but the order was not updated: ${error.message}`,
-      },
-      { status: 400 }
-    )
+  let updated: any = null
+  {
+    const first = await (supabaseServer as any)
+      .from('orders')
+      .update(update)
+      .eq('id', params.id)
+      .select()
+    if (first.error && /delivered_to_email|delivery_email/.test(first.error.message || '')) {
+      // sql/11 has not been run yet: retry without the new column.
+      const { delivered_to_email: _dropped, ...legacyUpdate } = update
+      const retry = await (supabaseServer as any)
+        .from('orders')
+        .update(legacyUpdate)
+        .eq('id', params.id)
+        .select()
+      if (retry.error || !retry.data || retry.data.length === 0) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: retry.error
+              ? `The file uploaded (${path}) but the order was not updated: ${retry.error.message}`
+              : `The file uploaded (${path}) but no order was updated.`,
+          },
+          { status: 400 }
+        )
+      }
+      updated = retry.data[0]
+    } else {
+      if (first.error) {
+        const missingColumn = /delivery_file_path|delivery_file_name|delivered_at/.test(
+          first.error.message || ''
+        )
+        return NextResponse.json(
+          {
+            success: false,
+            error: missingColumn
+              ? `The delivery columns do not exist yet. Run sql/05_future_proof_setup.sql in Supabase. Raw error: ${first.error.message}`
+              : `The file uploaded (${path}) but the order was not updated: ${first.error.message}`,
+          },
+          { status: 400 }
+        )
+      }
+      if (!first.data || first.data.length === 0) {
+        return NextResponse.json(
+          { success: false, error: `The file uploaded (${path}) but no order was updated.` },
+          { status: 400 }
+        )
+      }
+      updated = first.data[0]
+    }
   }
-  if (!data || data.length === 0) {
-    return NextResponse.json(
-      { success: false, error: `The file uploaded (${path}) but no order was updated.` },
-      { status: 400 }
-    )
+
+  // EMAIL DELIVERY (best-effort, never fails the delivery itself): when the
+  // order is marked delivered, email the buyer at their delivery email with a
+  // secure 7-day download link for the bot file.
+  let emailSent = false
+  if (markDelivered && deliveryEmail) {
+    try {
+      const { data: signed, error: signError } = await supabaseServer.storage
+        .from(BOT_DELIVERY_BUCKET)
+        .createSignedUrl(path, EMAIL_LINK_TTL_SECONDS, {
+          download: filename || true,
+        })
+      if (!signError && signed?.signedUrl) {
+        await sendBotDeliveredEmail(
+          deliveryEmail,
+          (order.payer_name as string) || 'Customer',
+          params.id,
+          (order.bot_name as string) || 'your bot',
+          signed.signedUrl,
+          'This secure link expires in 7 days. You can also download the file anytime from your account dashboard.'
+        )
+        emailSent = true
+      } else {
+        console.error('[admin/delivery] Could not sign email delivery link:', {
+          orderId: params.id,
+          error: signError,
+        })
+      }
+    } catch (emailError) {
+      console.error('[admin/delivery] Delivery email failed (best-effort):', emailError)
+    }
   }
 
   return NextResponse.json({
     success: true,
     message: markDelivered ? 'Delivery file attached and order marked delivered' : 'Delivery file attached',
-    order: data[0],
+    emailSent: markDelivered ? emailSent : undefined,
+    deliveredToEmail: markDelivered ? deliveryEmail : undefined,
+    order: updated,
   })
 }

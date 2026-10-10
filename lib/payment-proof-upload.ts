@@ -177,7 +177,16 @@ export async function uploadPaymentProofDirect({
   getToken,
   onStage,
   onProgress,
-}: UploadArgs): Promise<{ path: string }> {
+}: UploadArgs): Promise<{
+  path: string
+  verification: {
+    status: 'verified' | 'failed'
+    name_match: boolean
+    tid_match: boolean
+    amount_match: boolean
+    message: string
+  } | null
+}> {
   const token = await getToken()
   if (!token) {
     throw new Error('Your session could not be read. Please sign in again and retry.')
@@ -208,7 +217,9 @@ export async function uploadPaymentProofDirect({
 
   // ---- 3. Finalize ------------------------------------------------------
   // The proof is only considered attached once the server confirms the object
-  // exists and the order row was actually updated.
+  // exists and the order row was actually updated. Finalize also runs the
+  // payment-proof verification (hard PASS/FAIL gate) and returns the decision,
+  // which the checkout shows to the buyer.
   onStage?.('Attaching proof to your order')
   const finalize = await postJson('/api/orders/payment-proof/finalize', token, {
     orderId,
@@ -223,5 +234,5 @@ export async function uploadPaymentProofDirect({
     )
   }
 
-  return { path }
+  return { path, verification: finalize.data?.verification ?? null }
 }

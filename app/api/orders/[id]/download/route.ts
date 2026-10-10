@@ -68,7 +68,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         {
           success: false,
           error:
-            'Your payment has not been verified yet. Your download will appear here once an administrator approves it.',
+            'Your payment slip has not passed verification yet. Your download will appear here once it does.',
           status: order.status,
         },
         { status: 403 }

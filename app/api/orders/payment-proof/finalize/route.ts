@@ -5,7 +5,17 @@ import {
   isSupabaseServerConfigured,
   PAYMENT_PROOF_BUCKET,
 } from '@/lib/supabase/server'
-import { sendPaymentSubmittedEmail } from '@/lib/email'
+import {
+  sendPaymentApprovedEmail,
+  sendPaymentRejectedEmail,
+} from '@/lib/email'
+import {
+  buyerFailMessage,
+  extractSlipText,
+  verifyPaymentProof,
+  type VerificationDetail,
+} from '@/lib/proof-verification'
+import { isMissingColumnError } from '@/lib/video-columns'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,17 +67,38 @@ export async function POST(request: NextRequest) {
     }
 
     // ---- Ownership check -------------------------------------------------
-    const { data: order, error: orderError } = await (supabaseServer as any)
-      .from('orders')
-      .select('id, user_id, bot_name')
-      .eq('id', orderId)
-      .maybeSingle()
+    let order: any = null
+    {
+      const { data, error } = await (supabaseServer as any)
+        .from('orders')
+        .select(
+          'id, user_id, bot_name, bot_price, payment_method, transaction_id, payer_name, amount_paid, delivery_email, verification_detail'
+        )
+        .eq('id', orderId)
+        .maybeSingle()
 
-    if (orderError) {
-      return NextResponse.json(
-        { success: false, error: `Could not verify the order: ${orderError.message}` },
-        { status: 400 }
-      )
+      if (error && isMissingColumnError(error)) {
+        // sql/11 has not been run yet: read the order without the new columns.
+        const { data: legacy, error: legacyError } = await (supabaseServer as any)
+          .from('orders')
+          .select('id, user_id, bot_name')
+          .eq('id', orderId)
+          .maybeSingle()
+        if (legacyError) {
+          return NextResponse.json(
+            { success: false, error: `Could not verify the order: ${legacyError.message}` },
+            { status: 400 }
+          )
+        }
+        order = legacy
+      } else if (error) {
+        return NextResponse.json(
+          { success: false, error: `Could not verify the order: ${error.message}` },
+          { status: 400 }
+        )
+      } else {
+        order = data
+      }
     }
     if (!order) {
       return NextResponse.json({ success: false, error: 'Order not found.' }, { status: 404 })
@@ -112,6 +143,8 @@ export async function POST(request: NextRequest) {
     }
 
     // ---- Attach to the order --------------------------------------------
+    // The file and the path are attached first so a failed verification can
+    // never leave the proof orphaned: the audit trail stays on the order.
     const { data: updated, error: updateError } = await (supabaseServer as any)
       .from('orders')
       .update({ payment_proof_url: path })
@@ -141,17 +174,122 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Email is best-effort and must never fail an attached proof.
-    if (user.email) {
+    // ---- PAYMENT-PROOF VERIFICATION (hard PASS/FAIL gate) ---------------
+    // OCR the slip and cross-check what the buyer typed against the slip.
+    // ALL MATCH -> order approved automatically (status 'verified', proceeds
+    // to the normal delivery step).
+    // ANY MISMATCH / unreadable -> order REJECTED automatically with a clear
+    // message to the buyer. Never proceeds, never auto-approves, never queues
+    // for review. The buyer may resubmit the correct slip against this same
+    // order, which re-runs this whole check.
+    let detail: VerificationDetail | null = null
+    {
+      const typedAmount =
+        order.amount_paid === null || order.amount_paid === undefined
+          ? null
+          : Number(order.amount_paid)
+      const botPrice =
+        order.bot_price === null || order.bot_price === undefined
+          ? null
+          : Number(order.bot_price)
+
+      const { bytes, mimeType } = await downloadProofFile(path)
+      const ocr = await extractSlipText(bytes, mimeType)
+
+      const checked = verifyPaymentProof({
+        payerName: order.payer_name ?? fullName ?? null,
+        typedTid: order.transaction_id ?? null,
+        typedAmount: Number.isFinite(typedAmount as number) ? (typedAmount as number) : null,
+        paymentMethod: order.payment_method ?? null,
+        botPrice: Number.isFinite(botPrice as number) ? (botPrice as number) : null,
+        ocrText: ocr.text,
+        ocrStatus: ocr.status,
+      })
+
+      // Keep the history of failed attempts for the admin's read-only audit.
+      const attempts: Array<Record<string, any>> = []
+      const previous = (order as any).verification_detail
+      if (previous && typeof previous === 'object') {
+        const { attempts: prevAttempts, ...prevRest } = previous
+        if (Array.isArray(prevAttempts)) attempts.push(...prevAttempts)
+        attempts.push(prevRest)
+      }
+      detail = { ...checked, attempts } as VerificationDetail
+    }
+
+    const failed = detail.status !== 'verified'
+    const buyerMessage = failed
+      ? buyerFailMessage(detail)
+      : 'Your payment has been verified and your order is approved.'
+
+    // Persist the decision. The fulfillment status is decided HERE, by this
+    // check: no code path ever fulfills a failed order.
+    const decisionPayload: Record<string, any> = failed
+      ? {
+          status: 'rejected',
+          rejection_reason: buyerMessage,
+          verification_status: 'failed',
+          verification_detail: detail,
+        }
+      : {
+          status: 'verified',
+          rejection_reason: null,
+          verification_status: 'verified',
+          verification_detail: detail,
+        }
+
+    {
+      const { error: decisionError } = await (supabaseServer as any)
+        .from('orders')
+        .update(decisionPayload)
+        .eq('id', orderId)
+        .eq('user_id', user.id)
+
+      if (decisionError && isMissingColumnError(decisionError)) {
+        // sql/11 has not been run yet. The gate decision itself is still
+        // enforced through the plain fulfillment columns, so a fake slip can
+        // never slip through; only the audit columns are skipped.
+        const { error: legacyError } = await (supabaseServer as any)
+          .from('orders')
+          .update(
+            failed
+              ? { status: 'rejected', rejection_reason: buyerMessage }
+              : { status: 'verified', rejection_reason: null }
+          )
+          .eq('id', orderId)
+          .eq('user_id', user.id)
+        if (legacyError) {
+          console.error('[payment-proof/finalize] Decision update failed:', legacyError)
+        }
+      } else if (decisionError) {
+        console.error('[payment-proof/finalize] Decision update failed:', decisionError)
+      }
+    }
+
+    // Emails are best-effort and must never change the decision above.
+    // They go to the buyer's delivery email (the email the bot is delivered
+    // to), falling back to the account email.
+    const notifyEmail = order.delivery_email || user.email
+    if (notifyEmail) {
       try {
-        await sendPaymentSubmittedEmail(
-          user.email,
-          fullName || user.email,
-          orderId,
-          order.bot_name || 'your bot'
-        )
+        if (failed) {
+          await sendPaymentRejectedEmail(
+            notifyEmail,
+            fullName || notifyEmail,
+            orderId,
+            order.bot_name || 'your bot',
+            buyerMessage
+          )
+        } else {
+          await sendPaymentApprovedEmail(
+            notifyEmail,
+            fullName || notifyEmail,
+            orderId,
+            order.bot_name || 'your bot'
+          )
+        }
       } catch (emailError) {
-        console.error('[payment-proof/finalize] Email failed (proof kept):', emailError)
+        console.error('[payment-proof/finalize] Email failed (decision kept):', emailError)
       }
     }
 
@@ -159,7 +297,15 @@ export async function POST(request: NextRequest) {
       success: true,
       orderId,
       path,
-      message: 'Payment proof attached to your order.',
+      verification: {
+        status: detail.status,
+        name_match: detail.name_match,
+        tid_match: detail.tid_match,
+        amount_match: detail.amount_match,
+        message: failed
+          ? buyerMessage
+          : 'Payment proof verified. Your order is approved.',
+      },
     })
   } catch (error) {
     console.error('[payment-proof/finalize] Unexpected error:', error)
@@ -167,5 +313,51 @@ export async function POST(request: NextRequest) {
       { success: false, error: 'An unexpected error occurred.' },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * Download the slip from the private bucket so the server can OCR it.
+ * Returns empty bytes + the guessed mime type when the download fails; the
+ * verification step then fails closed (order rejected, buyer notified).
+ */
+async function downloadProofFile(
+  path: string
+): Promise<{ bytes: Buffer; mimeType: string | null }> {
+  const mimeType = guessMimeType(path)
+  try {
+    const { data, error } = await supabaseServer.storage
+      .from(PAYMENT_PROOF_BUCKET)
+      .download(path)
+    if (error || !data) {
+      console.error('[payment-proof/finalize] Could not download slip for OCR:', error)
+      return { bytes: Buffer.alloc(0), mimeType }
+    }
+    const arrayBuffer = await data.arrayBuffer()
+    return { bytes: Buffer.from(arrayBuffer), mimeType }
+  } catch (error) {
+    console.error('[payment-proof/finalize] Slip download threw:', error)
+    return { bytes: Buffer.alloc(0), mimeType }
+  }
+}
+
+function guessMimeType(path: string): string | null {
+  const ext = path.split('.').pop()?.toLowerCase()
+  switch (ext) {
+    case 'png':
+      return 'image/png'
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg'
+    case 'gif':
+      return 'image/gif'
+    case 'webp':
+      return 'image/webp'
+    case 'bmp':
+      return 'image/bmp'
+    case 'pdf':
+      return 'application/pdf'
+    default:
+      return null
   }
 }

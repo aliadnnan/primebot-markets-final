@@ -8,14 +8,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Get all orders
-    const { data: allOrders, error: ordersError } = await (supabaseServer as any)
+    // Get all orders. verification_status comes from sql/11; before it runs,
+    // the column does not exist, so retry without it and report zeroes.
+    let allOrders: any[] | null = null
+    const first = await (supabaseServer as any)
       .from('orders')
-      .select('status, bot_price')
-
-    if (ordersError) {
-      console.error('Error fetching orders:', ordersError)
-      return NextResponse.json({ error: 'Failed to fetch statistics' }, { status: 500 })
+      .select('status, bot_price, verification_status')
+    if (first.error && (first.error as any).code === '42703') {
+      const retry = await (supabaseServer as any).from('orders').select('status, bot_price')
+      if (retry.error) {
+        console.error('Error fetching orders:', retry.error)
+        return NextResponse.json({ error: 'Failed to fetch statistics' }, { status: 500 })
+      }
+      allOrders = (retry.data || []).map((o: any) => ({ ...o, verification_status: null }))
+    } else {
+      if (first.error) {
+        console.error('Error fetching orders:', first.error)
+        return NextResponse.json({ error: 'Failed to fetch statistics' }, { status: 500 })
+      }
+      allOrders = first.data
     }
 
     const stats = {
@@ -24,6 +35,12 @@ export async function GET(request: NextRequest) {
       verified: allOrders?.filter((o) => o.status === 'verified').length || 0,
       rejected: allOrders?.filter((o) => o.status === 'rejected').length || 0,
       delivered: allOrders?.filter((o) => o.status === 'delivered').length || 0,
+      // Slip-verification gate counts (verification_status is a separate axis
+      // from fulfillment status; may be null before sql/11 runs).
+      verificationVerified:
+        allOrders?.filter((o) => o.verification_status === 'verified').length || 0,
+      verificationFailed:
+        allOrders?.filter((o) => o.verification_status === 'failed').length || 0,
       totalRevenue: allOrders
         ?.filter((o) => o.status === 'verified' || o.status === 'delivered')
         .reduce((sum, o) => sum + (o.bot_price || 0), 0) || 0,

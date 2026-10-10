@@ -25,6 +25,10 @@ export default function PaymentPage() {
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null)
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1)
   const [transactionId, setTransactionId] = useState('')
+  const [amountPaid, setAmountPaid] = useState('')
+  const [deliveryEmail, setDeliveryEmail] = useState('')
+  const [buyerPhone, setBuyerPhone] = useState('')
+  const [buyerWhatsapp, setBuyerWhatsapp] = useState('')
   const [paymentFile, setPaymentFile] = useState<File | null>(null)
   const [fileName, setFileName] = useState('')
   const [loading, setLoading] = useState(false)
@@ -32,6 +36,10 @@ export default function PaymentPage() {
   const [errors, setErrors] = useState<{
     fullName?: string
     transactionId?: string
+    amountPaid?: string
+    deliveryEmail?: string
+    buyerPhone?: string
+    buyerWhatsapp?: string
     paymentFile?: string
   }>({})
   const [orderId, setOrderId] = useState<string | null>(null)
@@ -165,7 +173,11 @@ export default function PaymentPage() {
     const newErrors: {
       fullName?: string
       transactionId?: string
+      amountPaid?: string
       paymentFile?: string
+      deliveryEmail?: string
+      buyerPhone?: string
+      buyerWhatsapp?: string
     } = {}
 
     if (!fullName || fullName.trim().length < 2) {
@@ -174,6 +186,29 @@ export default function PaymentPage() {
 
     if (!transactionId || transactionId.trim().length < 3) {
       newErrors.transactionId = 'Please enter transaction ID or hash'
+    }
+
+    // The amount the buyer says they sent. It is cross-checked against the
+    // slip automatically; the bot's listed price is what the server charges.
+    const amountNumber = Number(String(amountPaid).replace(/[^0-9.]/g, ''))
+    if (!amountPaid || !Number.isFinite(amountNumber) || amountNumber <= 0) {
+      newErrors.amountPaid = 'Please enter the amount you sent'
+    }
+
+    // The bot is delivered to this email — it is required so the delivery
+    // record can later prove "we delivered this bot to this email".
+    if (!/^\S+@\S+\.\S+$/.test(String(deliveryEmail).trim())) {
+      newErrors.deliveryEmail = 'Please enter a valid delivery email'
+    }
+
+    // Phone + WhatsApp (required) — full record of who the buyer was.
+    const phoneDigits = String(buyerPhone).replace(/\D/g, '')
+    if (!phoneDigits || phoneDigits.length < 7) {
+      newErrors.buyerPhone = 'Please enter your phone number'
+    }
+    const waDigits = String(buyerWhatsapp).replace(/\D/g, '')
+    if (!waDigits || waDigits.length < 7) {
+      newErrors.buyerWhatsapp = 'Please enter your WhatsApp number'
     }
 
     if (!paymentFile) {
@@ -223,6 +258,10 @@ export default function PaymentPage() {
             paymentMethodId: paymentSelected.id,
             transactionId: transactionId.trim(),
             fullName,
+            amountPaid: amountPaid.trim(),
+            deliveryEmail: deliveryEmail.trim(),
+            buyerPhone: buyerPhone.trim(),
+            buyerWhatsapp: buyerWhatsapp.trim(),
           }),
         })
 
@@ -249,7 +288,7 @@ export default function PaymentPage() {
         throw new Error('Please select your payment proof file before submitting.')
       }
 
-      await uploadPaymentProofDirect({
+      const proof = await uploadPaymentProofDirect({
         orderId: currentOrderId,
         file: paymentFile,
         fullName,
@@ -258,8 +297,23 @@ export default function PaymentPage() {
         onProgress: setUploadProgress,
       })
 
-      // Only now is the order genuinely complete.
-      toast.success('Order submitted and payment proof attached.')
+      // The server verified the slip automatically (PASS/FAIL gate). A failed
+      // check rejects the order; the buyer stays on this step and can upload
+      // the correct slip for the same order - orderId is kept on purpose.
+      const verdict = proof.verification
+      if (verdict && verdict.status === 'failed') {
+        const message =
+          verdict.message ||
+          'Payment verification failed. Please upload the correct slip and try again.'
+        setSubmitError(message)
+        setSubmitStage('')
+        setUploadProgress(0)
+        toast.error(message, { duration: 12000 })
+        return
+      }
+
+      // Verified: the order is approved and proceeds.
+      toast.success('Payment verified - your order is approved.')
       setSubmitStage('')
       setUploadProgress(0)
       setTimeout(() => handleNext(), 800)
@@ -594,6 +648,78 @@ export default function PaymentPage() {
                 {errors.transactionId && <p className="text-red-500 text-xs mt-1">{errors.transactionId}</p>}
               </div>
 
+              {/* Amount Sent */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Amount You Sent
+                </label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={amountPaid}
+                  onChange={(e) => setAmountPaid(e.target.value)}
+                  placeholder={`e.g. ${selected?.price ?? ''}`}
+                  className={`w-full px-4 py-3 rounded-lg bg-slate-700 border ${
+                    errors.amountPaid ? 'border-red-500' : 'border-slate-600'
+                  } text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition`}
+                />
+                <p className="text-slate-500 text-xs mt-1">
+                  Exactly as shown on your slip. It is checked against the slip automatically.
+                </p>
+                {errors.amountPaid && <p className="text-red-500 text-xs mt-1">{errors.amountPaid}</p>}
+              </div>
+
+              {/* Delivery email — the bot is sent to this address */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Your Email <span className="text-slate-500 text-xs">(the bot will be delivered here)</span>
+                </label>
+                <input
+                  type="email"
+                  value={deliveryEmail}
+                  onChange={(e) => setDeliveryEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className={`w-full px-4 py-3 rounded-lg bg-slate-700 border ${
+                    errors.deliveryEmail ? 'border-red-500' : 'border-slate-600'
+                  } text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition`}
+                />
+                {errors.deliveryEmail && <p className="text-red-500 text-xs mt-1">{errors.deliveryEmail}</p>}
+              </div>
+
+              {/* Phone + WhatsApp — full record of who the buyer was */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={buyerPhone}
+                    onChange={(e) => setBuyerPhone(e.target.value)}
+                    placeholder="03XXXXXXXXX"
+                    className={`w-full px-4 py-3 rounded-lg bg-slate-700 border ${
+                      errors.buyerPhone ? 'border-red-500' : 'border-slate-600'
+                    } text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition`}
+                  />
+                  {errors.buyerPhone && <p className="text-red-500 text-xs mt-1">{errors.buyerPhone}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    WhatsApp Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={buyerWhatsapp}
+                    onChange={(e) => setBuyerWhatsapp(e.target.value)}
+                    placeholder="03XXXXXXXXX"
+                    className={`w-full px-4 py-3 rounded-lg bg-slate-700 border ${
+                      errors.buyerWhatsapp ? 'border-red-500' : 'border-slate-600'
+                    } text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition`}
+                  />
+                  {errors.buyerWhatsapp && <p className="text-red-500 text-xs mt-1">{errors.buyerWhatsapp}</p>}
+                </div>
+              </div>
+
               {/* File Upload */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -676,9 +802,9 @@ export default function PaymentPage() {
               <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-5xl">✓</span>
               </div>
-              <h1 className="text-4xl font-bold text-white mb-4">Order Submitted!</h1>
+              <h1 className="text-4xl font-bold text-white mb-4">Payment Verified!</h1>
               <p className="text-slate-400 mb-8 text-lg">
-                Your order has been received and is pending payment verification.
+                Your slip was checked automatically and everything matched. Your order is approved.
               </p>
 
               <div className="bg-slate-700/50 rounded-lg p-6 text-left mb-8 space-y-3">
@@ -695,14 +821,14 @@ export default function PaymentPage() {
                   <span className="text-white">${selected?.price}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Status:</span>
-                  <span className="text-yellow-400">Pending Verification</span>
+                  <span className="text-slate-400">Payment:</span>
+                  <span className="text-green-400">Verified - Approved</span>
                 </div>
               </div>
 
               <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4 mb-8">
                 <p className="text-blue-400 text-sm">
-                  ℹ️ Our team will verify your payment within 24 hours. Check your email for updates.
+                  ℹ️ Your bot will be delivered shortly. Check your email for updates.
                 </p>
               </div>
 

@@ -16,10 +16,18 @@ interface AdminOrder {
   bot_price: number
   payment_method: string
   transaction_id: string
+  payer_name?: string | null
+  amount_paid?: number | string | null
   payment_proof_url?: string | null
   payment_proof_path?: string
   payment_proof_signed?: boolean
   payment_proof_error?: string
+  verification_status?: 'pending' | 'verified' | 'failed' | null
+  verification_detail?: Record<string, any> | null
+  delivery_email?: string | null
+  delivered_to_email?: string | null
+  buyer_phone?: string | null
+  buyer_whatsapp?: string | null
   delivery_file_path?: string | null
   delivery_file_name?: string | null
   delivered_at?: string | null
@@ -40,6 +48,8 @@ interface AdminStats {
   verified: number
   rejected: number
   delivered: number
+  verificationVerified?: number
+  verificationFailed?: number
   totalRevenue?: number
 }
 
@@ -63,6 +73,7 @@ export default function AdminDashboard() {
     delivered: 0,
   })
   const [selectedStatus, setSelectedStatus] = useState('all')
+  const [selectedVerification, setSelectedVerification] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null)
@@ -161,6 +172,9 @@ export default function AdminDashboard() {
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus
+    const matchesVerification =
+      selectedVerification === 'all' ||
+      (order.verification_status || 'pending') === selectedVerification
     const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (typeof order.users === 'object' && order.users && 'email' in order.users
@@ -170,7 +184,7 @@ export default function AdminDashboard() {
         ? order.users.full_name.toLowerCase().includes(searchTerm.toLowerCase())
         : '') ||
       order.bot_name.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesStatus && matchesSearch
+    return matchesStatus && matchesVerification && matchesSearch
   })
 
   const handleApprove = async (orderId: string) => {
@@ -288,6 +302,54 @@ export default function AdminDashboard() {
     }
   }
 
+  // Verification badge helpers. verification_status is the hard PASS/FAIL
+  // gate from automatic slip OCR ('pending' = no slip / not run yet).
+  const getVerificationColor = (status?: string | null) => {
+    switch (status) {
+      case 'verified':
+        return 'bg-green-500/20 text-green-400 border-green-500/30'
+      case 'failed':
+        return 'bg-red-500/20 text-red-400 border-red-500/30'
+      case 'pending':
+      default:
+        return 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+    }
+  }
+
+  const getVerificationLabel = (status?: string | null) => {
+    switch (status) {
+      case 'verified':
+        return 'Slip Verified'
+      case 'failed':
+        return 'Slip Failed'
+      case 'pending':
+      default:
+        return 'Not Verified'
+    }
+  }
+
+  // Per-field OCR match ticks from verification_detail. Reads the flat
+  // name_match/tid_match/amount_match keys written by lib/proof-verification,
+  // and also the nested `fields` object shape if present.
+  const verificationFields = (order: AdminOrder): Record<string, boolean | undefined> => {
+    const d = order.verification_detail
+    if (!d || typeof d !== 'object') return {}
+    const anyD = d as any
+    const out: Record<string, boolean | undefined> = {}
+    const pick = (v: unknown): boolean | undefined =>
+      typeof v === 'boolean' ? v : undefined
+    out.name = pick(anyD.name_match)
+    out.tid = pick(anyD.tid_match)
+    out.amount = pick(anyD.amount_match)
+    const f = anyD.fields
+    if (f && typeof f === 'object') {
+      if (f.name !== undefined) out.name = pick(f.name)
+      if (f.tid !== undefined) out.tid = pick(f.tid)
+      if (f.amount !== undefined) out.amount = pick(f.amount)
+    }
+    return out
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -370,6 +432,14 @@ export default function AdminDashboard() {
       }
 
       toast.success(finalizeData.message || 'Delivery file attached')
+      // When the admin chose "Attach & mark delivered", report the email leg.
+      if (typeof finalizeData?.emailSent === 'boolean') {
+        if (finalizeData.emailSent && finalizeData.deliveredToEmail) {
+          toast.success(`Delivery email sent to ${finalizeData.deliveredToEmail}`)
+        } else {
+          toast('Delivered, but the delivery email could not be sent.', { icon: '⚠️' })
+        }
+      }
       setDeliveryFile(null)
       setSelectedOrder(null)
       loadOrders()
@@ -596,6 +666,14 @@ export default function AdminDashboard() {
             <p className="text-red-400 text-sm mb-1">Rejected</p>
             <p className="text-3xl font-bold text-red-400">{stats.rejected}</p>
           </div>
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-4">
+            <p className="text-emerald-400 text-sm mb-1">Slips Verified</p>
+            <p className="text-3xl font-bold text-emerald-400">{stats.verificationVerified ?? 0}</p>
+          </div>
+          <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+            <p className="text-orange-400 text-sm mb-1">Slips Failed</p>
+            <p className="text-3xl font-bold text-orange-400">{stats.verificationFailed ?? 0}</p>
+          </div>
         </div>
 
         {/* Filters */}
@@ -613,6 +691,24 @@ export default function AdminDashboard() {
                 }`}
               >
                 {status === 'all' ? 'All Orders' : getStatusLabel(status)}
+              </button>
+            ))}
+          </div>
+
+          {/* Verification Filters */}
+          <div className="flex gap-2 flex-wrap items-center">
+            <span className="text-slate-500 text-xs uppercase font-semibold mr-1">Verification:</span>
+            {['all', 'pending', 'verified', 'failed'].map((v) => (
+              <button
+                key={v}
+                onClick={() => setSelectedVerification(v)}
+                className={`px-3 py-1.5 rounded-lg text-sm transition ${
+                  selectedVerification === v
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                {v === 'all' ? 'Any' : getVerificationLabel(v)}
               </button>
             ))}
           </div>
@@ -639,14 +735,14 @@ export default function AdminDashboard() {
         ) : (
           <div className="space-y-4">
             {filteredOrders.map((order) => (
-              <button
+              <div
                 key={order.id}
                 onClick={() => {
                   setSelectedOrder(order)
                   setShowRejectForm(false)
                   setRejectionReason('')
                 }}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition text-left"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition text-left cursor-pointer"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -656,9 +752,20 @@ export default function AdminDashboard() {
                         ? `${order.users.full_name} (${order.users.email})`
                         : 'Unknown Customer'}
                     </p>
+                    {order.delivery_email && (
+                      <p className="text-slate-500 text-xs mt-0.5">
+                        Deliver to: <span className="text-slate-300">{order.delivery_email}</span>
+                      </p>
+                    )}
                   </div>
-                  <div className={`px-3 py-1 rounded-full border text-sm font-medium ${getStatusColor(order.status)}`}>
-                    {getStatusLabel(order.status)}
+                  <div className="flex flex-col items-end gap-2">
+                    <div className={`px-3 py-1 rounded-full border text-sm font-medium ${getStatusColor(order.status)}`}>
+                      {getStatusLabel(order.status)}
+                    </div>
+                    <div className={`px-3 py-1 rounded-full border text-xs font-medium ${getVerificationColor(order.verification_status)}`}>
+                      {order.verification_status === 'verified' ? '✓ ' : order.verification_status === 'failed' ? '✗ ' : ''}
+                      {getVerificationLabel(order.verification_status)}
+                    </div>
                   </div>
                 </div>
 
@@ -680,7 +787,53 @@ export default function AdminDashboard() {
                     <p className="text-white">{formatDate(order.created_at)}</p>
                   </div>
                 </div>
-              </button>
+
+                {/* Verification per-field results + slip preview + approve */}
+                <div
+                  className="mt-4 pt-4 border-t border-slate-700/60 flex flex-wrap items-center gap-x-5 gap-y-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {(() => {
+                    const fields = verificationFields(order)
+                    const items: Array<[string, string]> = [
+                      ['name', 'Name'],
+                      ['tid', 'TID'],
+                      ['amount', 'Amount'],
+                    ]
+                    return items.map(([key, label]) => {
+                      const v = fields[key]
+                      if (v === undefined) return null
+                      return (
+                        <span key={key} className="text-xs">
+                          <span className={v ? 'text-green-400' : 'text-red-400'}>
+                            {v ? '✓' : '✗'}
+                          </span>{' '}
+                          <span className="text-slate-400">{label}</span>
+                        </span>
+                      )
+                    })
+                  })()}
+                  {(order.payment_proof_url || order.payment_proof_path) && order.payment_proof_url && (
+                    <a
+                      href={order.payment_proof_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-400 hover:text-blue-300 underline"
+                    >
+                      View slip
+                    </a>
+                  )}
+                  {order.verification_status === 'verified' && order.status === 'pending_verification' && (
+                    <button
+                      onClick={() => handleApprove(order.id)}
+                      disabled={actionLoading}
+                      className="ml-auto px-4 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition"
+                    >
+                      {actionLoading ? 'Approving...' : '✓ Approve'}
+                    </button>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -766,6 +919,18 @@ export default function AdminDashboard() {
                       <span className="text-white font-semibold">{selectedOrder.payment_method}</span>
                     </div>
                     <div className="flex justify-between">
+                      <span className="text-slate-400">Payer Name (typed):</span>
+                      <span className="text-white">{selectedOrder.payer_name || '—'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Amount Sent (typed):</span>
+                      <span className="text-white">
+                        {selectedOrder.amount_paid !== null && selectedOrder.amount_paid !== undefined
+                          ? String(selectedOrder.amount_paid)
+                          : '—'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-slate-400">Transaction ID:</span>
                       <span className="text-white font-mono text-sm">{selectedOrder.transaction_id}</span>
                     </div>
@@ -774,6 +939,29 @@ export default function AdminDashboard() {
                       <div className={`px-3 py-1 rounded-full border text-sm font-medium ${getStatusColor(selectedOrder.status)}`}>
                         {getStatusLabel(selectedOrder.status)}
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Buyer Contact (full record of who the buyer was) */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-400 uppercase mb-3">Buyer Contact</h3>
+                  <div className="bg-slate-700/50 rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Delivery Email:</span>
+                      <span className="text-white break-all text-right">{selectedOrder.delivery_email || '—'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Phone:</span>
+                      <span className="text-white">{selectedOrder.buyer_phone || '—'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">WhatsApp:</span>
+                      <span className="text-white">{selectedOrder.buyer_whatsapp || '—'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Delivered To:</span>
+                      <span className="text-white break-all text-right">{selectedOrder.delivered_to_email || '—'}</span>
                     </div>
                   </div>
                 </div>
@@ -814,6 +1002,107 @@ export default function AdminDashboard() {
                     )}
                   </div>
                 )}
+
+                {/* Slip Verification (automatic OCR gate result + audit) */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-400 uppercase mb-3">Slip Verification</h3>
+                  <div className="bg-slate-700/50 rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Result:</span>
+                      <div className={`px-3 py-1 rounded-full border text-sm font-medium ${getVerificationColor(selectedOrder.verification_status)}`}>
+                        {selectedOrder.verification_status === 'verified' ? '✓ ' : selectedOrder.verification_status === 'failed' ? '✗ ' : ''}
+                        {getVerificationLabel(selectedOrder.verification_status)}
+                      </div>
+                    </div>
+                    {(() => {
+                      const fields = verificationFields(selectedOrder)
+                      const items: Array<[string, string]> = [
+                        ['name', 'Name on slip'],
+                        ['tid', 'TID on slip'],
+                        ['amount', 'Amount on slip'],
+                      ]
+                      const shown = items.filter(([key]) => fields[key] !== undefined)
+                      if (shown.length === 0) return null
+                      return (
+                        <>
+                          {shown.map(([key, label]) => (
+                            <div key={key} className="flex justify-between">
+                              <span className="text-slate-400">{label}:</span>
+                              <span className={fields[key] ? 'text-green-400 font-medium' : 'text-red-400 font-medium'}>
+                                {fields[key] ? '✓ Match' : '✗ Mismatch'}
+                              </span>
+                            </div>
+                          ))}
+                        </>
+                      )
+                    })()}
+                    {(() => {
+                      const d = selectedOrder.verification_detail
+                      const reasons: string[] =
+                        d && typeof d === 'object' && Array.isArray((d as any).reasons)
+                          ? (d as any).reasons
+                          : []
+                      const ocr: string =
+                        d && typeof d === 'object' && typeof (d as any).ocr_text === 'string'
+                          ? (d as any).ocr_text
+                          : ''
+                      const attempts: any[] =
+                        d && typeof d === 'object' && Array.isArray((d as any).attempts)
+                          ? (d as any).attempts
+                          : []
+                      return (
+                        <>
+                          {reasons.length > 0 && (
+                            <div>
+                              <p className="text-slate-400 text-xs mb-1">Reasons:</p>
+                              <ul className="list-disc list-inside text-xs text-slate-300 space-y-0.5">
+                                {reasons.map((r, i) => (
+                                  <li key={i}>{r}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {ocr && (
+                            <div>
+                              <p className="text-slate-400 text-xs mb-1">OCR text (from slip):</p>
+                              <pre className="text-xs text-slate-300 bg-slate-900/60 rounded p-3 max-h-40 overflow-y-auto whitespace-pre-wrap break-words font-mono">
+                                {ocr}
+                              </pre>
+                            </div>
+                          )}
+                          {attempts.length > 0 && (
+                            <div>
+                              <p className="text-slate-400 text-xs mb-1">
+                                Attempt history ({attempts.length}):
+                              </p>
+                              <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                                {attempts.map((a: any, i: number) => (
+                                  <div key={i} className="text-xs bg-slate-900/60 rounded p-2">
+                                    <span className={a?.result === 'verified' ? 'text-green-400' : 'text-red-400'}>
+                                      {a?.result === 'verified' ? '✓ verified' : '✗ failed'}
+                                    </span>
+                                    <span className="text-slate-500 ml-2">
+                                      {a?.at ? new Date(a.at).toLocaleString() : ''}
+                                    </span>
+                                    {a?.reason && (
+                                      <p className="text-slate-400 mt-0.5">{a.reason}</p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )
+                    })()}
+                    {selectedOrder.verification_status === 'failed' && (
+                      <p className="text-xs text-slate-500">
+                        Failed attempts are read-only: the buyer must resubmit a correct slip.
+                        No admin action is needed on a failed verification.
+                      </p>
+                    )}
+                  </div>
+                </div>
 
                 {/* Bot Delivery */}
                 <div>
@@ -912,38 +1201,56 @@ export default function AdminDashboard() {
                 <div className="border-t border-slate-700 pt-6 space-y-4">
                   {selectedOrder.status === 'pending_verification' && (
                     <>
-                      <div className="flex gap-4">
-                        <button
-                          onClick={() => handleApprove(selectedOrder.id)}
-                          disabled={actionLoading}
-                          className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold py-2 px-4 rounded-lg transition"
-                        >
-                          {actionLoading ? 'Processing...' : '✓ Approve Payment'}
-                        </button>
-                        <button
-                          onClick={() => setShowRejectForm(!showRejectForm)}
-                          className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition"
-                        >
-                          ✗ Reject Payment
-                        </button>
-                      </div>
+                      {/* HARD GATE: only a verified slip can be approved. A
+                          failed slip is already auto-rejected and needs no
+                          admin action; it cannot be approved from here. */}
+                      {selectedOrder.verification_status === 'verified' ? (
+                        <>
+                          <div className="flex gap-4">
+                            <button
+                              onClick={() => handleApprove(selectedOrder.id)}
+                              disabled={actionLoading}
+                              className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold py-2 px-4 rounded-lg transition"
+                            >
+                              {actionLoading ? 'Processing...' : '✓ Approve Payment'}
+                            </button>
+                            <button
+                              onClick={() => setShowRejectForm(!showRejectForm)}
+                              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+                            >
+                              ✗ Reject Payment
+                            </button>
+                          </div>
 
-                      {showRejectForm && (
-                        <div className="space-y-2">
-                          <textarea
-                            value={rejectionReason}
-                            onChange={(e) => setRejectionReason(e.target.value)}
-                            placeholder="Enter reason for rejection..."
-                            className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-red-500"
-                            rows={3}
-                          />
-                          <button
-                            onClick={() => handleReject(selectedOrder.id)}
-                            disabled={actionLoading}
-                            className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-semibold py-2 px-4 rounded-lg transition"
-                          >
-                            {actionLoading ? 'Processing...' : 'Confirm Rejection'}
-                          </button>
+                          {showRejectForm && (
+                            <div className="space-y-2">
+                              <textarea
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                placeholder="Enter reason for rejection..."
+                                className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-red-500"
+                                rows={3}
+                              />
+                              <button
+                                onClick={() => handleReject(selectedOrder.id)}
+                                disabled={actionLoading}
+                                className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-semibold py-2 px-4 rounded-lg transition"
+                              >
+                                {actionLoading ? 'Processing...' : 'Confirm Rejection'}
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                          <p className="text-yellow-400 text-sm font-medium">
+                            Approval locked: slip not verified
+                          </p>
+                          <p className="text-xs text-yellow-300/80 mt-1">
+                            {selectedOrder.verification_status === 'failed'
+                              ? 'The slip failed automatic verification and the order was rejected automatically. The buyer must resubmit a correct slip — an unverified slip can never be approved.'
+                              : 'No verified payment slip is attached yet. Approval unlocks once the slip passes automatic verification.'}
+                          </p>
                         </div>
                       )}
                     </>

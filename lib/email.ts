@@ -265,6 +265,57 @@ export async function sendPaymentRejectedEmail(
   })
 }
 
+// Bot delivered email (to customer): the purchased bot file delivered to the
+// buyer's email with a secure, time-limited download link. The order's
+// delivered_to_email column keeps the permanent "we delivered this bot to
+// this email" record.
+export async function sendBotDeliveredEmail(
+  customerEmail: string,
+  customerName: string,
+  orderId: string,
+  botName: string,
+  downloadLink: string,
+  linkExpiryNote: string
+) {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: linear-gradient(135deg, #b8860b 0%, #daa520 100%); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="margin: 0;">📦 Your Bot Has Been Delivered!</h1>
+      </div>
+
+      <div style="background: #f9f9f9; padding: 20px; border-radius: 0 0 10px 10px;">
+        <p>Hi ${customerName},</p>
+
+        <p>Your purchase is complete. Your bot file is ready:</p>
+
+        <div style="background: white; padding: 15px; border-left: 4px solid #daa520; margin: 20px 0;">
+          <h3 style="margin-top: 0;">✓ Delivered</h3>
+          <p><strong>Order ID:</strong> ${orderId}</p>
+          <p><strong>Product:</strong> ${botName}</p>
+          <p><strong>Delivered to:</strong> ${customerEmail}</p>
+        </div>
+
+        <a href="${downloadLink}" style="display: inline-block; background: #b8860b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold;">📥 Download Your ${botName}</a>
+
+        <p style="color: #666; font-size: 13px;">${linkExpiryNote}</p>
+        <p>You can also download it anytime from your account dashboard.</p>
+
+        <p>If you need setup help, contact us at ${adminEmail}</p>
+
+        <p style="color: #666; font-size: 12px; margin-top: 30px;">
+          This is an automated email. Please do not reply directly.
+        </p>
+      </div>
+    </div>
+  `
+
+  return sendEmail({
+    to: customerEmail,
+    subject: `Your ${botName} Has Been Delivered`,
+    html,
+  })
+}
+
 // Admin notification email (new order)
 export async function sendAdminNotificationNewOrder(
   orderId: string,

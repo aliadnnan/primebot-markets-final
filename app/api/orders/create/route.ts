@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer, getUserFromRequest, isSupabaseServerConfigured } from '@/lib/supabase/server'
 import { sendOrderConfirmationEmail, sendAdminNotificationNewOrder } from '@/lib/email'
+import { parseTypedAmount } from '@/lib/proof-verification'
+import { isMissingColumnError } from '@/lib/video-columns'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,10 +50,46 @@ export async function POST(request: NextRequest) {
     const transactionId =
       typeof body?.transactionId === 'string' ? body.transactionId.trim() : ''
     const fullName = typeof body?.fullName === 'string' ? body.fullName.trim() : ''
+    // Amount the buyer says they sent. The bot's price is authoritative; this
+    // is only cross-checked against the payment slip by the verification step.
+    const amountPaid = parseTypedAmount(body?.amountPaid ?? null)
+    // The buyer must share an email in the purchase flow: the bot is
+    // delivered to THIS email and the record is kept permanently.
+    const deliveryEmail =
+      typeof body?.deliveryEmail === 'string' ? body.deliveryEmail.trim() : ''
+    // Phone + WhatsApp (required): full contact record of who the buyer was.
+    const buyerPhone =
+      typeof body?.buyerPhone === 'string' ? body.buyerPhone.trim() : ''
+    const buyerWhatsapp =
+      typeof body?.buyerWhatsapp === 'string' ? body.buyerWhatsapp.trim() : ''
 
     if (!botId || !paymentMethodId || !transactionId) {
       return NextResponse.json(
         { success: false, error: 'Bot, payment method and transaction ID are all required.' },
+        { status: 400 }
+      )
+    }
+    if (amountPaid === null) {
+      return NextResponse.json(
+        { success: false, error: 'Please enter the amount you sent.' },
+        { status: 400 }
+      )
+    }
+    if (!deliveryEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(deliveryEmail)) {
+      return NextResponse.json(
+        { success: false, error: 'Please enter a valid email address for delivery.' },
+        { status: 400 }
+      )
+    }
+    if (buyerPhone.replace(/\D/g, '').length < 7) {
+      return NextResponse.json(
+        { success: false, error: 'Please enter a valid phone number.' },
+        { status: 400 }
+      )
+    }
+    if (buyerWhatsapp.replace(/\D/g, '').length < 7) {
+      return NextResponse.json(
+        { success: false, error: 'Please enter a valid WhatsApp number.' },
         { status: 400 }
       )
     }
@@ -156,22 +194,50 @@ export async function POST(request: NextRequest) {
     }
 
     // ---- 5. Insert, returning the created row ---------------------------
-    const { data: order, error: insertError } = await (supabaseServer as any)
+    // payer_name / amount_paid come from sql/11_payment_proof_verification.sql.
+    // Until it is run, they are left out so the checkout keeps working.
+    const baseInsert = {
+      user_id: user.id,
+      bot_id: bot.id,
+      bot_name: bot.name,
+      bot_price: price,
+      payment_method: method.name,
+      transaction_id: transactionId,
+      payment_proof_url: null,
+      status: 'pending_verification',
+    }
+
+    let insertPayload: Record<string, any> = {
+      ...baseInsert,
+      payer_name: fullName || null,
+      amount_paid: amountPaid,
+      delivery_email: deliveryEmail,
+      buyer_phone: buyerPhone || null,
+      buyer_whatsapp: buyerWhatsapp || null,
+    }
+
+    let order: any = null
+    let insertError: any = null
+    const { data: firstTry, error: firstError } = await (supabaseServer as any)
       .from('orders')
-      .insert([
-        {
-          user_id: user.id,
-          bot_id: bot.id,
-          bot_name: bot.name,
-          bot_price: price,
-          payment_method: method.name,
-          transaction_id: transactionId,
-          payment_proof_url: null,
-          status: 'pending_verification',
-        },
-      ])
+      .insert([insertPayload])
       .select()
       .single()
+
+    insertError = firstError
+    order = firstTry
+
+    if (insertError && isMissingColumnError(insertError)) {
+      // sql/11 has not been run yet: retry without the new columns.
+      insertPayload = baseInsert
+      const { data: retry, error: retryError } = await (supabaseServer as any)
+        .from('orders')
+        .insert([insertPayload])
+        .select()
+        .single()
+      insertError = retryError
+      order = retry
+    }
 
     if (insertError) {
       console.error('[orders/create] Insert failed:', insertError)
@@ -212,7 +278,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Email is best-effort: a mail failure must not lose a real order.
-    const customerEmail = user.email || ''
+    // Goes to the buyer's delivery email (the email the bot is delivered to).
+    const customerEmail = deliveryEmail || user.email || ''
     if (customerEmail) {
       try {
         await sendOrderConfirmationEmail(
@@ -255,4 +322,14 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+/** True when a Postgres error was caused by sql/11 columns not existing yet. */
+function isProofColumnMissing(error: any): boolean {
+  if (!error) return false
+  if (error.code === '42703' || error.code === 'PGRST204') return true
+  const message = `${error.message || ''} ${error.details || ''}`
+  return /column .*(payer_name|amount_paid|verification_status|verification_detail).* does not exist/i.test(
+    message
+  )
 }
