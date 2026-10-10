@@ -1,24 +1,99 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Logo from '@/components/Logo'
 import toast from 'react-hot-toast'
 
+// Inline stroke icons (gold/dark theme via currentColor) - no icon dependency.
+function NavSvg({ children }: { children: ReactNode }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 shrink-0"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  )
+}
+
+const navIcons: Record<string, ReactNode> = {
+  home: (
+    <NavSvg>
+      <path d="M3 10.75 12 3l9 7.75" />
+      <path d="M5.5 9.25V21h13V9.25" />
+      <path d="M9.5 21v-6h5v6" />
+    </NavSvg>
+  ),
+  bots: (
+    <NavSvg>
+      <rect x="4.5" y="9" width="15" height="10.5" rx="2.5" />
+      <path d="M12 9V5" />
+      <circle cx="12" cy="3.8" r="1.1" />
+      <circle cx="9.3" cy="14" r="1" fill="currentColor" stroke="none" />
+      <circle cx="14.7" cy="14" r="1" fill="currentColor" stroke="none" />
+      <path d="M9.8 17h4.4" />
+    </NavSvg>
+  ),
+  videos: (
+    <NavSvg>
+      <rect x="3" y="5.5" width="18" height="13" rx="3" />
+      <path d="M10.25 9.75v4.5L14.5 12z" fill="currentColor" stroke="none" />
+    </NavSvg>
+  ),
+  performance: (
+    <NavSvg>
+      <path d="M3.5 3.5v17h17" />
+      <path d="M8.5 16.5v-5" />
+      <path d="M12.5 16.5v-9" />
+      <path d="M16.5 16.5v-3.5" />
+    </NavSvg>
+  ),
+  pricing: (
+    <NavSvg>
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+      <circle cx="7" cy="7" r="1.2" />
+    </NavSvg>
+  ),
+  faq: (
+    <NavSvg>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+      <path d="M12 17h.01" />
+    </NavSvg>
+  ),
+  support: (
+    <NavSvg>
+      <path d="M4 14.5v-2a8 8 0 0 1 16 0v2" />
+      <rect x="2.8" y="13.8" width="4" height="6.4" rx="1.8" />
+      <rect x="17.2" y="13.8" width="4" height="6.4" rx="1.8" />
+      <path d="M19.5 19.8A4.5 4.5 0 0 1 15 22.5h-2.5" />
+    </NavSvg>
+  ),
+}
+
 export default function Header() {
   const { user, loading, isAdmin, signOut } = useAuth()
+  const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/bots', label: 'Trading Bots' },
-    { href: '/video-tutorials', label: 'Video Tutorials' },
-    { href: '/performance', label: 'Performance' },
-    { href: '/pricing', label: 'Pricing' },
-    { href: '/faq', label: 'FAQ' },
-    { href: '/support', label: 'Support' },
+    { href: '/', label: 'Home', icon: navIcons.home },
+    { href: '/bots', label: 'Trading Bots', icon: navIcons.bots },
+    { href: '/video-tutorials', label: 'Video Tutorials', icon: navIcons.videos },
+    { href: '/performance', label: 'Performance', icon: navIcons.performance },
+    { href: '/pricing', label: 'Pricing', icon: navIcons.pricing },
+    { href: '/faq', label: 'FAQ', icon: navIcons.faq },
+    { href: '/support', label: 'Support', icon: navIcons.support },
   ]
 
   const handleLogout = async () => {
@@ -38,13 +113,18 @@ export default function Header() {
         <Logo />
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-7">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-slate-300 hover:text-amber-400 transition-colors duration-300 font-medium"
+              className={`flex items-center gap-2 font-medium transition-colors duration-300 ${
+                pathname === link.href
+                  ? 'text-amber-400'
+                  : 'text-slate-300 hover:text-amber-400'
+              }`}
             >
+              <span className="text-amber-500 [&>svg]:w-[18px] [&>svg]:h-[18px]">{link.icon}</span>
               {link.label}
             </Link>
           ))}
@@ -135,19 +215,24 @@ export default function Header() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-slate-800 border-t border-slate-700">
-          <div className="container-custom py-4 space-y-4">
+          <div className="container-custom py-4 space-y-1.5">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="block text-slate-300 hover:text-blue-500 transition py-2"
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg font-medium transition-colors ${
+                  pathname === link.href
+                    ? 'bg-amber-500/10 text-amber-300'
+                    : 'text-slate-200 hover:bg-slate-700/60 hover:text-amber-300'
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {link.label}
+                <span className="text-amber-400">{link.icon}</span>
+                <span>{link.label}</span>
               </Link>
             ))}
 
-            <div className="border-t border-slate-700 pt-4 space-y-2">
+            <div className="!mt-4 border-t border-slate-700 pt-4 space-y-2">
               {loading ? (
                 <div className="h-10 bg-slate-700 rounded animate-pulse" />
               ) : user ? (

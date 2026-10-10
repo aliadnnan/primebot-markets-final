@@ -8,7 +8,7 @@ import Link from 'next/link'
  */
 export default function Logo({ size = 40 }: { size?: number }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label="PrimeBot Markets - home">
+    <Link href="/" className="flex items-center gap-2 sm:gap-2.5 shrink-0" aria-label="PrimeBot Markets - home">
       <svg
         width={size}
         height={size}
@@ -37,11 +37,11 @@ export default function Logo({ size = 40 }: { size?: number }) {
           P
         </text>
       </svg>
-      <span className="leading-none hidden sm:block">
-        <span className="block text-xl font-extrabold tracking-tight bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+      <span className="leading-none">
+        <span className="block whitespace-nowrap text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
           PrimeBot
         </span>
-        <span className="block text-[10px] font-bold tracking-[0.35em] text-amber-500/90 mt-0.5">
+        <span className="block whitespace-nowrap text-[9px] sm:text-[10px] font-bold tracking-[0.35em] text-amber-500/90 mt-0.5">
           MARKETS
         </span>
       </span>
