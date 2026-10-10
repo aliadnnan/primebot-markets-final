@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
+import Logo from '@/components/Logo'
 import toast from 'react-hot-toast'
 
 export default function Header() {
@@ -31,15 +32,10 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-b from-slate-900 to-slate-800/50 backdrop-blur-md border-b border-slate-700">
+    <header className="sticky top-0 z-50 bg-gradient-to-b from-slate-950 to-slate-900/80 backdrop-blur-md border-b border-amber-500/25">
       <nav className="container-custom flex items-center justify-between py-4 px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">₿</span>
-          </div>
-          <span className="text-xl font-bold gradient-text hidden sm:inline">PrimeBot</span>
-        </Link>
+        <Logo />
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
@@ -47,7 +43,7 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-slate-300 hover:text-blue-500 transition-colors duration-300 font-medium"
+              className="text-slate-300 hover:text-amber-400 transition-colors duration-300 font-medium"
             >
               {link.label}
             </Link>
@@ -64,8 +60,8 @@ export default function Header() {
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-700 transition"
               >
-                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300 to-yellow-600 flex items-center justify-center">
+                  <span className="text-slate-950 text-sm font-bold">
                     {user.email?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 </div>

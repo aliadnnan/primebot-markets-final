@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -26,17 +27,32 @@ if (!isSupabaseClientConfigured) {
   )
 }
 
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-anon-key',
-  {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-  }
-)
+/**
+ * Cookie-based browser client (via @supabase/auth-helpers-nextjs).
+ *
+ * This matters for the site-wide login gate: middleware.ts runs on the server
+ * and can only see the session if it travels in cookies. A plain supabase-js
+ * browser client keeps the session in localStorage, which middleware can never
+ * read - every signed-in user would have been bounced back to the login page.
+ * The auth-helpers client keeps the exact same `supabase.auth.*` API surface
+ * (signInWithPassword, onAuthStateChange, getSession...), so no caller changes.
+ *
+ * Placeholder fallback kept for unconfigured environments so `next build`
+ * stays green, exactly as before.
+ */
+export const supabase = isSupabaseClientConfigured
+  ? createClientComponentClient<Database>()
+  : createClient(
+      supabaseUrl || 'https://placeholder.supabase.co',
+      supabaseAnonKey || 'placeholder-anon-key',
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+        },
+      }
+    )
 
 export type Database = {
   public: {

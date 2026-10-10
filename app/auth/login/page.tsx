@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
+import Logo from '@/components/Logo'
 import toast from 'react-hot-toast'
 import { trackCustomerLogin } from '@/lib/analytics'
 
@@ -42,7 +43,10 @@ export default function LoginPage() {
       // Using email as a temporary ID since signIn doesn't return the user object
       trackCustomerLogin(email, email)
       toast.success('Logged in successfully!')
-      router.push('/dashboard')
+      // The site-wide login gate (middleware.ts) sends unauthenticated
+      // visitors here with ?next=<path>; return them to where they headed.
+      const next = new URLSearchParams(window.location.search).get('next')
+      router.push(next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard')
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error?.message || 'Failed to log in. Please check your credentials.')
@@ -54,7 +58,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen py-12 flex items-center justify-center">
       <div className="container-custom max-w-md">
-        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8">
+        <div className="flex justify-center mb-8 scale-125">
+          <Logo size={48} />
+        </div>
+        <div className="bg-slate-800 border border-amber-500/25 rounded-2xl p-8 shadow-[0_0_40px_rgba(245,197,66,0.07)]">
           <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
           <p className="text-slate-400 mb-8">Sign in to your PrimeBot account</p>
 

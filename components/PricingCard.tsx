@@ -9,26 +9,44 @@ interface PricingCardProps {
 }
 
 export default function PricingCard({ bot, featured = false }: PricingCardProps) {
+  // Top tiers get their own premium badges (owner order 2026-10-10):
+  // PRIME ELITE EA ($1000) outranks PRIME QUANTUM EA ($800).
+  const isElite = bot.id === 'elite' || bot.price >= 1000
+  const isQuantum = !isElite && (bot.id === 'quantum' || bot.price >= 800)
+  const badge = isElite ? '★ ELITE' : isQuantum ? 'PREMIUM' : featured ? 'POPULAR' : null
+
   return (
     <div
       className={`card-hover relative overflow-hidden ${
-        featured ? 'ring-2 ring-blue-500 transform scale-105' : ''
+        isElite
+          ? 'ring-2 ring-amber-400 shadow-[0_0_35px_rgba(245,197,66,0.18)]'
+          : featured
+            ? 'ring-2 ring-amber-500/70 transform scale-105'
+            : ''
       }`}
     >
-      {featured && (
-        <div className="absolute -top-2 -right-2 bg-blue-600 text-white px-4 py-1 text-xs font-bold rounded-bl-lg">
-          POPULAR
+      {badge && (
+        <div
+          className={`absolute top-3 right-3 px-3 py-1 text-[11px] font-extrabold tracking-wider rounded-full ${
+            isElite
+              ? 'bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 text-slate-950 shadow-[0_2px_12px_rgba(245,197,66,0.5)]'
+              : 'bg-amber-500/15 text-amber-300 border border-amber-500/40'
+          }`}
+        >
+          {badge}
         </div>
       )}
 
       <div className="mb-6">
         <h3 className="text-2xl font-bold text-white mb-2">{bot.name}</h3>
-        <p className="text-blue-400 text-sm font-semibold">{bot.type}</p>
+        <p className="text-amber-400 text-sm font-semibold">{bot.type}</p>
       </div>
 
       <div className="mb-6">
-        <div className="text-4xl font-bold text-white mb-2">
-          ${bot.price}
+        <div className="text-4xl font-extrabold mb-2">
+          <span className="bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+            ${bot.price}
+          </span>
           <span className="text-lg text-slate-400 ml-2">USD</span>
         </div>
         <p className="text-slate-400 text-sm">One-time payment • Lifetime license</p>

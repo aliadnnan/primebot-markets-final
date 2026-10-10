@@ -50,6 +50,41 @@ export const BOTS: Bot[] = [
     ],
     image: '/images/ai.svg',
   },
+  {
+    id: 'quantum',
+    name: 'PRIME QUANTUM EA',
+    type: 'Quantum AI Trading EA',
+    price: 800,
+    description: 'Quantum AI engine with multi-pair intelligence, smart recovery and an advanced risk manager',
+    features: [
+      'Quantum AI engine',
+      'Multi-pair trading including XAUUSD',
+      'Smart recovery system',
+      'Advanced risk manager',
+      'Multiple strategies in one EA',
+      'Priority support',
+      'Lifetime updates',
+    ],
+    image: '/images/quantum.svg',
+  },
+  {
+    id: 'elite',
+    name: 'PRIME ELITE EA',
+    type: 'Elite Institutional Trading EA',
+    price: 1000,
+    description: 'Our flagship institutional-grade EA with an XAUUSD specialist mode, prop-firm mode and VIP onboarding',
+    features: [
+      'Everything in PRIME QUANTUM EA',
+      'Institutional-grade AI engine',
+      'XAUUSD specialist mode',
+      'Prop-firm friendly mode',
+      'Lowest-drawdown mode',
+      'VIP 1-on-1 onboarding & setup support',
+      'Priority support',
+      'Lifetime updates & license',
+    ],
+    image: '/images/elite.svg',
+  },
 ]
 
 export const PAYMENT_METHODS: PaymentMethod[] = [
