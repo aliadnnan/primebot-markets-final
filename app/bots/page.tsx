@@ -6,6 +6,12 @@ import BotReviews from '@/components/BotReviews'
 import { getActiveBots, getBotVideos } from '@/lib/bots-server'
 import { getBotReviewSummaries } from '@/lib/reviews-server'
 
+// The per-bot video slot must reflect the admin's latest assignment on every
+// visit: without this, Next.js statically generates this page at build time
+// (and force-caches the Supabase fetch calls), so a video assigned to a bot
+// AFTER the last deploy would never appear on its card until the next deploy.
+export const dynamic = 'force-dynamic'
+
 export default async function BotsPage() {
   const [BOTS, botVideos, reviewSummaries] = await Promise.all([
     getActiveBots(),
