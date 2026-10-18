@@ -34,6 +34,8 @@ function isPublicPath(pathname: string): boolean {
   if (pathname === '/sitemap.xml') return true
   if (pathname.startsWith('/icons/')) return true // PWA icons
   if (pathname.startsWith('/images/')) return true // static product art
+  if (pathname.startsWith('/legal/')) return true // public Terms/Privacy pages (required for TikTok URL verification)
+  if (pathname.startsWith('/tiktok') && pathname.endsWith('.txt')) return true // TikTok domain-verification files
   return false
 }
 
