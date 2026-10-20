@@ -91,6 +91,8 @@ export default function Header() {
     { href: '/bots', label: 'Trading Bots', icon: navIcons.bots },
     { href: '/video-tutorials', label: 'Video Tutorials', icon: navIcons.videos },
     { href: '/performance', label: 'Performance', icon: navIcons.performance },
+    { href: '/blog', label: 'Trading Blog', icon: navIcons.performance },
+    { href: '/sales-blog', label: 'Sales Blog', icon: navIcons.pricing },
     { href: '/pricing', label: 'Pricing', icon: navIcons.pricing },
     { href: '/faq', label: 'FAQ', icon: navIcons.faq },
     { href: '/support', label: 'Support', icon: navIcons.support },

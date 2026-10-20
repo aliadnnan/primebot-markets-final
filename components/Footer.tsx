@@ -37,6 +37,16 @@ export default function Footer() {
                   Performance
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="text-slate-400 hover:text-blue-500 transition-colors">
+                  Trading Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="/sales-blog" className="text-slate-400 hover:text-blue-500 transition-colors">
+                  Sales Blog
+                </Link>
+              </li>
             </ul>
           </div>
 
