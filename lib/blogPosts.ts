@@ -144,6 +144,36 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Used with realistic expectations and proper risk settings, automation removes the weakest part of most trading — the emotional human click.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'candlestick-charts-reading-basics',
+    title: 'Candlestick Charts Explained: How to Read Price Action',
+    excerpt:
+      'Every MT5 chart is built from candlesticks — open, high, low and close in one small picture. Here is how to read them, and the few patterns beginners actually need.',
+    category: 'Trading Basics',
+    date: '2026-10-21',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Open any chart in MetaTrader 5 and you are looking at candlesticks — small shapes that summarise an entire period of trading (one minute, one hour, one day) in a single picture. Learning to read them is the first skill of chart-based trading, and it is simpler than it looks.' },
+      { type: 'h2', text: 'The anatomy of one candle' },
+      { type: 'list', items: [
+        'The body: the thick part between the opening and closing price. A long body means the price moved strongly in one direction during that period.',
+        'The wicks (shadows): the thin lines above and below the body. They show how far the price reached before being pulled back.',
+        'Colour: most platforms paint a candle one colour when it closes higher than it opened (often green or white) and another when it closes lower (red or black).',
+        'Size: a big candle means strong conviction in that direction; a tiny one means buyers and sellers were evenly matched.',
+      ] },
+      { type: 'h2', text: 'Why traders watch candle size and position' },
+      { type: 'p', text: 'A long upper wick on a candle near a price high means buyers pushed up and were rejected — sellers stepped in. That rejection tells you something only in context: the same shape in the middle of nowhere means far less. Context — the trend, the price level, the session — is what turns shapes into information.' },
+      { type: 'h2', text: 'Three patterns beginners should know first' },
+      { type: 'list', items: [
+        'Doji: a candle with almost no body, where open and close are nearly equal. It signals indecision — the market is pausing, often before a bigger move.',
+        'Hammer: a small body at the top with a long lower wick. It shows sellers pushed the price down and buyers fought it back up within the period.',
+        'Engulfing: a candle whose body completely covers the previous candle’s body, in the opposite colour. It can mark a shift of short-term control — but it is a hint, not a guarantee.',
+      ] },
+      { type: 'h2', text: 'What candlesticks cannot tell you' },
+      { type: 'p', text: 'No pattern predicts the next move with certainty — markets can and do invalidate textbook setups every day. Treat candle reading as a language for describing what already happened, combine it with risk rules (a stop loss on every trade), and practise reading live candles on a demo or cent account for a few weeks before trusting any pattern with real money.' },
+    ],
+  },
   // ============================ SALES BLOG ==============================
   {
     blog: 'sales',
@@ -252,6 +282,40 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Let the bot run on demo for at least a few days. Watch how it opens and closes trades, learn its rhythm, and only then decide about going live — small first, always.' },
     ],
   },
+  {
+    blog: 'sales',
+    slug: 'primebot-faq-before-you-buy',
+    title: 'PrimeBot FAQ: 10 Questions Buyers Ask Before Ordering',
+    excerpt:
+      'Price tiers, lifetime licenses, the account-number lock, delivery, setup and honest expectations — the questions our support team hears most, answered in one place.',
+    category: 'Buying Guide',
+    date: '2026-10-21',
+    readMins: 7,
+    content: [
+      { type: 'p', text: 'Before buying a trading bot, most people ask the same questions. Here are the honest answers to the ten we hear most often on WhatsApp support.' },
+      { type: 'h2', text: 'Price, license and delivery' },
+      { type: 'list', items: [
+        'How many bots are there, and what do they cost? Five Expert Advisors, priced from $200 to $1,000 — see the Trading Bots page for the current lineup.',
+        'Is the license lifetime or a subscription? Lifetime. One payment, no monthly fees.',
+        'Can someone copy my bot? No. Every EA is licensed to your MT5 account number only; on any other account it will not trade.',
+        'How do I receive the bot? As a download from your order page plus a copy by email.',
+        'How does payment verification work? You share your payment slip with your email, phone and WhatsApp number. Our system cross-checks the name, transaction ID and amount — a full match is approved automatically; an unclear slip just gets re-uploaded.',
+      ] },
+      { type: 'h2', text: 'Setup and compatibility' },
+      { type: 'list', items: [
+        'Which platform do the bots run on? MetaTrader 5. Copy the .ex5 file into MQL5 → Experts, tick "Allow Algo Trading", and load the recommended settings from the setup guide.',
+        'Do you help with setup? Yes — every bot has an Urdu setup video, and our WhatsApp support answers from a real person.',
+        'I changed my broker or account number. What now? Message support and we will re-issue your license for the new account number.',
+      ] },
+      { type: 'h2', text: 'Expectations and risk' },
+      { type: 'list', items: [
+        'Do the product videos show real profits? Every video on this site is demo footage — we never publish fake profit screenshots or guaranteed-return claims.',
+        'Will the bot always make money? No bot can promise that. Markets carry risk, drawdowns are part of every real system, and our guides tell you to test on demo or a cent account first.',
+      ] },
+      { type: 'p', text: 'Still unsure which tier fits you? Message us on WhatsApp and describe your account size and experience — we will point you to the right bot, even if it is the cheapest one.' },
+    ],
+  },
+
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
