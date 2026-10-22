@@ -316,6 +316,75 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
   },
 
+  {
+    blog: 'trading',
+    slug: 'drawdown-explained-trading-survival',
+    title: 'Drawdown Explained: The Metric That Decides Whether a Strategy Survives',
+    excerpt:
+      'Profit figures get all the attention, but drawdown tells you the truth about risk. Here is what it means, how it is calculated, and the levels honest traders respect.',
+    category: 'Risk Management',
+    date: '2026-10-22',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every strategy has winning streaks and losing streaks. Drawdown measures how deep the losing streaks go: the percentage (or amount) an account falls from its highest balance before recovering. Two traders can both make 10% in a year, but if one suffered a 60% drawdown to get there, their journeys — and the risk they took — were completely different.' },
+      { type: 'h2', text: 'How drawdown is calculated' },
+      { type: 'p', text: 'Start at the highest point your account balance (or equity) has reached — the peak. Then find the lowest point after that peak before a new high is made — the trough. The drop from peak to trough, divided by the peak, is the drawdown. A $1,000 account that rises to $1,200 and then falls to $900 has a drawdown of 25% — from the $1,200 peak, not from the starting balance.' },
+      { type: 'h2', text: 'Balance drawdown vs. floating drawdown' },
+      { type: 'list', items: [
+        'Balance drawdown only counts closed trades — the official statement of what happened.',
+        'Floating (equity) drawdown includes open trades — what your account is experiencing right now. A basket of open positions can show a large floating drawdown even while the closed balance looks fine.',
+        'Honest strategy evaluations always consider floating drawdown: it is the pain you actually had to endure.',
+      ] },
+      { type: 'h2', text: 'What counts as an acceptable drawdown?' },
+      { type: 'list', items: [
+        'Under 10%: conservative. Comfortable to trade through, suitable for larger accounts.',
+        '10–25%: moderate. Normal for many real systems; requires discipline to ride out.',
+        'Above 30%: aggressive territory. The account needs large gains just to break even, and one bad month can wipe it out.',
+        'No number is "safe" on its own — a 15% drawdown on a 0.01 lot per $1,000 account is a different plan than the same percentage on an oversized account.',
+      ] },
+      { type: 'h2', text: 'Using drawdown in your own trading' },
+      { type: 'list', items: [
+        'Decide your maximum acceptable drawdown before you start — for example 20% — and stop or scale down if it is reached.',
+        'Test any strategy (manual or automated) on demo or a cent account long enough to see a full drawdown cycle, not just the good weeks.',
+        'Never increase position size after a drawdown to "get it back" — that is how small drawdowns become account-killing ones.',
+      ] },
+      { type: 'p', text: 'Profit is what you take; drawdown is what you pay. A strategy you can describe in drawdown terms is a strategy you actually understand — and the only kind worth trading with real money.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'news-filter-protects-your-trades',
+    title: 'The News Filter: How PrimeBots Pause Trading Around Major News Releases',
+    excerpt:
+      'CPI, NFP and FOMC can move gold $30 in minutes. Here is how the PrimeBot news filter pauses new entries around high-impact releases — and why that protection matters.',
+    category: 'Product News',
+    date: '2026-10-22',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Most blown accounts do not fail on ordinary days. They fail on news days — when a single economic release moves the market faster than any strategy was designed for. That is why every PrimeBot in the lineup carries a built-in news filter that pauses new entries around high-impact events.' },
+      { type: 'h2', text: 'Why news releases are dangerous for automated trading' },
+      { type: 'list', items: [
+        'Price gaps: the market can jump over your stop level, filling you far worse than planned.',
+        'Spreads widen: costs spike exactly when you want to enter or exit.',
+        'Whipsaws: the first move after a release is often reversed within minutes, trapping both directions.',
+        'A strategy tested on normal conditions was never designed for these 10-minute chaos windows.',
+      ] },
+      { type: 'h2', text: 'Which events it watches' },
+      { type: 'p', text: 'The default list covers the releases that historically move gold and major pairs the hardest: US Non-Farm Payrolls, CPI inflation data, FOMC rate decisions and press conferences, plus central-bank decisions from the major currencies. These are the moments when "normal" market behaviour goes out of the window — which is exactly when a pause costs nothing and protection is worth the most.' },
+      { type: 'h2', text: 'How the filter works' },
+      { type: 'list', items: [
+        'The bot reads a list of high-impact events (NFP, CPI, FOMC rate decisions and similar releases).',
+        'A configurable number of hours before each event, it stops opening new trades — existing positions keep managing normally with their own take-profits and stop-losses.',
+        'After the release, the filter waits until volatility settles before allowing new entries again.',
+        'The window is adjustable, so you can make it stricter or looser to match your risk comfort.',
+      ] },
+      { type: 'h2', text: 'An honest note' },
+      { type: 'p', text: 'The news filter reduces a specific, well-documented risk — it does not remove risk. Markets can still gap, spreads can still widen, and no filter can protect against every surprise event. Like every PrimeBot feature, it is a tool for disciplined trading, not a promise of safety or profit.' },
+      { type: 'p', text: 'The setup video for your bot shows exactly where to find the news filter settings and how to adjust the pause windows. If you are unsure what settings fit your account, our WhatsApp support will walk you through them.' },
+    ],
+  },
+
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
