@@ -385,6 +385,74 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
   },
 
+  {
+    blog: 'trading',
+    slug: 'trading-sessions-explained',
+    title: 'Trading Sessions Explained: When Gold and Forex Actually Move',
+    excerpt:
+      'Forex trades 24 hours a day — but the market is not the same market at every hour. How the Asian, London and New York sessions work, and which hours suit your strategy.',
+    category: 'Trading Basics',
+    date: '2026-10-23',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Gold and forex trade around the clock, five days a week. That tempts beginners to trade whenever they feel like it — morning, midnight, lunch break. But the market is not the same market at every hour. Volume, volatility and spreads change dramatically as the world’s financial centres open and close, and your results change with them.' },
+      { type: 'h2', text: 'The three major sessions' },
+      { type: 'list', items: [
+        'Asian session (Tokyo): roughly 4:00 a.m. to 1:00 p.m. Pakistan time. The quietest session — ranges are narrow, gold often drifts sideways, and spreads can be a little wider.',
+        'London session: roughly 12:00 p.m. to 9:00 p.m. Pakistan time. The heaviest volume of the day. Gold wakes up here — most of its daily range is built during these hours.',
+        'New York session: roughly 5:30 p.m. to 2:30 a.m. Pakistan time. It carries London’s momentum and hosts all the big US economic releases — CPI, NFP, Fed announcements.',
+      ] },
+      { type: 'h2', text: 'The overlap hours are the golden hours' },
+      { type: 'p', text: 'From about 5:30 p.m. to 9:00 p.m. Pakistan time, London and New York are open at the same time. This overlap is the busiest stretch of the trading day: spreads are at their tightest, trends move with conviction, and most intraday strategies get their best signals here. If you can only watch the market for a few hours a day, make it these.' },
+      { type: 'h2', text: 'News lands inside the New York session' },
+      { type: 'p', text: 'The releases that move gold $20–$40 in minutes — US inflation data, jobs reports, Federal Reserve decisions — almost all arrive during New York hours. In the minutes around a release, spreads widen sharply and prices can gap past stop losses. Many experienced traders simply close or pause positions for 15–30 minutes around the release, then trade the cleaner move that follows.' },
+      { type: 'h2', text: 'Match the session to your style' },
+      { type: 'list', items: [
+        'Scalpers and day traders: focus on the London–New York overlap, where the movement justifies the effort.',
+        'Beginners: avoid trading gold during the thin Asian hours, when a quiet market can lull you into oversized positions that suddenly wake up in London.',
+        'Swing traders: session timing matters less, but place entries during liquid hours so you get fair fills.',
+        'EA users: check that your bot pauses new entries around high-impact news — automated systems trade the calendar, not the clock, and the news filter is what keeps them out of the chaos windows.',
+      ] },
+      { type: 'p', text: 'The market rewards traders who respect its rhythm. Trade when the market is actually breathing, size for the session’s normal movement, and let the quiet hours be your time to study — not your time to force trades.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'which-primebot-is-right-for-you',
+    title: 'Which PrimeBot Is Right for You? A Tier-by-Tier Buying Guide',
+    excerpt:
+      'Five bots, $200 to $1,000 — the differences are real but the right choice depends on your account size and experience, not the price tag. A plain-language guide.',
+    category: 'Buying Guide',
+    date: '2026-10-23',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Five Expert Advisors, priced from $200 to $1,000. The natural question is: which one should I buy? The honest answer is that it depends far more on your account size and your experience than on the price tag. Here is how to think about it.' },
+      { type: 'h2', text: 'Start with your account size' },
+      { type: 'list', items: [
+        'Small accounts (a few hundred dollars or a cent account): the starter tier. It runs the core strategy with conservative defaults that respect a small balance.',
+        'Mid-size accounts: the middle tiers, which add the protections a growing account needs — news-time entry pauses, daily targets and basket management.',
+        'Larger accounts: the flagship tier, with the full strategy stack and the most conservative default risk settings.',
+      ] },
+      { type: 'h2', text: 'Then match your experience' },
+      { type: 'list', items: [
+        'Never used an EA before? The starter tier plus our Urdu setup videos is the intended on-ramp.',
+        'Already run automated systems? A mid tier gives you the protection features experienced traders ask for.',
+        'Want the most hands-off setup with priority support? That is what the flagship tier is for.',
+      ] },
+      { type: 'h2', text: 'What does not change between tiers' },
+      { type: 'list', items: [
+        'Lifetime license — one payment, no monthly fees, on every tier.',
+        'Account-number lock: whichever bot you buy works on your MT5 account only, so your purchase cannot be copied.',
+        'Honest demos: every product video on this site is real demo footage. No tier comes with fake profit screenshots.',
+        'Urdu video guides and WhatsApp support from a real person — the same for a $200 buyer and a $1,000 buyer.',
+      ] },
+      { type: 'h2', text: 'The rule that matters most' },
+      { type: 'p', text: 'Never buy the most expensive tier just because it costs more. A $200 bot run correctly on a demo or cent account, with settings you understand, beats a $1,000 flagship run blindly on a live account. Price buys features and convenience — it does not buy profit. Test on demo first, learn the bot’s rhythm, and scale only when you understand how it behaves in a drawdown.' },
+      { type: 'p', text: 'Still deciding? Message us on WhatsApp with your account size and experience and we will point you to the right tier — even if it is the cheapest one.' },
+    ],
+  },
+
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
