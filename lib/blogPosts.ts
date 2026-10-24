@@ -453,6 +453,69 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
   },
 
+  {
+    blog: 'trading',
+    slug: 'support-resistance-levels-explained',
+    title: 'Support and Resistance Explained: The Invisible Levels That Shape Every Chart',
+    excerpt:
+      'Prices stall, bounce and break at the same zones again and again. What support and resistance really are, why they work, and three practical ways beginners use them.',
+    category: 'Trading Basics',
+    date: '2026-10-24',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every trader has watched it happen: gold falls to the same price three times in a week, and each time it bounces as if the market remembers something. Then one day it slices through that level without a pause. Those prices are support and resistance — the zones where buying and selling pressure meet — and learning to spot them changes how you read every chart, whatever you trade.' },
+      { type: 'h2', text: 'What support and resistance actually are' },
+      { type: 'list', items: [
+        'Support: a price zone where buying interest has repeatedly outweighed selling, stopping declines — the market’s “floor”.',
+        'Resistance: the opposite — a zone where selling has repeatedly capped rallies, the market’s “ceiling”.',
+        'Round numbers act as magnets: 2,900 or 3,000 on gold, 1.1000 on a currency pair — traders place orders there because they are easy to remember.',
+        'Previous highs and lows: last month’s peak becomes resistance when price returns; the pullback low becomes support.',
+        'Trendlines and moving averages: in a steady uptrend, the rising trendline and a 50-period moving average often act as moving support.',
+      ] },
+      { type: 'h2', text: 'Why the same levels keep working' },
+      { type: 'p', text: 'Part of it is memory. Traders who missed a bounce off a level last week place their orders at the same price this week — and thousands of stop-loss and take-profit orders sit there too. The other part is honesty about limits: no level holds because a line was drawn. Levels work until the balance of buyers and sellers changes, and then they break. Treat them as probability zones, not walls.' },
+      { type: 'h2', text: 'Three practical ways beginners use levels' },
+      { type: 'list', items: [
+        'Plan entries at support, not in mid-air: buying near a tested support with a stop just below it gives you a clear line for being wrong.',
+        'Respect resistance: taking a buy trade right under a strong resistance is swimming toward a dam — either wait for the break or skip the trade.',
+        'Remember the flip: when resistance breaks and holds, it often becomes support — the breakout level becomes the pullback level. The same applies in reverse.',
+        'Look left: the most reliable levels are the ones with several touches over weeks or months, not a level that formed this morning.',
+      ] },
+      { type: 'p', text: 'One caution that saves money: levels are zones a few dollars wide on gold, not razor lines. A brief spike through support that immediately closes back above it is normal — professionals call it a wick, and beginners call it a reason to panic. Give levels a little room, practise spotting them on a demo or cent account for a few weeks, and never trust a level so much that you skip your stop loss.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'demo-to-live-safe-path-first-bot',
+    title: 'From Demo to Live: The Safe Path to Running Your First Bot',
+    excerpt:
+      'Demo first, then a cent account, then live — small. What each stage of the journey is for, how long to spend in it, and the checks that matter most.',
+    category: 'Setup Guide',
+    date: '2026-10-24',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'The fastest way to lose faith in a trading bot is to switch it on with real money on day one, size it wrong, and meet a drawdown you never knew it had. There is a safer path, and every honest EA seller should tell you to take it: demo first, then a cent account, then live — small. Here is what each stage is for and how long to spend in it.' },
+      { type: 'h2', text: 'Stage 1 — Demo: learn the machine' },
+      { type: 'list', items: [
+        'Run the bot on a demo account for two to four weeks with the recommended settings from your setup video.',
+        'Watch full trade cycles: how it opens, how it manages a basket, how it behaves around news — including its losing days.',
+        'Open the Experts and Journal tabs in MT5 when anything surprises you; the messages there explain what the bot decided and why.',
+        'Test the protections: the news filter, the daily target and the maximum drawdown settings. Demo is the place to learn where the off-switches are.',
+      ] },
+      { type: 'h2', text: 'Stage 2 — Cent account: real money, tiny risk' },
+      { type: 'p', text: 'Demo trading has one weakness: it teaches nothing about your emotions, because nothing is really at stake. A cent account fixes that. The bot runs the identical strategy, but a 5,000-cent deposit means mistakes cost cents instead of dollars — and you still feel every one of them. This is where you learn your real tolerance for drawdowns: if a 20% floating drawdown on cents makes you switch the bot off, your settings are too aggressive, not your nerves too weak. Run a full month here before moving on.' },
+      { type: 'h2', text: 'Stage 3 — Live: small and slow' },
+      { type: 'list', items: [
+        'Start live with a fraction of your planned capital — treat the first live month as a paid exam, not an income stream.',
+        'Change nothing else: the same settings and risk parameters that survived the cent stage.',
+        'Review weekly, not hourly. Bots need time; watching every tick leads to mid-drawdown setting changes that break the strategy you paid for.',
+        'Withdraw your first profit. It proves the delivery and payout pipeline works — and it keeps some of your money out of the market’s reach.',
+      ] },
+      { type: 'p', text: 'No stage of this process changes one fact: trading carries risk, and no bot can promise profit. Demo footage in our product videos shows what the bot does — it never shows what you will earn. The demo-to-live path exists so you discover exactly how the bot behaves while the tuition is cheap. If you want help setting up any stage, our WhatsApp support answers from a real person, and every bot has an Urdu setup video that walks through it screen by screen.' },
+    ],
+  },
+
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
