@@ -516,6 +516,64 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
   },
 
+  {
+    blog: 'trading',
+    slug: 'trading-psychology-revenge-trading',
+    title: 'Trading Psychology: How to Stop Revenge Trading Before It Blows Your Account',
+    excerpt:
+      'One loss becomes three, then ten — not because the strategy failed, but because the trader did. What revenge trading is, why every trader does it, and the practical rules that break the cycle.',
+    category: 'Trading Psychology',
+    date: '2026-10-25',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every trader knows the moment. A trade stops out, the frustration rises, and within minutes you are back in the market — bigger size, no plan, chasing the loss. Traders call it revenge trading, and it has destroyed more accounts than any bad strategy ever will. It is not a strategy problem. It is a psychology problem, and it has a practical fix.' },
+      { type: 'h2', text: 'What revenge trading actually looks like' },
+      { type: 'list', items: [
+        'Re-entering the same market immediately after a loss, without a fresh setup, just to "get it back".',
+        'Increasing lot size after a loss so one win can erase the damage — and often doubling the damage instead.',
+        'Moving a stop loss further away because closing at a loss feels worse than risking more.',
+        'Trading outside your planned hours or sessions because the loss happened "too early" to stop for the day.',
+      ] },
+      { type: 'h2', text: 'Why your brain does this' },
+      { type: 'p', text: 'A loss feels roughly twice as painful as an equal-sized win feels good — psychologists call this loss aversion. After a loss, the brain treats the money as "stolen" and demands it back immediately, shutting down the slow, careful thinking that your trading plan was built with. Add a live chart ticking in front of you, and the urge to click becomes almost physical. Knowing this does not make you immune — but it does mean the fix must be structural, not willpower-based. You cannot out-think a feeling in the moment; you have to decide the rules before the moment arrives.' },
+      { type: 'h2', text: 'Four rules that break the cycle' },
+      { type: 'list', items: [
+        'The two-loss rule: after two losing trades in a day, stop trading for at least two hours — or for the day. Write it into your plan before you open the platform.',
+        'A hard daily loss cap: decide a number (for example 3% of your balance) and treat hitting it as a circuit breaker, not a suggestion. Close the platform when it trips.',
+        'Fixed size, no exceptions: your lot size comes from your plan, never from your mood. A loss never justifies a bigger next trade.',
+        'A cooling-off journal: after any loss, write one line — what happened, what you felt, what the plan says next. The act of writing forces the slow brain back into charge.',
+      ] },
+      { type: 'p', text: 'Step away from the screen after a loss, review the trade against your plan, and ask one question: was it a good trade that lost, or a bad trade that deserved to lose? Good trades lose all the time — that is normal trading, and no revenge is owed. Bad trades are the ones to study, not to repeat. If you run an automated system, the same discipline applies: do not change its settings mid-drawdown, because the worst setting changes in trading history were all made in the hour after a loss. Revenge trading feels like fighting back; in reality it is giving the market a second, bigger chance to take your money. The traders who survive are not the ones who never lose — they are the ones who lose, stop, and come back tomorrow with the same plan intact.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'primebot-settings-explained-before-going-live',
+    title: 'PrimeBot Settings Explained: The 5 Settings Every Buyer Should Understand Before Going Live',
+    excerpt:
+      'Lot size, daily target, drawdown stop, news filter and basket management — what each PrimeBot setting actually does, and how to choose sensible values for your account.',
+    category: 'Product Guide',
+    date: '2026-10-25',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Open any PrimeBot on MetaTrader 5 and you will see a settings window full of numbers. Most buyers leave them exactly as they arrive — which is fine, because the defaults are conservative — but understanding the five settings that matter most is the difference between running a bot and understanding your bot. Here they are, in plain language.' },
+      { type: 'h2', text: 'The five settings at a glance' },
+      { type: 'list', items: [
+        'Lot size: how big each trade is, and therefore how much each price move is worth.',
+        'Daily target: the profit level at which the bot stops opening new trades until tomorrow.',
+        'Drawdown stop: the emergency brake that pauses trading if your account falls a set amount from its peak.',
+        'News filter: the pause around high-impact releases like CPI, NFP and FOMC decisions.',
+        'Basket management: how groups of trades are closed together at a combined profit target.',
+      ] },
+      { type: 'h2', text: 'Lot size and daily target' },
+      { type: 'p', text: 'Lot size decides how much money each price move is worth. On gold, a 0.01 lot moves roughly $1 per $1 of price change on a standard account, and one hundredth of that on a cent account. Smaller lots mean smaller wins and smaller losses — and a much longer runway before a drawdown hurts. The rule our guides repeat: size for the account you actually have, not the account you wish you had. The daily target works the other way: it is the profit level at which the bot stops for the day, because the most dangerous trades of the day are usually the ones taken after a good day, when confidence runs high. Remember the cent-account rule: on a cent account, targets are entered in cents — a $20 daily goal is entered as 2000. Getting this unit wrong is the single most common setup mistake, and our setup videos show exactly where to check it.' },
+      { type: 'h2', text: 'Drawdown stop, news filter and baskets' },
+      { type: 'p', text: 'The drawdown stop is the fire exit: you hope never to use it, but you would never run a building without one. Set it before you go live, not during a drawdown — in the middle of a losing run, every trader talks themselves out of protection they set up calmly weeks earlier. The news filter pauses new entries for a configurable window around high-impact releases, while existing trades keep managing normally; beginners should leave the default window alone until they have watched a full month of news days. Basket management controls how groups of trades close together at a combined take-profit: the key idea is that a basket target is a goal for the group, not a promise per trade — individual trades inside a basket will often be in loss while the basket as a whole is managed toward its target.' },
+      { type: 'p', text: 'One final rule covers all five settings: change one thing at a time, and test the change on demo or a cent account first. A bot whose settings you understand — and whose drawdowns you have actually watched — is a bot you will keep running. If any setting still confuses you, message our WhatsApp support or rewatch your bot’s Urdu setup video; a real person will walk you through it.' },
+    ],
+  },
+
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
