@@ -29,6 +29,7 @@ import { isUserAdmin } from './lib/supabase/server'
 function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/auth')) return true // login, signup, forgot/reset
   if (pathname.startsWith('/api/auth')) return true // sign-in support routes
+  if (pathname.startsWith('/api/license')) return true // EA license check - MT5 WebRequest has no login session; the route only answers ok/active/reason and never exposes buyer data
   if (pathname === '/manifest.webmanifest') return true // PWA manifest
   if (pathname === '/robots.txt') return true
   if (pathname === '/sitemap.xml') return true

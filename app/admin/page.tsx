@@ -9,6 +9,7 @@ import CategoryManagement from './CategoryManagement'
 import BotManagement from './BotManagement'
 import PaymentMethodManagement from './PaymentMethodManagement'
 import ReviewManagement from './ReviewManagement'
+import LicenseManagement from './LicenseManagement'
 
 interface AdminOrder {
   id: string
@@ -617,6 +618,16 @@ export default function AdminDashboard() {
           >
             Reviews
           </button>
+          <button
+            onClick={() => setActiveTab('licenses')}
+            className={`px-4 py-3 font-semibold transition-colors ${
+              activeTab === 'licenses'
+                ? 'text-blue-500 border-b-2 border-blue-500'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            Licenses
+          </button>
         </div>
 
         {/*
@@ -656,6 +667,13 @@ export default function AdminDashboard() {
         {activeTab === 'reviews' && (
           <div>
             <ReviewManagement />
+          </div>
+        )}
+
+        {/* EA License Control Tab */}
+        {activeTab === 'licenses' && (
+          <div>
+            <LicenseManagement />
           </div>
         )}
 
