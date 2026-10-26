@@ -574,6 +574,64 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
   },
 
+  {
+    blog: 'trading',
+    slug: 'moving-averages-explained-trend-indicator',
+    title: 'Moving Averages Explained: The Trend Indicator Every Beginner Should Understand',
+    excerpt:
+      'One line on the chart that smooths out the noise and shows the trend. What moving averages are, how SMA and EMA differ, and how beginners use them without overcomplicating their trading.',
+    category: 'Indicators',
+    date: '2026-10-26',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Open any chart in MetaTrader 5 and add a moving average, and a smooth line appears, following the price like a shadow. It is the simplest indicator in trading — and the one beginners misunderstand most often. A moving average does not predict the future. It summarises the past, so you can see the trend instead of the noise.' },
+      { type: 'h2', text: 'What a moving average actually is' },
+      { type: 'p', text: 'A moving average takes the closing prices of the last N periods and averages them into a single value, plotted as a line that updates with every new candle. A 50-period moving average on a daily chart averages the last 50 days; on an hourly chart, the last 50 hours. When the price sits above its moving average, the recent trend has been up. When it sits below, the recent trend has been down. That is the whole idea — a trend made visible.' },
+      { type: 'h2', text: 'SMA vs. EMA: the two types that matter' },
+      { type: 'list', items: [
+        'Simple moving average (SMA): every period counts equally. Steady and slow to react — useful for the big picture, like a 200-period average for the long-term trend.',
+        'Exponential moving average (EMA): recent prices count more than old ones. It reacts faster to new moves, which day traders often prefer — but it also gives more false signals in sideways markets.',
+        'Neither is "better". The SMA is a slow, calm guide; the EMA is a quicker, jumpier one. Choose by your timeframe, then stick with it instead of switching every week.',
+      ] },
+      { type: 'h2', text: 'How beginners actually use them' },
+      { type: 'list', items: [
+        'Direction filter: only look for buys when price is above the moving average, only for sells when it is below. One rule, applied consistently, removes half of all bad trades.',
+        'Two averages together: a fast average (for example 20) crossing above a slow one (for example 50) is called a golden cross; the reverse is a death cross. Treat crossings as trend hints, not buy buttons.',
+        'Dynamic support and resistance: in a steady uptrend, price often pulls back to its moving average and bounces. Traders watch that zone for entries — with a stop loss below it, in case the bounce fails.',
+      ] },
+      { type: 'p', text: 'One warning completes the picture. In a sideways market, price whipsaws across the average again and again, and every crossing looks like a signal that reverses the next day — a trend tool cannot work when there is no trend, so the honest read is "no trend" and the correct action is usually no trade at all. Put a single 50-period EMA on your chart and watch it for two weeks on demo or a cent account: notice when it keeps you on the right side of a trend, and when it misleads you in a range. Combine it with the basics that never change — a stop loss on every trade, risk of 1% or less, and no trading around major news releases. Indicators support a plan; they never replace one.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'primebot-after-sales-support-what-to-expect',
+    title: 'After You Buy a PrimeBot: The Support, Updates and Setup Help You Actually Get',
+    excerpt:
+      'Buying the bot is step one. What happens next — setup help in Urdu, lifetime updates, license re-issues and real-person WhatsApp support — explained before you order.',
+    category: 'Product News',
+    date: '2026-10-26',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Most trading-bot sellers disappear the moment the payment clears. That is exactly when a buyer needs help most — the file is downloaded, MetaTrader is open, and something does not look right. PrimeBot Markets is built the other way round: the purchase includes the support that gets the bot running and keeps it running, for the life of the license.' },
+      { type: 'h2', text: 'Setup help comes first' },
+      { type: 'list', items: [
+        'Every bot has an Urdu setup video that walks through the installation screen by screen — copying the file into MQL5 and Experts, ticking "Allow Algo Trading", and loading the recommended settings.',
+        'If you get stuck, message our WhatsApp support with a screenshot of the problem — especially the Experts or Journal tab in MT5, which usually names the exact issue.',
+        'A real person answers. Support is not a chatbot, and it is not a ticket queue that replies in three days.',
+      ] },
+      { type: 'h2', text: 'Lifetime updates, and changing your account' },
+      { type: 'p', text: 'Your license is lifetime, and that includes updates to the bot you bought: when a strategy or protection feature is improved, existing owners receive the updated build with no new payment and no monthly fee, licensed to the same MT5 account number. Traders change brokers too, and when that happens the license does not die with the old account — message support with your new MT5 account number and we will re-issue it. Send the number carefully, digit by digit: the lock checks the exact number, and a single wrong digit is the most common reason a re-issued bot refuses to trade.' },
+      { type: 'h2', text: 'How to get the fastest answer' },
+      { type: 'list', items: [
+        'Say which bot you bought and which account it is licensed to.',
+        'Send a screenshot of the MT5 Experts or Journal tab — the messages there explain almost every problem.',
+        'Say what you changed last. Nine out of ten support cases trace back to one setting changed mid-drawdown or one missed permission tick.',
+      ] },
+      { type: 'p', text: 'Support can fix installation, settings and licensing, and explain how a feature works. It cannot promise profit, recover losses, or change how the market behaves — no honest seller can. What it can do is make sure the tool you paid for runs correctly on your account, with settings you understand, so your results reflect the strategy and your risk choices — not a setup mistake nobody helped you fix. That is the deal in one line: one payment, lifetime license, Urdu setup videos, and a real person on WhatsApp when you need one.' },
+    ],
+  },
+
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
