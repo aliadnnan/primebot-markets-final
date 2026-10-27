@@ -632,6 +632,68 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
   },
 
+  {
+    blog: 'trading',
+    slug: 'rsi-explained-relative-strength-index',
+    title: 'RSI Explained: How the Relative Strength Index Helps Traders Read Momentum',
+    excerpt:
+      'One number between 0 and 100 that shows whether recent price moves have been unusually strong or weak. What RSI is, how the 70 and 30 levels work, and the mistakes beginners make with it.',
+    category: 'Indicators',
+    date: '2026-10-27',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Add the Relative Strength Index to a chart and a line appears in a panel below the price, bouncing between 0 and 100. It is one of the most popular indicators in trading, and one of the most misread. RSI does not tell you what the price will do next. It measures momentum: how strong the recent moves have been compared with recent pullbacks, so you can judge whether a move is stretched or still has room. Published by J. Welles Wilder in 1978, it uses a standard setting of 14 periods, comparing the average size of up moves with down moves over those candles and converting the ratio into a number from 0 to 100.' },
+      { type: 'h2', text: 'The 70 and 30 levels' },
+      { type: 'list', items: [
+        'Above 70 is called overbought: buyers have pushed hard, and the move may be due a pause or pullback. It is a warning flag, not an automatic sell signal.',
+        'Below 30 is called oversold: sellers have pushed hard, and the move may be due a bounce. Again, a warning flag, not an automatic buy signal.',
+        'Between 30 and 70 is the middle ground, where most normal price action lives. Crossings of the 50 line are often read as a shift in momentum from one side to the other.',
+        'The trap: in a strong trend, RSI can stay overbought or oversold for days or weeks. Selling gold just because RSI passed 70 during a powerful uptrend is one of the classic ways beginners fight the market.',
+      ] },
+      { type: 'h2', text: 'Divergence: the signal experienced traders watch' },
+      { type: 'p', text: 'Divergence happens when the price and RSI disagree. If gold makes a new high but RSI makes a lower high, the buying momentum is weakening even though the price is still rising. If gold makes a new low but RSI makes a higher low, selling momentum is fading. Divergence does not time the turn precisely, but it tells you the trend is tired, which is exactly when a careful trader tightens risk instead of adding size.' },
+      { type: 'h2', text: 'Three mistakes to avoid' },
+      { type: 'list', items: [
+        'Trading RSI alone: one indicator is never a strategy. Pair it with the trend, a support or resistance level, and the economic calendar.',
+        'Treating every crossing as a trade: RSI crosses 70 and 30 often, especially in sideways markets, and most of those crossings reverse quickly.',
+        'Ignoring the news: no indicator protects a position through a CPI or FOMC release. Check the calendar first, trade second.',
+      ] },
+      { type: 'p', text: 'Use RSI the way it was designed to be used: as a momentum gauge that supports a plan, not as a plan by itself. Watch it for two weeks on a demo or cent account alongside a moving average, notice when overbought readings mark a real pause and when a strong trend ignores them completely, and keep the rules that never change — a stop loss on every trade, risk of 1% or less, and no trading around major news releases.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'primebot-vps-setup-guide',
+    title: 'Running Your PrimeBot on a VPS: Why Traders Use One and How to Set It Up',
+    excerpt:
+      'A trading bot only trades while MetaTrader is running. How a VPS keeps your PrimeBot online around the clock through power cuts, restarts and travel — and how to set one up step by step.',
+    category: 'Guides',
+    date: '2026-10-27',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'An Expert Advisor only works while MetaTrader 5 is open and connected. Close the laptop, lose the internet, or let the computer sleep, and the bot stops with it — which means it can miss the trade it was built to take. That is why many bot owners run their PrimeBot on a VPS, a virtual private server: a computer in a data centre that stays online around the clock, so the bot keeps running even when your own computer is off.' },
+      { type: 'p', text: 'A VPS is a small Windows computer rented by the month, sitting in a professional data centre with backup power and a fast, stable internet connection. You connect to it from your own computer or phone with a remote desktop app, and it looks and behaves like an ordinary Windows desktop. You install MetaTrader 5 on it, attach your PrimeBot, and then disconnect — the VPS keeps running, and so does the bot.' },
+      { type: 'h2', text: 'Why traders use one for a bot' },
+      { type: 'list', items: [
+        'Power cuts and load shedding: your home power can fail, but a data centre has generators. The bot never notices.',
+        'Internet drops: a home connection can drop for minutes at a time, exactly when a trade is managed. A data centre connection is far more stable.',
+        'Laptop sleep and restarts: a laptop that sleeps, updates or restarts overnight stops the bot. A VPS does not sleep.',
+        'Travel: you can check the bot from your phone from anywhere, without carrying a laptop that must stay on.',
+      ] },
+      { type: 'h2', text: 'Setting it up, step by step' },
+      { type: 'list', items: [
+        'Choose a Windows VPS with at least 2 GB of RAM, ideally in a data centre near your broker server location, so the connection between the VPS and the broker is as fast as possible.',
+        'Connect with the remote desktop app, download MetaTrader 5 from your broker, and log in to the same account your PrimeBot license is locked to.',
+        'Copy the PrimeBot file into the MQL5 and Experts folder, attach it to the chart, tick Allow Algo Trading, and load the recommended settings.',
+        'Check the Experts and Journal tabs for errors, then disconnect from the remote desktop without logging off or shutting down — disconnecting leaves everything running.',
+        'Check in once a day from your phone or computer. A VPS still needs a human eye: updates, broker maintenance and the occasional restart are part of owning a bot.',
+      ] },
+      { type: 'h2', text: 'What a VPS does not do' },
+      { type: 'p', text: 'A VPS changes where the bot runs, not how it trades. It does not improve a strategy, reduce risk, or guarantee any result — it simply removes the downtime that comes from running a bot on a home computer. It also costs a small monthly fee, separate from the bot itself, so compare providers on uptime and support rather than picking the cheapest option and hoping. If you are unsure about any step, message PrimeBot support on WhatsApp with a screenshot of where you are stuck, and mention that you are setting up a VPS: the setup help that comes with your license covers exactly this, and a bot that runs on a stable VPS with the right settings is a bot whose results reflect the strategy and your risk choices, not a power cut nobody saw coming.' },
+    ],
+  },
+
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
