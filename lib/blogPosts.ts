@@ -694,6 +694,65 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
   },
 
+  {
+    blog: 'trading',
+    slug: 'stop-loss-explained-where-to-place-it',
+    title: 'Stop Loss Explained: Where Traders Place It and Why It Matters',
+    excerpt:
+      'A stop loss is the one order that protects your account when a trade goes wrong. What it is, where beginners place it, and the mistakes that turn a small loss into a big one.',
+    category: 'Risk Management',
+    date: '2026-10-28',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every trade has two possible exits: the one you planned and the one the market forces on you. A stop loss is the planned one. It is an order that closes your position automatically if the price reaches a level you chose in advance, so a single bad trade cannot keep running until it damages your account. Professional traders treat the stop loss as part of the trade itself, not as an optional extra: the entry, the stop and the target are decided together, before the trade is opened, when your judgement is still calm.' },
+      { type: 'h2', text: 'What a stop loss actually does' },
+      { type: 'list', items: [
+        'It caps the loss on one trade at a known amount, so you never have to watch a losing position and hope it comes back.',
+        'It removes the hardest decision in trading — when to admit a trade is wrong — by making that decision in advance.',
+        'It protects you when you are away from the screen, asleep, or caught by a sudden news move that you cannot react to in time.',
+        'It does not guarantee the exact exit price: in a fast gap or a news spike, the fill can be worse than the stop level, which is why position size still matters.',
+      ] },
+      { type: 'h2', text: 'Where beginners place it' },
+      { type: 'p', text: 'A stop loss belongs where your trade idea stops being true. For a buy, that is usually just below a support level or a recent swing low; for a sell, just above resistance or a recent swing high. If the price breaks through that level, the reason you entered is gone, and staying in is no longer trading your plan — it is hoping. Placing the stop by how much money you are willing to lose, instead of by the chart, is the classic beginner error: a stop ten pips away on gold will be hit by ordinary noise, and a stop that is far too wide turns every loss into an account event. The chart sets the distance; your position size sets the money at risk. If the chart distance would risk more than 1% of your account, trade smaller — never move the stop to fit the size.' },
+      { type: 'h2', text: 'Three mistakes to avoid' },
+      { type: 'list', items: [
+        'Moving the stop further away when a trade goes against you: that converts a planned small loss into an open-ended one, and it is how accounts are lost.',
+        'Removing the stop entirely during a news release: volatility can move gold tens of dollars in a minute, far faster than anyone can react by hand.',
+        'Placing the stop exactly on a round number or an obvious level, where thousands of other stops cluster and price often spikes briefly before reversing.',
+      ] },
+      { type: 'p', text: 'Test your stop placement on a demo or cent account for two weeks before trusting it with real size. Note every stop-out: was the idea genuinely wrong, or did normal noise take you out before the move happened? The pattern in those notes tells you whether your stops are too tight, too loose, or in the right place. A good stop does not make you right more often — it makes being wrong cheap, repeatable and survivable, which is the only way a trading account lasts long enough to learn anything at all.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'updating-your-primebot-new-versions-guide',
+    title: 'Updating Your PrimeBot: How New Versions, Settings and Reinstalls Work',
+    excerpt:
+      'Bots get updates like any software. How PrimeBot version updates reach you, what happens to your settings, and how a clean reinstall works if anything goes wrong.',
+    category: 'Guides',
+    date: '2026-10-28',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'A trading bot is software, and software gets updated: a bug is fixed, a feature is added, or a broker changes something that the bot must adapt to. If you own a PrimeBot, updates are part of the lifetime license, and knowing how they work saves you from the two most common worries — losing your settings, or running an old version long after a fix exists. This guide covers how updates arrive, what to check after installing one, and how a reinstall works if your setup ever breaks.' },
+      { type: 'h2', text: 'How you receive an update' },
+      { type: 'list', items: [
+        'New versions are sent to existing owners through the same channel you bought from — usually WhatsApp or email — with a short note on what changed and whether the update is recommended for everyone or only for certain accounts.',
+        'An update is a new bot file, not a patch: you receive the latest version of the file, and you replace the old one in your MetaTrader Experts folder.',
+        'Your license does not change with an update. The account-number lock stays tied to the same trading account, so an update never asks you to pay again or re-verify your purchase.',
+        'If you are unsure whether a message about an update is genuine, check it with PrimeBot support before installing anything — never install a bot file sent by an unknown contact.',
+      ] },
+      { type: 'h2', text: 'What happens to your settings' },
+      { type: 'p', text: 'Replacing the bot file does not automatically erase your chart setup, but it is good practice to treat every update as a fresh attach: remove the old bot from the chart, place the new file in the Experts folder, restart MetaTrader, and attach the new version. Before you do that, save your current settings with the Save button in the bot inputs window, so you can reload them on the new version in seconds. After attaching, check three things before anything else: the license account still matches, the inputs loaded are the ones you saved, and the Experts tab shows no errors. Run the new version on a demo or cent account first if the update changed strategy behaviour — the release note will say when that matters.' },
+      { type: 'h2', text: 'If something breaks: the clean reinstall' },
+      { type: 'list', items: [
+        'Close MetaTrader, delete the bot file from the Experts folder, and copy in a fresh download of the latest version — this rules out a corrupted file, the most common cause of a bot that will not attach.',
+        'Reattach it to a fresh chart, load your saved settings, tick Allow Algo Trading, and check the Experts and Journal tabs for error messages.',
+        'If the problem survives a clean reinstall, screenshot the Experts tab and message PrimeBot support on WhatsApp with your account number and the version you are running — that is exactly what the setup help in your license covers.',
+      ] },
+      { type: 'p', text: 'One honest note: an update improves the tool, not the market. A new version does not change your risk, remove drawdown, or guarantee any result — it simply keeps the software current, fixed and supported. Keep your version up to date, keep a saved copy of your settings, and message support the moment something looks wrong rather than trading through an error you do not understand. That habit, more than any single version, is what keeps a bot running cleanly for years.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
