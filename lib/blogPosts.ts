@@ -753,6 +753,65 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'One honest note: an update improves the tool, not the market. A new version does not change your risk, remove drawdown, or guarantee any result — it simply keeps the software current, fixed and supported. Keep your version up to date, keep a saved copy of your settings, and message support the moment something looks wrong rather than trading through an error you do not understand. That habit, more than any single version, is what keeps a bot running cleanly for years.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'position-sizing-explained-gold-trades',
+    title: 'Position Sizing Explained: How Much to Risk on Each Gold Trade',
+    excerpt:
+      'Position size is the lever that turns a stop loss into a real money amount. How to size a gold trade so one loss stays small, no matter how wide the stop is.',
+    category: 'Risk Management',
+    date: '2026-10-29',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Two traders can take the same gold trade, with the same entry and the same stop loss, and walk away with completely different results. The difference is position size: how many lots they traded. The entry picks the direction, the stop loss picks the exit, but position size decides how much money is actually at stake. Traders who get this one idea right survive their losing streaks; traders who ignore it can be right about the market and still lose the account on a handful of trades.' },
+      { type: 'h2', text: 'What position sizing really means' },
+      { type: 'p', text: 'Position sizing is the calculation that links your stop distance to your money risk. If gold moves one dollar, a standard lot moves the position value by one hundred dollars, a mini lot by ten dollars, and a micro lot by one dollar. A stop that is five dollars away therefore risks five hundred dollars on a standard lot, fifty dollars on a mini lot, and five dollars on a micro lot. Same trade, same stop, ten times the difference in outcome. This is why experienced traders never start with the lot size. They start with the risk: how much of the account they are willing to lose if the stop is hit, usually one percent or less, and then work backwards to the lot size that produces exactly that risk.' },
+      { type: 'h2', text: 'The three-step calculation' },
+      { type: 'list', items: [
+        'Step one, set the money risk: one percent of a 1,000 dollar account is 10 dollars, and one percent of a 10,000 dollar account is 100 dollars. Write this number down before looking at any chart.',
+        'Step two, measure the stop distance in dollars: if you buy gold at 2,650 and place the stop at 2,645, the distance is five dollars, and that is the loss per lot unit you must plan for.',
+        'Step three, divide the money risk by the stop distance and the value per lot: a 10 dollar risk divided by a five dollar stop gives a position worth two dollars per dollar of gold movement, which is two micro lots. The formula does the deciding, not your confidence in the trade.',
+      ] },
+      { type: 'p', text: 'Gold is a fast, volatile market. A five dollar move that would be a quiet day in some currency pairs is an ordinary hour in gold, and a news release can move it twenty dollars in minutes. A lot size that feels comfortable on a calm morning can become unmanageable by the afternoon, which is why gold traders size for the volatile day, not the calm one. If a position is so large that you cannot sleep while it is open, or that you keep checking the screen every few minutes, it is too large — regardless of what the calculation said. Reduce the size until the trade is boring to watch, because a boring trade is one you can manage by your plan instead of by your emotions.' },
+      { type: 'h2', text: 'Mistakes that break good sizing' },
+      { type: 'list', items: [
+        'Doubling the size after a loss to win it back: this is how a small, survivable loss becomes the loss that ends the account.',
+        'Using the same lot size on every trade: a wide stop and a tight stop are not the same risk, so a fixed lot size means your real risk swings wildly from trade to trade.',
+        'Forgetting the account currency and contract size: on a cent account, one dollar of risk is counted as one hundred cents, so always check whether your platform shows cents or dollars before sizing.',
+      ] },
+      { type: 'p', text: 'Practice this on a demo or cent account for two weeks: before every trade, write down the money risk, the stop distance, and the lot size the calculation gives you. After twenty trades, look at the pattern. If your worst losing streak still leaves the account nearly whole, your sizing is working — and that is the real skill of trading. Nobody controls whether the next trade wins, but everybody controls how much it can cost. Position sizing is that control, and it is the difference between a trader who lasts and a trader who keeps starting over.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'backtesting-primebot-mt5-before-going-live',
+    title: 'Backtesting Your PrimeBot on MT5: How to Test Before You Go Live',
+    excerpt:
+      'Backtesting lets you watch a bot trade months of history in minutes. How to run a clean MT5 backtest, what the results actually tell you, and what they never promise.',
+    category: 'Guides',
+    date: '2026-10-29',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Before any bot touches a live account, it should be tested on history. Backtesting in MetaTrader 5 runs a bot over months or years of past price data and shows you how it would have traded: the entries, the exits, the winning and losing streaks, and the drawdown along the way. It takes minutes, costs nothing, and answers the first question every buyer should ask — does this bot behave the way its description says it does? This guide explains how to run a clean backtest and how to read the results honestly.' },
+      { type: 'h2', text: 'Running a backtest, step by step' },
+      { type: 'list', items: [
+        'Open the Strategy Tester in MetaTrader 5 with Ctrl plus R, select your PrimeBot from the Expert Advisor list, and choose the symbol and timeframe the bot is designed for, usually XAUUSD on the timeframe stated in its guide.',
+        'Set the test period to at least six months, and preferably a full year, so the test includes calm weeks, trending weeks and at least one sharp news move.',
+        'Use the same starting balance as the account you plan to trade, and load the same settings you intend to use live — a backtest with different settings tests a different bot.',
+        'Start the test, then study the graph and the results tab: total profit, maximum drawdown, win rate, and the longest losing streak, not just the final balance.',
+      ] },
+      { type: 'h2', text: 'What good results look like' },
+      { type: 'p', text: 'A believable backtest is rarely a straight line upward. It has losing weeks, flat months and drawdowns, because real markets have them too. What matters is the shape: does the equity curve recover from its drawdowns, does the maximum drawdown stay within a level you could actually live through, and does the bot keep trading sensibly during volatile periods instead of opening a flood of trades? Compare the backtest drawdown with your own comfort level. A bot that lost thirty percent on history may do the same on your live account, and no backtest result justifies risking money you cannot afford to lose.' },
+      { type: 'h2', text: 'What a backtest cannot tell you' },
+      { type: 'list', items: [
+        'Past results do not predict future results. A bot that performed well on last year data can perform differently this year, because market conditions change.',
+        'Backtests use historical spreads and fills, which are usually cleaner than live trading during news releases, when spreads widen and slippage appears.',
+        'A backtest that has been tuned until it looks perfect on one period is often overfitted: it learned the past instead of learning a robust rule, and it tends to disappoint on new data.',
+      ] },
+      { type: 'p', text: 'The sensible path is backtest, then demo, then a small live or cent account. If the backtest looks reasonable, run the same settings on demo for a few weeks and check that the live behaviour matches the backtest behaviour. If anything in the results confuses you, screenshot the Strategy Tester report and message PrimeBot support on WhatsApp — reading a backtest report together is exactly the kind of setup help your license includes. A backtest will not guarantee a profit, and any seller who claims otherwise should not be trusted. What it does give you is evidence, and trading on evidence instead of hope is the whole point.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
