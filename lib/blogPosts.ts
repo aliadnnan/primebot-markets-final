@@ -812,6 +812,65 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'The sensible path is backtest, then demo, then a small live or cent account. If the backtest looks reasonable, run the same settings on demo for a few weeks and check that the live behaviour matches the backtest behaviour. If anything in the results confuses you, screenshot the Strategy Tester report and message PrimeBot support on WhatsApp — reading a backtest report together is exactly the kind of setup help your license includes. A backtest will not guarantee a profit, and any seller who claims otherwise should not be trusted. What it does give you is evidence, and trading on evidence instead of hope is the whole point.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'keeping-trading-journal-losses-lessons',
+    title: 'Keeping a Trading Journal: The Habit That Turns Losses Into Lessons',
+    excerpt:
+      'A trading journal costs nothing and takes five minutes a day, yet it is the one tool that separates traders who repeat mistakes from traders who stop making them. What to record, and how to review it.',
+    category: 'Trading Psychology',
+    date: '2026-10-30',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Ask any trader why they lost money last week and most will give you a feeling: the market was choppy, the news surprised them, gold moved too fast. Ask a trader who keeps a journal and you get an answer with evidence: three losses came from entering before the London session, two from moving a stop loss, one from trading on a phone while distracted. Feelings cannot be fixed. Patterns can. A journal turns a blurry week of trading into a record you can actually learn from, and it costs nothing but five honest minutes a day.' },
+      { type: 'h2', text: 'What to write down after every trade' },
+      { type: 'list', items: [
+        'The setup: symbol, direction, entry, stop loss, take profit, and the exact reason you entered — one sentence, written before you click buy or sell, not after.',
+        'The market context: trend direction on the higher timeframe, the trading session, and any major news due within the next hour.',
+        'The outcome: result in money and in risk units, how long the trade lasted, and whether you followed your plan or improvised halfway through.',
+        'Your state: tired, rushed, calm, revenge-driven. Emotion is data too, and it predicts mistakes better than any indicator.',
+      ] },
+      { type: 'h2', text: 'The weekly review that actually changes behaviour' },
+      { type: 'p', text: 'A journal nobody reads is just a diary. Once a week, sit down for twenty minutes and sort your trades into two piles: trades that followed your plan and trades that did not. Most traders discover the same uncomfortable truth — the plan-following trades are roughly break-even or better, while the improvised trades carry almost all the damage. That single insight is worth more than any new indicator, because it tells you the strategy is not necessarily broken; the discipline around it is. Pick exactly one mistake to fix next week — one, not five — and write it at the top of the next page. Traders who fix one leak at a time improve steadily; traders who try to fix everything at once change nothing.' },
+      { type: 'h2', text: 'What a journal will not do' },
+      { type: 'list', items: [
+        'It will not turn a losing strategy into a winning one. If every planned trade loses over months of honest records, the strategy itself needs rethinking, not the journal.',
+        'It will not remove losses. Losing trades are part of trading; the journal only stops you from paying for the same lesson twice.',
+        'It will not replace risk management. A beautiful journal entry about a trade that risked twenty percent of the account is still a dangerous trade.',
+      ] },
+      { type: 'p', text: 'Start tonight, not next month: a notebook, a spreadsheet, or a simple document all work, and the format matters far less than the honesty. Record the trade you are embarrassed about, not just the winners — the embarrassing ones are where the lessons live. Trading always carries risk and no journal guarantees profit, but traders who can show you their last fifty trades, with reasons, are traders who know what they are doing — and traders who know what they are doing are the only ones who last.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'ea-not-trading-mt5-troubleshooting',
+    title: 'EA Not Trading? Common MT5 Problems After Installing a Bot — and How to Fix Them',
+    excerpt:
+      'Your PrimeBot is attached but nothing happens? Before worrying, work through the usual MT5 culprits — auto-trading switches, permissions and the Experts log — most are fixed in under a minute.',
+    category: 'Guides',
+    date: '2026-10-30',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'One of the most common support messages after installing an Expert Advisor reads: I attached the bot, but it is not opening trades. In most cases the bot is fine and MetaTrader 5 is simply waiting for something — a switch, a permission, or a market condition that has not arrived yet. Before contacting support, work through the checks below in order. They solve the large majority of no-trade reports, and each takes under a minute.' },
+      { type: 'h2', text: 'The five-minute checklist' },
+      { type: 'list', items: [
+        'AutoTrading is ON: the AutoTrading button in the MT5 toolbar must be active, and the small icon next to the EA name on the chart should show a smiling face, not a frowning one. A frowning face means automated trading is disabled for that chart.',
+        'Algo trading is allowed: in Tools, then Options, then Expert Advisors, check that algorithmic trading is enabled and that the EA has permission to trade. An EA without this permission can display on the chart but can never open a position.',
+        'The right symbol and timeframe: a bot built for XAUUSD on a specific timeframe will not behave correctly on another symbol or timeframe, and some strategies only trade during certain sessions, so silence during quiet hours can be normal.',
+        'The market is actually open: gold does not trade around the clock. Weekend hours, the daily rollover break, and public holidays mean no trades are possible even with everything switched on.',
+        'Your account can trade: check that the account is connected, that the symbol is not in close-only mode, and that margin is sufficient for the smallest position the bot would open.',
+      ] },
+      { type: 'h2', text: 'Reading the Experts log' },
+      { type: 'p', text: 'If all the switches are on and the bot still sits idle, the Experts tab at the bottom of MT5 will tell you why. Open it and look for the most recent lines from your PrimeBot: messages about disabled trading, invalid settings, or a license check will appear there in plain language. Take a screenshot of that tab before changing anything else — it is the single most useful thing you can send to support, because it turns a vague it is not working into a specific error that can be answered precisely. Do not randomly change inputs hoping to fix the problem; changing five settings at once makes the original cause impossible to find.' },
+      { type: 'h2', text: 'When silence is normal' },
+      { type: 'list', items: [
+        'Session-based bots may wait hours for their trading window, and that patience is part of the strategy, not a fault.',
+        'News filters deliberately pause trading around major releases, so a quiet period around CPI, NFP or a central bank announcement is the filter working as designed.',
+        'A bot that has reached its daily loss limit or its maximum open trades will stop until conditions reset, which is exactly what those protections exist for.',
+      ] },
+      { type: 'p', text: 'If the checklist is clean, the log shows no errors, and the bot still has not traded after a full trading session, that is the right moment to contact PrimeBot support on WhatsApp with your MT5 version, the symbol and timeframe, and a screenshot of the Experts tab. That combination lets support diagnose the issue in one reply instead of five. Bots do not guarantee profits and no troubleshooting guide changes that — but a correctly installed bot that you understand is the foundation everything else is built on.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
