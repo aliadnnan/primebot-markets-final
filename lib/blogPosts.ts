@@ -881,13 +881,13 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2026-10-31',
     readMins: 6,
     content: [
-      { type: 'p', text: 'A beginner who opens a gold chart at random times will conclude that XAUUSD is unpredictable: sometimes it crawls sideways for hours, sometimes it jumps twenty dollars in minutes. An experienced trader watching the same chart sees a schedule. Gold's movement follows the world's trading sessions, and understanding that rhythm — when liquidity arrives, when it leaves, and when news hits — explains most of what looks like randomness. You do not need to trade around the clock; you need to know which hours deserve your attention.' },
+      { type: 'p', text: 'A beginner who opens a gold chart at random times will conclude that XAUUSD is unpredictable: sometimes it crawls sideways for hours, sometimes it jumps twenty dollars in minutes. An experienced trader watching the same chart sees a schedule. Gold’s movement follows the world’s trading sessions, and understanding that rhythm — when liquidity arrives, when it leaves, and when news hits — explains most of what looks like randomness. You do not need to trade around the clock; you need to know which hours deserve your attention.' },
       { type: 'h2', text: 'The four sessions, in plain terms' },
       { type: 'list', items: [
         'Sydney and Tokyo (Asian session): generally the quietest hours for gold. Ranges are smaller, moves are slower, and breakouts here often reverse when London opens — a classic trap for traders who chase an early-morning move.',
         'London (European session): liquidity steps up sharply. Gold often sets its daily direction here, and the first London hours are where many genuine trends begin, because European banks, funds and traders are all active at once.',
         'New York (US session): the busiest window, especially the London-New York overlap in the early afternoon London time. Most major US economic releases land in this window, so gold can move fast on news — and just as fast back again.',
-        'The overnight gap: between the New York close and the Asian open, liquidity thins again. Weekend gaps are the extreme version of this: gold reopens on Monday at a different price than Friday's close, and stops placed over the weekend can fill far from where they were set.',
+        'The overnight gap: between the New York close and the Asian open, liquidity thins again. Weekend gaps are the extreme version of this: gold reopens on Monday at a different price than Friday’s close, and stops placed over the weekend can fill far from where they were set.',
       ] },
       { type: 'h2', text: 'Why session timing beats screen time' },
       { type: 'p', text: 'Watching a chart for twelve hours does not make you twelve times better informed — it mostly makes you tired, and tired traders take trades they would have skipped fresh. A practical approach is to pick one or two sessions that fit your life, learn how gold normally behaves in those hours, and ignore the rest. A trader in Pakistan, for example, is awake for the London open and the New York overlap, the two most active windows, without needing to stay up all night. Whatever sessions you choose, keep a note of which hours your strategy actually performs in; many traders discover their results cluster in a single session, and that knowledge alone can cut their losing trades in half.' },
@@ -897,7 +897,7 @@ export const BLOG_POSTS: BlogPost[] = [
         'Holding through a major US release without a plan: if you do not know the release time, you are not trading — you are gambling on a headline.',
         'Forcing a trade in a dead session because you feel you should trade today: the market does not owe you a setup, and a missed day costs nothing while a forced trade can cost plenty.',
       ] },
-      { type: 'p', text: 'Sessions do not predict where gold will go — they tell you when it is most likely to move, and when a move is most likely to be real. Combine that awareness with a stop loss, a position size you can afford to lose, and the patience to wait for your own session, and you have something far more valuable than a new indicator: a trading day with a shape. Trading always carries risk and no session pattern guarantees profit, but traders who respect the clock stop fighting the market's rhythm and start working with it.' },
+      { type: 'p', text: 'Sessions do not predict where gold will go — they tell you when it is most likely to move, and when a move is most likely to be real. Combine that awareness with a stop loss, a position size you can afford to lose, and the patience to wait for your own session, and you have something far more valuable than a new indicator: a trading day with a shape. Trading always carries risk and no session pattern guarantees profit, but traders who respect the clock stop fighting the market’s rhythm and start working with it.' },
     ],
   },
   {
@@ -926,7 +926,7 @@ export const BLOG_POSTS: BlogPost[] = [
         'It does not include a VPS: if you want the bot running around the clock, hosting is arranged separately, and the VPS setup guide explains the options.',
       ] },
       { type: 'h2', text: 'Before you buy: three quick checks' },
-      { type: 'p', text: 'First, confirm you trade on MetaTrader 5 with a broker that supports Expert Advisors and gold trading, since PrimeBot is built for that platform. Second, decide whether you want to start on a demo account — most buyers do, and the demo-to-live path is the safest way to learn the bot's behaviour before risking real money. Third, keep your purchase email and license details somewhere safe; they are what support will ask for if you ever need to reinstall or move accounts. A license is a simple thing when it is explained simply: one account, lifetime updates, honest support, and no promises about profit. If a seller offers you more than that, ask what it costs them to promise it — and be cautious about the answer.' },
+      { type: 'p', text: 'First, confirm you trade on MetaTrader 5 with a broker that supports Expert Advisors and gold trading, since PrimeBot is built for that platform. Second, decide whether you want to start on a demo account — most buyers do, and the demo-to-live path is the safest way to learn the bot’s behaviour before risking real money. Third, keep your purchase email and license details somewhere safe; they are what support will ask for if you ever need to reinstall or move accounts. A license is a simple thing when it is explained simply: one account, lifetime updates, honest support, and no promises about profit. If a seller offers you more than that, ask what it costs them to promise it — and be cautious about the answer.' },
     ],
   },
 ];
