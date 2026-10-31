@@ -871,6 +871,64 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'If the checklist is clean, the log shows no errors, and the bot still has not traded after a full trading session, that is the right moment to contact PrimeBot support on WhatsApp with your MT5 version, the symbol and timeframe, and a screenshot of the Experts tab. That combination lets support diagnose the issue in one reply instead of five. Bots do not guarantee profits and no troubleshooting guide changes that — but a correctly installed bot that you understand is the foundation everything else is built on.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'gold-trading-sessions-when-xauusd-moves',
+    title: 'Gold Trading Sessions Explained: When XAUUSD Actually Moves',
+    excerpt:
+      'Gold does not move evenly through the day — it wakes up, surges, and goes quiet on a schedule. How the Sydney, Tokyo, London and New York sessions shape XAUUSD volatility, and why timing your chart time matters more than watching it all day.',
+    category: 'Trading Basics',
+    date: '2026-10-31',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'A beginner who opens a gold chart at random times will conclude that XAUUSD is unpredictable: sometimes it crawls sideways for hours, sometimes it jumps twenty dollars in minutes. An experienced trader watching the same chart sees a schedule. Gold's movement follows the world's trading sessions, and understanding that rhythm — when liquidity arrives, when it leaves, and when news hits — explains most of what looks like randomness. You do not need to trade around the clock; you need to know which hours deserve your attention.' },
+      { type: 'h2', text: 'The four sessions, in plain terms' },
+      { type: 'list', items: [
+        'Sydney and Tokyo (Asian session): generally the quietest hours for gold. Ranges are smaller, moves are slower, and breakouts here often reverse when London opens — a classic trap for traders who chase an early-morning move.',
+        'London (European session): liquidity steps up sharply. Gold often sets its daily direction here, and the first London hours are where many genuine trends begin, because European banks, funds and traders are all active at once.',
+        'New York (US session): the busiest window, especially the London-New York overlap in the early afternoon London time. Most major US economic releases land in this window, so gold can move fast on news — and just as fast back again.',
+        'The overnight gap: between the New York close and the Asian open, liquidity thins again. Weekend gaps are the extreme version of this: gold reopens on Monday at a different price than Friday's close, and stops placed over the weekend can fill far from where they were set.',
+      ] },
+      { type: 'h2', text: 'Why session timing beats screen time' },
+      { type: 'p', text: 'Watching a chart for twelve hours does not make you twelve times better informed — it mostly makes you tired, and tired traders take trades they would have skipped fresh. A practical approach is to pick one or two sessions that fit your life, learn how gold normally behaves in those hours, and ignore the rest. A trader in Pakistan, for example, is awake for the London open and the New York overlap, the two most active windows, without needing to stay up all night. Whatever sessions you choose, keep a note of which hours your strategy actually performs in; many traders discover their results cluster in a single session, and that knowledge alone can cut their losing trades in half.' },
+      { type: 'h2', text: 'Three session mistakes to avoid' },
+      { type: 'list', items: [
+        'Trading the Asian range as if it were a trend: a slow drift in thin liquidity is not momentum, and it frequently unwinds at the London open.',
+        'Holding through a major US release without a plan: if you do not know the release time, you are not trading — you are gambling on a headline.',
+        'Forcing a trade in a dead session because you feel you should trade today: the market does not owe you a setup, and a missed day costs nothing while a forced trade can cost plenty.',
+      ] },
+      { type: 'p', text: 'Sessions do not predict where gold will go — they tell you when it is most likely to move, and when a move is most likely to be real. Combine that awareness with a stop loss, a position size you can afford to lose, and the patience to wait for your own session, and you have something far more valuable than a new indicator: a trading day with a shape. Trading always carries risk and no session pattern guarantees profit, but traders who respect the clock stop fighting the market's rhythm and start working with it.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-license-explained-what-it-covers',
+    title: 'PrimeBot License Explained: What Your License Covers, and What It Does Not',
+    excerpt:
+      'One license, one account, lifetime updates — but what does that actually mean in practice? A plain-language guide to PrimeBot licensing: accounts, devices, updates, support, and the limits every buyer should know before purchasing.',
+    category: 'Guides',
+    date: '2026-10-31',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Buying a trading bot should feel like buying a tool, not signing a mystery contract. Yet licensing pages are often written in legal shorthand that leaves the practical questions unanswered: how many accounts can I run it on, what happens when a new version comes out, and what exactly am I paying for? This guide answers those questions for PrimeBot in plain language, so you can buy with your eyes open — and so existing users can check what they already have.' },
+      { type: 'h2', text: 'What a PrimeBot license includes' },
+      { type: 'list', items: [
+        'The Expert Advisor file itself, for MetaTrader 5, delivered after purchase with installation instructions for attaching it to a chart.',
+        'Use on your licensed trading account, as specified at purchase — the license is tied to the account you register, not to a person or a computer, so changing devices does not require a new license.',
+        'Free updates for the life of the product line: when a new version is released, existing license holders receive it without paying again, and the update guide walks through replacing the old file safely.',
+        'Setup support through the usual channels: installation help, MT5 settings checks, and answers to the common first-week questions, such as why a bot has not traded yet.',
+      ] },
+      { type: 'h2', text: 'What a license does not include' },
+      { type: 'list', items: [
+        'It is not a managed account service: PrimeBot runs on your own MT5 account, under your own control. Nobody trades your account for you, and support will never ask for your account password.',
+        'It is not a profit guarantee: no license, setting, or version can promise returns, and any seller who promises them is not being honest with you. Trading always carries risk, including the risk of losing your capital.',
+        'It does not cover other products: each PrimeBot edition is licensed separately, so a license for one bot does not unlock the others.',
+        'It does not include a VPS: if you want the bot running around the clock, hosting is arranged separately, and the VPS setup guide explains the options.',
+      ] },
+      { type: 'h2', text: 'Before you buy: three quick checks' },
+      { type: 'p', text: 'First, confirm you trade on MetaTrader 5 with a broker that supports Expert Advisors and gold trading, since PrimeBot is built for that platform. Second, decide whether you want to start on a demo account — most buyers do, and the demo-to-live path is the safest way to learn the bot's behaviour before risking real money. Third, keep your purchase email and license details somewhere safe; they are what support will ask for if you ever need to reinstall or move accounts. A license is a simple thing when it is explained simply: one account, lifetime updates, honest support, and no promises about profit. If a seller offers you more than that, ask what it costs them to promise it — and be cautious about the answer.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
