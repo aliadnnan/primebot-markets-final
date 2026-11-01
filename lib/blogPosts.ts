@@ -929,6 +929,67 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'First, confirm you trade on MetaTrader 5 with a broker that supports Expert Advisors and gold trading, since PrimeBot is built for that platform. Second, decide whether you want to start on a demo account — most buyers do, and the demo-to-live path is the safest way to learn the bot’s behaviour before risking real money. Third, keep your purchase email and license details somewhere safe; they are what support will ask for if you ever need to reinstall or move accounts. A license is a simple thing when it is explained simply: one account, lifetime updates, honest support, and no promises about profit. If a seller offers you more than that, ask what it costs them to promise it — and be cautious about the answer.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'macd-explained-momentum-crossovers',
+    title: 'MACD Explained: How Traders Read Momentum and Crossovers',
+    excerpt:
+      'The MACD is one of the most popular indicators on MT5, and one of the most misread. What its two lines and histogram actually measure, how traders use crossovers and divergences, and why it works best as a confirmation tool rather than a signal machine.',
+    category: 'Indicators',
+    date: '2026-11-01',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Open any MT5 chart and the MACD is usually a few clicks away, which is why beginners often treat it as a buy-and-sell machine: line crosses up, buy; line crosses down, sell. Used that way, it loses money in sideways markets and frustrates everyone who trusts it blindly. The MACD is not a fortune teller. It is a momentum thermometer — it measures whether recent price movement is speeding up or slowing down — and once you understand what it actually calculates, its signals become far easier to use sensibly.' },
+      { type: 'h2', text: 'What the MACD is made of' },
+      { type: 'list', items: [
+        'The MACD line: the difference between a fast exponential moving average (usually 12 periods) and a slow one (usually 26 periods). When the fast average sits above the slow one, the line is positive; when it drops below, the line turns negative.',
+        'The signal line: a 9-period moving average of the MACD line itself. It smooths the MACD line, so crossovers between the two lines are the signals most traders watch.',
+        'The histogram: the visual gap between the MACD line and the signal line. Growing bars mean momentum is strengthening in the current direction; shrinking bars mean it is fading, even if price is still moving that way.',
+        'The zero line: the level where the fast and slow averages are equal. MACD above zero means the shorter-term trend is stronger than the longer-term one, and below zero means the opposite.',
+      ] },
+      { type: 'h2', text: 'The three signals traders actually use' },
+      { type: 'list', items: [
+        'Crossovers: the MACD line crossing above its signal line suggests upward momentum is building; crossing below suggests downward momentum is building. These work best when they agree with the larger trend, not against it.',
+        'Zero-line crosses: the MACD crossing from below zero to above it confirms a shift toward upward momentum, and the reverse confirms a shift downward. Many traders use these as trend filters rather than entry triggers.',
+        'Divergence: price makes a new high but the MACD makes a lower high, or price makes a new low while the MACD makes a higher low. Divergence warns that momentum is weakening, but it is a warning, not an entry — prices can keep drifting long after momentum fades.',
+      ] },
+      { type: 'h2', text: 'Where the MACD misleads beginners' },
+      { type: 'p', text: 'The MACD is a lagging indicator: it is built from past prices, so it confirms moves after they start rather than predicting them. In a choppy, sideways market it will cross back and forth repeatedly, generating losing signals one after another — the classic whipsaw. That is why experienced traders rarely trade MACD signals alone. A common approach is to use it as a filter: only consider long trades when the MACD is above zero on your trading timeframe, only consider short trades when it is below, and demand that price action itself — a level, a candle pattern, a session you understand — gives you the actual entry. Indicators should confirm your plan, not replace it.' },
+      { type: 'p', text: 'Start on a demo chart: add the MACD with its default 12, 26, 9 settings, watch how the histogram shrinks before a trend stalls, and notice how many crossovers fail in a range. No indicator guarantees profit, and trading always carries risk, but a trader who knows what the MACD measures — momentum, not the future — will stop chasing every crossover and start using it for what it is good at: telling you whether the move you are watching still has strength behind it.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-pre-launch-checklist-before-going-live',
+    title: 'Before You Go Live with a PrimeBot: A Pre-Launch Checklist',
+    excerpt:
+      'Demo tested, settings reviewed, VPS running — or did you skip a step? A practical pre-launch checklist for PrimeBot buyers: the account, platform, settings and safety checks to complete before your first live trade.',
+    category: 'Guides',
+    date: '2026-11-01',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'The most common first-week problems with any trading bot are not caused by the bot — they are caused by a skipped step: an EA attached to the wrong chart, auto-trading switched off, a VPS that was never started, or settings copied from someone else without understanding them. Going live is a milestone, and like any milestone it deserves a checklist. Work through the items below in order, and you will catch almost every avoidable mistake before it costs you money.' },
+      { type: 'h2', text: 'The pre-launch checklist' },
+      { type: 'list', items: [
+        'Account check: confirm your MT5 account is the one registered to your PrimeBot license, and that your broker allows Expert Advisors and gold trading on that account type.',
+        'Platform check: MetaTrader 5 is installed and updated, the PrimeBot file is attached to the correct chart and symbol, and the auto-trading button is switched on — the EA will not trade with it off, which is the single most common “it is not trading” cause.',
+        'Settings check: read through every input once, in plain language, before going live. If you do not understand a setting, ask support or leave it at its default — never copy another trader’s settings blindly.',
+        'Demo test first: run the bot on a demo account for enough days to see it trade in different conditions, including a news release. If anything behaves unexpectedly on demo, it will behave the same way live.',
+        'Risk check: decide your risk level before the first trade, not during it. Know the maximum drawdown you are comfortable with, and make sure the account balance can support the bot’s position sizes.',
+        'VPS check: if you plan to run the bot around the clock, confirm your VPS is online, MT5 is running on it, and the EA is attached there — not only on your home computer, which may sleep or lose connection.',
+        'Support details saved: keep your purchase email and license details somewhere safe, so support can help you quickly if you ever need to reinstall or move accounts.',
+      ] },
+      { type: 'h2', text: 'Demo first is not wasted time' },
+      { type: 'p', text: 'Some buyers rush past demo because it feels like waiting. It is actually the cheapest education available: demo shows you how the bot behaves on your broker’s prices, your spread, and your account type, with zero money at stake. Watch at least a few full trading days, check that trades open and close as expected, and practise the simple tasks — pausing the EA, checking its logs, restarting MT5 — while nothing is at risk. The confidence you build on demo is what keeps you calm when live trading gets bumpy, and calm traders make better decisions than panicked ones.' },
+      { type: 'h2', text: 'Three mistakes the checklist prevents' },
+      { type: 'list', items: [
+        'Going live on an untested broker setup, then discovering spreads or execution differ from what the demo showed.',
+        'Changing settings mid-trade because a single losing day felt uncomfortable — a plan changed in panic is rarely an improvement.',
+        'Running the bot on two machines at once, which can double up trades. One live instance, on one platform, is the safe setup.',
+      ] },
+      { type: 'p', text: 'A bot is a tool, and tools reward preparation. Complete the checklist, start small, and keep support’s contact details close for the first week. PrimeBot cannot promise profits — no bot can, and trading always carries risk — but a careful launch means that whatever the market does next, you will know your setup is sound, and that is the foundation every good trading routine is built on.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
