@@ -990,6 +990,67 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'A bot is a tool, and tools reward preparation. Complete the checklist, start small, and keep support’s contact details close for the first week. PrimeBot cannot promise profits — no bot can, and trading always carries risk — but a careful launch means that whatever the market does next, you will know your setup is sound, and that is the foundation every good trading routine is built on.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'fibonacci-retracement-explained-levels-entries',
+    title: 'Fibonacci Retracement Explained: How Traders Use Levels to Plan Entries',
+    excerpt:
+      'The 38.2, 50 and 61.8 percent levels appear on almost every trading chart. What Fibonacci retracement actually measures, how traders draw it, and why it works best as a planning tool rather than a prediction.',
+    category: 'Technical Analysis',
+    date: '2026-11-02',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Open almost any trading chart and you will find a Fibonacci retracement tool in the drawing menu. After a strong move up or down, traders draw it across that move and watch a set of horizontal levels appear: 23.6, 38.2, 50, 61.8 and sometimes 78.6 percent. The percentages come from the Fibonacci number sequence, in which each number is the sum of the two before it, and the 61.8 percent level is the best known; the 50 percent level is included because half of a move is a natural reference point. These levels are a structured way of asking one practical question: if price pulls back from a big move, where might it pause, and where would my plan stop making sense? A retracement measures how much of a previous move price has given back, and each level marks the price where price has retraced that percentage of the move.' },
+      { type: 'list', items: [
+        '23.6 percent: a shallow pullback, common in very strong trends where price barely pauses before continuing.',
+        '38.2 percent: the first level many traders treat as a meaningful pause, where early buyers may step back in.',
+        '50 percent: the halfway point of the move, watched because so many traders and algorithms reference it.',
+        '61.8 percent: the classic golden ratio level, often called the deep retracement zone where a trend either resumes or fails.',
+        '78.6 percent: a deep pullback that leaves little room for error; if price goes much further, the original move is usually considered over.',
+      ] },
+      { type: 'h2', text: 'How traders draw it in practice' },
+      { type: 'p', text: 'The drawing matters more than the tool itself. In an uptrend, anchor the tool at a clear swing low and stretch it to the swing high that followed it. In a downtrend, reverse the anchors: high first, then low. The key is to use obvious turning points that other traders can see too, not tiny wiggles inside a sideways range. Levels drawn on a clear, strong move are watched by more participants, and that shared attention is part of why price sometimes reacts at them. A level drawn on a messy, unclear move is mostly a guess, and it should be treated as one.' },
+      { type: 'p', text: 'Fibonacci levels do not predict where price will go, and they do not work on their own. Price can sail straight through the 61.8 percent level without pausing, or bounce at a level that was never drawn at all. That is why experienced traders use retracement levels as zones to watch, not as automatic buy or sell signals. The usual approach is to wait for price to reach a level and then look for confirmation: a candle pattern, a support or resistance level from an earlier move, or a session with strong volume. The level narrows the search; the confirmation decides the trade. Risk management still comes first, with a stop loss placed where the trade idea is proven wrong, not where it merely feels uncomfortable.' },
+      { type: 'h2', text: 'Three mistakes beginners make' },
+      { type: 'list', items: [
+        'Drawing on every move: retracement levels are most useful after a clear, strong trend leg, not inside choppy sideways price action.',
+        'Treating a level as a guarantee: a bounce at 38.2 percent is a possibility to watch, not a promise, and it needs confirmation before any trade.',
+        'Moving the anchors to fit a hoped-for outcome: if you redraw the tool until it supports the trade you already want, it has stopped being analysis.',
+      ] },
+      { type: 'p', text: 'Practise on a demo chart before using Fibonacci levels with real money. Draw them on past gold moves, note which levels price respected and which it ignored, and keep a simple record of what you observed. No tool removes risk from trading, and no level guarantees a profit, but a trader who uses retracement levels to plan entries, define invalidation, and wait for confirmation is thinking in structure rather than guessing at random prices — and that discipline is worth more than any single level.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'adding-second-primebot-two-bots-one-account',
+    title: 'Adding a Second PrimeBot: What to Check Before Running Two Bots on One Account',
+    excerpt:
+      'One PrimeBot running well often leads to the same question: can I add another? The license, setup and risk checks to work through first, so a second bot helps your trading instead of complicating it.',
+    category: 'Guides',
+    date: '2026-11-02',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'When a first PrimeBot is running smoothly, many traders start thinking about a second one: a different strategy for a different market condition, a second account to separate testing from live trading, or simply more coverage across the week. Adding a second bot is straightforward, but it is not just a copy of the first setup. Two bots on one account or one platform interact with each other, with your margin, and with your attention. A short checklist before you add the second one prevents most of the problems that follow a rushed second installation.' },
+      { type: 'h2', text: 'Start with why you want a second bot' },
+      { type: 'list', items: [
+        'A different market condition: one bot may suit trending markets while another is built for calmer, ranging conditions.',
+        'Separation: keeping a tested live setup apart from a new bot you are still evaluating, so results stay easy to read.',
+        'Coverage: spreading activity across sessions or symbols rather than relying on a single strategy all week.',
+        'A reason to pause: if the honest answer is that the first bot had a losing week and a second bot feels like a quick fix, fix the plan first — adding risk rarely repairs a losing week.',
+      ] },
+      { type: 'h2', text: 'The checks to complete first' },
+      { type: 'list', items: [
+        'License check: confirm what your license covers before attaching a second bot, including whether it covers a second account. If anything is unclear, ask support before you install, not after.',
+        'One instance, one chart: each bot belongs on its own chart and symbol, with its own settings. Never attach the same live instance twice, and never run the same live setup on two machines at once, or trades can double up.',
+        'Margin and risk together: two bots share one account balance and one margin pool. Work out the combined position size and drawdown before going live, not after both bots are already trading.',
+        'Settings reviewed separately: a second bot is not a clone of the first. Read its inputs on their own terms, and leave anything you do not understand at its default until you have asked support.',
+        'Demo first, again: run the second bot on demo alongside your live setup for enough days to see how the two behave together, including around a news release.',
+      ] },
+      { type: 'h2', text: 'Reading results when two bots trade together' },
+      { type: 'p', text: 'With two bots running, the account statement stops telling a simple story. A good week for one bot can hide a bad week for the other, and a single losing day can be hard to attribute. Keep the two bots easy to tell apart: note which bot opened each trade, check their results separately at the end of each week, and resist judging either one on a single day. If one bot consistently drags the combined result down, that is a decision to make calmly — pause it, review it on demo, or remove it — not a reason to add a third bot on top.' },
+      { type: 'p', text: 'Add a second PrimeBot only when the first setup is stable, understood, and documented: you know its settings, you know its typical drawdown, and you know how to pause it. Then add the second one slowly, on demo first, with combined risk planned in advance. PrimeBot cannot promise profits — no bot can, and trading always carries risk — but two bots added carefully, each on its own chart with its own plan, give you a trading setup you can actually manage, and that is worth far more than a second bot added in a hurry.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
