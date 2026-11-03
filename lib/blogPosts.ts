@@ -1051,6 +1051,68 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Add a second PrimeBot only when the first setup is stable, understood, and documented: you know its settings, you know its typical drawdown, and you know how to pause it. Then add the second one slowly, on demo first, with combined risk planned in advance. PrimeBot cannot promise profits — no bot can, and trading always carries risk — but two bots added carefully, each on its own chart with its own plan, give you a trading setup you can actually manage, and that is worth far more than a second bot added in a hurry.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'leverage-explained-gold-trading',
+    title: 'Leverage Explained: How It Amplifies Both Gains and Losses on Gold',
+    excerpt:
+      'Leverage lets a small deposit control a much larger gold position — which is exactly why it deserves a careful look before you use it. What leverage really means, how margin works, and why the same setting can speed up both wins and losses.',
+    category: 'Trading Basics',
+    date: '2026-11-03',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every beginner meets leverage early, usually as a number like 1:100 or 1:500 on the account-opening page. It sounds like free buying power: deposit $100 and trade as if you had $10,000 or $50,000. That is technically what leverage does — but the number alone tells you nothing about risk. Understanding leverage means understanding margin, and margin is where most beginners get hurt.' },
+      { type: 'h2', text: 'What leverage actually is' },
+      { type: 'p', text: 'Leverage is borrowed capacity from your broker. With 1:100 leverage, a $100 deposit can open a position worth $10,000. With 1:500, the same deposit controls $50,000. You do not borrow money in the usual sense — the broker sets aside a small part of your deposit, called margin, as a security deposit for the position, and returns it when the trade closes. The rest of your balance is untouched by that trade, but it is still exposed: losses on the leveraged position come out of your real balance, dollar for dollar.' },
+      { type: 'h2', text: 'A gold example, in plain numbers' },
+      { type: 'list', items: [
+        'One standard lot of gold (100 ounces) at $4,000 an ounce is a $400,000 position. With 1:100 leverage, the margin needed is $4,000.',
+        'A 0.01 lot is one hundredth of that: a $4,000 position, needing $40 of margin at 1:100 — and $8 at 1:500.',
+        'If gold moves $1 against a 0.01 lot, you lose about $1. If it moves $10, you lose about $10 — regardless of the leverage setting. Leverage changes how much margin is locked up, not how much a price move is worth.',
+        'The danger is what leverage invites: with tiny margin requirements, it is easy to open ten or twenty times the position your balance can sensibly support, and then a normal $10 move becomes a $100 or $200 loss.',
+      ] },
+      { type: 'h2', text: 'Margin, margin call, and stop-out' },
+      { type: 'p', text: 'Margin level is your equity divided by the margin in use, shown as a percentage. As losses grow, equity falls and the margin level drops. Near 100%, many brokers issue a margin call warning. At the stop-out level — often 20–50% depending on the broker — the broker starts closing your losing trades automatically, whether you agree or not. This is not a punishment; it is the broker protecting itself from your account going negative. The practical lesson is simple: keep your margin level comfortably high by keeping positions small relative to your balance, and never treat a margin call as a signal to deposit more and hold on.' },
+      { type: 'h2', text: 'How experienced traders think about leverage' },
+      { type: 'list', items: [
+        'They size the trade first, then check the leverage: the question is "how much am I risking on this idea?", not "how big a position can I open?".',
+        'They keep total risk small: most risk guides suggest no more than 1–2% of the balance on one idea, which keeps margin levels high even during losing streaks.',
+        'They treat high leverage as a tool for margin efficiency, not for bigger bets — the same 0.01 lot behaves identically at 1:100 and 1:500, except that the higher setting locks up less margin.',
+        'They avoid stacking positions: several open trades on the same symbol multiply the same risk, even if each one looked small on its own.',
+      ] },
+      { type: 'p', text: 'Leverage is neither good nor bad — it is a multiplier on whatever you already do. A careful trader with small positions uses it safely for years. A trader chasing a quick recovery uses it to turn a normal losing week into an empty account. Before you choose a leverage setting, decide your position size rules first, practise them on demo or a cent account, and let leverage serve the plan instead of replacing it. Trading always carries risk, and no leverage setting changes that.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'run-primebot-from-phone',
+    title: 'Can You Run a PrimeBot from Your Phone? What Mobile Traders Need to Know',
+    excerpt:
+      'Many traders check their accounts on a phone, so it is natural to ask whether a PrimeBot can run from one too. The honest answer: MT5 mobile apps cannot run Expert Advisors — here is how phone-based traders actually run a bot, and what still needs a computer or VPS.',
+    category: 'Guides',
+    date: '2026-11-03',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Almost every PrimeBot buyer asks some version of the same question: can I run it from my phone? Phones are where most people check prices, read news and manage their accounts, so it feels natural to expect the bot to live there too. The honest answer has two parts. No — an Expert Advisor cannot run inside the MT5 mobile app. But yes — a phone can still be the way you monitor and control a bot that runs elsewhere. Understanding the split saves buyers from a common disappointment: installing MT5 on a phone and wondering why the bot never trades.' },
+      { type: 'h2', text: 'Why the mobile app cannot run a bot' },
+      { type: 'list', items: [
+        'Expert Advisors are programs that run inside the desktop version of MetaTrader 5. The mobile app is built for manual trading — placing orders, watching charts and checking positions — and it has no way to load or execute an EA.',
+        'A bot also needs to be online around the clock to watch for its trading conditions. A phone sleeps, loses signal and runs out of battery, which would stop the bot mid-strategy.',
+        'Attaching an EA to a chart, adjusting its inputs and testing it are all desktop-only actions in MT5, on Windows or Mac.',
+      ] },
+      { type: 'h2', text: 'How phone-based traders actually run a PrimeBot' },
+      { type: 'p', text: 'The usual setup has two parts. The bot itself runs on a Windows computer or a VPS — a small rented virtual server that stays online 24 hours a day — with desktop MT5 open and the bot attached to its chart. The phone then becomes the monitoring screen: the MT5 mobile app, logged into the same account, shows every trade the bot opens and closes in real time, and lets you watch the balance, equity and open positions from anywhere. You can also close a trade manually from the phone if you ever need to, but the bot keeps working on the computer or VPS regardless of what the phone does.' },
+      { type: 'h2', text: 'What you still need a computer for' },
+      { type: 'list', items: [
+        'Installing the bot and attaching it to a chart for the first time.',
+        'Changing settings or updating to a new version.',
+        'Backtesting a setup before going live.',
+        'Fixing problems, such as a disconnected terminal or an expired VPS — although support can often guide you through these over chat while you sit at any computer.',
+      ] },
+      { type: 'h2', text: 'A practical setup for phone-first traders' },
+      { type: 'p', text: 'If you do not have a computer running all day, a VPS is the standard answer, and it is the setup most PrimeBot buyers choose: the bot runs on the VPS, you monitor it from the MT5 mobile app, and you only need a computer for the occasional settings change or update. Before buying, check three things: that your license covers the account you plan to use, that your broker allows EAs on your account type, and that you are comfortable with the small monthly VPS cost as part of running a bot. With those in place, a phone is a perfectly good control room — it just cannot be the engine room, and any seller who promises a bot that runs inside a phone app is describing something that MT5 does not offer. PrimeBot cannot promise profits, and trading always carries risk, but a correctly placed bot — running on a computer or VPS and watched from your phone — is a setup you can rely on day after day.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
