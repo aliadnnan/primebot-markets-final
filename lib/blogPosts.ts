@@ -1113,6 +1113,61 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'If you do not have a computer running all day, a VPS is the standard answer, and it is the setup most PrimeBot buyers choose: the bot runs on the VPS, you monitor it from the MT5 mobile app, and you only need a computer for the occasional settings change or update. Before buying, check three things: that your license covers the account you plan to use, that your broker allows EAs on your account type, and that you are comfortable with the small monthly VPS cost as part of running a bot. With those in place, a phone is a perfectly good control room — it just cannot be the engine room, and any seller who promises a bot that runs inside a phone app is describing something that MT5 does not offer. PrimeBot cannot promise profits, and trading always carries risk, but a correctly placed bot — running on a computer or VPS and watched from your phone — is a setup you can rely on day after day.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'bollinger-bands-explained-gold-volatility',
+    title: 'Bollinger Bands Explained: How Traders Read Volatility Around Gold',
+    excerpt:
+      'Three lines that expand and contract with the market — what Bollinger Bands show about gold volatility, and what they cannot tell you on their own.',
+    category: 'Indicators',
+    date: '2026-11-04',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Open a gold chart, add Bollinger Bands, and you will see price travelling inside a moving channel that widens when the market gets wild and narrows when it calms down. That channel is the whole point of the indicator. Unlike a fixed support or resistance line, Bollinger Bands adapt to volatility, so they describe the current character of the market rather than predicting where price must go next. For a beginner, that makes them a useful second lens on a chart — as long as you understand what each line is actually measuring.' },
+      { type: 'h2', text: 'What the three lines are' },
+      { type: 'list', items: [
+        'The middle line is a simple moving average, usually over 20 periods. It is the centre of the channel and a rough guide to the recent trend direction.',
+        'The upper and lower bands sit a set distance above and below that average, normally two standard deviations. Standard deviation is just a measure of how spread out recent prices have been.',
+        'When recent price swings are large, the bands widen. When price has been quiet, they narrow. The width of the channel is therefore a volatility reading, not a buy or sell signal by itself.',
+      ] },
+      { type: 'h2', text: 'How traders read the bands in practice' },
+      { type: 'p', text: 'The most common beginner mistake is treating a touch of the upper band as an automatic sell and a touch of the lower band as an automatic buy. In a strong trend, price can ride along a band for a long time — traders call this walking the band — and every counter-trend trade taken on that touch loses. A more careful reading asks about context first: is price trending or ranging, where is it relative to the middle line, and is the band expanding or contracting? A touch that happens while the bands are widening in a strong trend means something very different from a touch inside a narrow, sideways channel.' },
+      { type: 'h2', text: 'Beginner mistakes to avoid' },
+      { type: 'list', items: [
+        'Using the bands alone: pair them with trend, support and resistance, or another confirmation instead of trading every touch.',
+        'Ignoring the timeframe: bands on a 5-minute chart describe minutes of volatility, not the daily trend, and the two often disagree.',
+        'Forgetting news: a major economic release can blow price through a band in seconds, and no indicator setting prevents that.',
+        'Chasing the width: widening bands confirm that a move is already happening; they do not guarantee it will continue.',
+      ] },
+      { type: 'p', text: 'Used well, Bollinger Bands answer one honest question: is gold moving violently right now, or is it quiet? That question matters for position sizing and for deciding whether conditions suit your strategy at all. Practise reading the bands on a demo account, compare them across timeframes, and judge them by how they help your decisions over many trades — not by any single touch. Like every indicator, they describe the market; they do not remove its risk, and no setting turns them into a promise of profit.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'choosing-broker-for-primebot-checklist',
+    title: 'Choosing a Broker for Your PrimeBot: What to Check Before You Attach a Bot',
+    excerpt:
+      'A trading bot is only as good as the account it runs on. The broker checklist to work through before you buy or attach a PrimeBot — spreads, execution, account type and demo testing.',
+    category: 'Buying Guide',
+    date: '2026-11-04',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Buyers usually spend weeks comparing bots and minutes choosing a broker, but the broker decision shapes everything the bot can do. Spreads, execution speed, account type and server stability all sit between a strategy and its results. A bot cannot fix a poor broker setup, and a good setup cannot make a bad strategy profitable — but checking a short list before you attach a PrimeBot removes the most common avoidable disappointments.' },
+      { type: 'h2', text: 'The checklist, in order' },
+      { type: 'list', items: [
+        'MetaTrader 5 support: PrimeBot runs as an Expert Advisor on desktop MT5, so the broker must offer a real MT5 account, not only a mobile app or a web terminal.',
+        'EAs allowed: confirm that your account type permits automated trading. Some account types restrict Expert Advisors, and discovering that after purchase wastes time.',
+        'Gold trading conditions: check the spread and commission on XAUUSD, including how wide the spread gets around major news releases, since gold spreads can widen sharply at those moments.',
+        'Execution and server stability: look for a broker with a record of stable servers and fast execution, and test it yourself on demo rather than trusting marketing claims.',
+        'Swap and account currency: understand overnight swap charges on gold and whether your account currency matches how you plan to fund and withdraw.',
+        'License match: a PrimeBot license is locked to an account number, so decide which account the bot will run on before ordering, and double-check the number you submit.',
+      ] },
+      { type: 'h2', text: 'Questions worth asking before you buy' },
+      { type: 'p', text: 'Ask the broker directly whether EAs are allowed on your chosen account type, what the typical and maximum gold spread is, and whether there are any restrictions on automated trading during news. Ask PrimeBot support the same way: whether your planned setup — account type, VPS or home computer, and broker — is a combination other buyers already run successfully. Honest answers to boring questions prevent most setup problems. It also helps to know what a broker-side problem looks like, since some problems feel like bot problems when they are not: trades that open late during news, spreads so wide at the open that entries look wrong, or a terminal that disconnects while a VPS keeps running. Before blaming the bot, compare what happened with the broker trade history, the spread at that time, and the terminal journal — only the broker can fix its own spreads, execution or downtime, which is exactly why the choice matters before you go live.' },
+      { type: 'h2', text: 'Test on demo, then go live slowly' },
+      { type: 'p', text: 'The safest path is unglamorous: open a demo account with the broker you intend to use, attach the bot there, and watch it through different market conditions, including a news week. Check that trades open and close as expected, that the account type allows everything the bot needs, and that you are comfortable reading the trade history. Only then move to a live account, with position sizes you have already tested. PrimeBot cannot promise profits, and trading always carries risk — but a broker you have actually tested is one fewer unknown in a business that already has plenty.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
