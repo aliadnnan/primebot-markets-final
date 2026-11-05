@@ -1168,6 +1168,66 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'The safest path is unglamorous: open a demo account with the broker you intend to use, attach the bot there, and watch it through different market conditions, including a news week. Check that trades open and close as expected, that the account type allows everything the bot needs, and that you are comfortable reading the trade history. Only then move to a live account, with position sizes you have already tested. PrimeBot cannot promise profits, and trading always carries risk — but a broker you have actually tested is one fewer unknown in a business that already has plenty.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'atr-explained-average-true-range',
+    title: 'ATR Explained: How Traders Use Average True Range to Size Stops and Read Volatility',
+    excerpt:
+      'One number that tells you how violently gold is moving right now — what Average True Range measures, how traders turn it into sensible stop distances, and what it can never tell you.',
+    category: 'Indicators',
+    date: '2026-11-05',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every trader has felt the same frustration: a stop loss set a careful distance from entry, taken out by a normal swing, while the trade then goes on to move in the expected direction. Often the problem is not the idea but the distance. Average True Range, or ATR, exists to answer the question behind that frustration: how much does this market normally move? It does not predict direction and it never promises profit, but it gives stop placement a measurement instead of a guess.' },
+      { type: 'h2', text: 'What ATR actually measures' },
+      { type: 'list', items: [
+        'True range is the largest of three measurements for a period: the high minus the low, the high minus the previous close, or the previous close minus the low. Including the previous close is what lets it capture overnight gaps.',
+        'ATR smooths true range over a chosen number of periods, usually 14. The result is a single number in price units — for gold, in dollars per ounce.',
+        'A high ATR means the market is swinging widely; a low ATR means it is quiet. If gold shows an ATR of $18 on the daily chart, daily swings of that size are currently normal, not exceptional.',
+        'ATR is timeframe-dependent. The ATR on a 15-minute chart describes minutes of movement, while the daily ATR describes whole days. Never mix the two when sizing a stop.',
+      ] },
+      { type: 'h2', text: 'How traders turn ATR into a stop distance' },
+      { type: 'p', text: 'The common method is to set the stop as a multiple of ATR — often 1.5 to 2 times the current value — rather than a fixed dollar amount. If daily ATR is $12, a 2x stop sits $24 from entry; if volatility doubles and ATR rises to $24, the same method gives a $48 stop. The logic is simple: in a wilder market, a trade needs more room to survive normal noise, and in a quiet market it needs less. That also changes position size, because a wider stop with the same risk budget means a smaller lot. ATR therefore connects two decisions beginners usually treat separately: where the stop goes, and how much to trade. Used this way, it protects the trader from the most avoidable loss — being stopped out by ordinary movement while the bigger idea was right.' },
+      { type: 'h2', text: 'A practical ATR checklist' },
+      { type: 'list', items: [
+        'Check ATR on the timeframe you actually trade, not on a chart you happen to have open.',
+        'Recheck it weekly: volatility regimes change, and a stop distance that was sensible last month may be far too tight or loose now.',
+        'Around major news, expect ATR to understate the immediate risk — spreads widen and price can jump past a stop, so size for the worst case, not the average.',
+        'Test any ATR multiple on demo first, across trending and ranging weeks, before trusting it with real money.',
+      ] },
+      { type: 'p', text: 'ATR will not make a losing strategy profitable, and no multiple of it removes the risk of trading. What it does is replace a hopeful guess with a measured one: this market currently moves this much, so this trade gets this much room. For beginners, that single habit — sizing stops to the market in front of you rather than to a round number — removes one of the most common reasons good ideas end in unnecessary losses.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-weekend-market-close-gaps',
+    title: 'What Happens to Your PrimeBot Over the Weekend: Market Close, Gaps and Monday Opens',
+    excerpt:
+      'The market closes on Friday and reopens on Monday — what your bot does in between, why Monday prices can jump, and the short checklist to run before the new week starts.',
+    category: 'Guides',
+    date: '2026-11-05',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'New bot owners often worry about the weekend: is the bot still running, will it trade while the market is closed, and what happens to open trades? The short answer is reassuring. When the market closes on Friday, trading stops for everyone, bots included. Nothing opens or closes until prices flow again on Monday. But the weekend is not entirely uneventful, and knowing what to expect on Monday morning prevents the most common Monday panic.' },
+      { type: 'h2', text: 'What happens while the market is closed' },
+      { type: 'list', items: [
+        'No new trades open and no open trades close, because there are no prices coming in. An Expert Advisor can only act on live ticks.',
+        'Open positions simply carry over the weekend at their Friday closing prices, with their stop losses and take profits still attached.',
+        'A VPS keeps your terminal and the bot running, but running does not mean trading — with no market feed, the bot waits, exactly as it should.',
+        'Pending orders also wait. They are not cancelled by the weekend; they trigger only if price reaches them once trading resumes.',
+      ] },
+      { type: 'h2', text: 'Why Monday opens can gap' },
+      { type: 'p', text: 'Over the weekend, news still happens: economic data, political events and central-bank comments can change how traders value gold before the market reopens. When trading resumes, the first price can therefore be some distance from Friday’s close — traders call this a gap. A gap can skip over a stop loss, so the exit may fill at the first available price rather than the exact stop level, and spreads are often wider than usual in the first minutes. This is normal market behaviour, not a bot malfunction, and it is one reason experienced traders avoid judging a bot by its first Monday minutes. If a bot uses a news filter, it may also pause around major scheduled releases early in the week, which is the same protection working as designed.' },
+      { type: 'h2', text: 'The Monday-morning checklist' },
+      { type: 'list', items: [
+        'Confirm the terminal is connected: the connection status should show live prices flowing, not a “no connection” message.',
+        'Confirm the bot is active on the chart, then leave it alone for the first minutes while spreads settle after the open.',
+        'Check the account history and the terminal journal for anything unusual over the weekend, rather than reacting to a single gap move.',
+        'Note any major news due that week on the economic calendar, so a pause in trading later in the week is expected, not alarming.',
+      ] },
+      { type: 'p', text: 'In practice, the weekend needs no action from you at all: no shutting the bot down, no closing trades early, and no Monday-morning adjustments. The one habit worth building is the checklist above — a calm two-minute check that the terminal, the bot and the account are all as they should be. PrimeBot cannot promise profits, and weekend gaps are part of the risk of holding trades over a close, but understanding the weekend removes the fear of it, and that is what lets a new owner leave the bot to do its job.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
