@@ -1228,6 +1228,67 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'In practice, the weekend needs no action from you at all: no shutting the bot down, no closing trades early, and no Monday-morning adjustments. The one habit worth building is the checklist above — a calm two-minute check that the terminal, the bot and the account are all as they should be. PrimeBot cannot promise profits, and weekend gaps are part of the risk of holding trades over a close, but understanding the weekend removes the fear of it, and that is what lets a new owner leave the bot to do its job.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'breakout-trading-gold-explained',
+    title: 'Breakout Trading Explained: How Traders Spot and Trade Breakouts on Gold',
+    excerpt:
+      'Gold often moves in bursts after long quiet ranges. What a breakout actually is, how traders confirm one, and why so many breakouts fail — explained plainly, with the risk rules that matter.',
+    category: 'Gold Trading',
+    date: '2026-11-06',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Watch a gold chart for a few hours and you will see the same pattern again and again: price drifts sideways in a narrow range, then suddenly breaks out and runs $10, $20 or more in one direction. Traders call that sudden move a breakout — the moment price escapes a level that had been holding it back. Breakouts are popular because they are easy to see, but they are also one of the most misunderstood ideas in trading. Not every break above a level is a real breakout, and the difference between a real one and a fake one is usually what decides whether the trade makes or loses money.' },
+      { type: 'p', text: 'A breakout happens when price moves through a level that has stopped it at least twice before. The level can be a previous day high or low, the top or bottom of a sideways range, a round number such as $4,000, or the high of the London or New York session. The more times price tested the level and turned back, the more attention traders pay when it finally breaks through — because every trader watching that level now has to make a decision at the same time.' },
+      { type: 'list', items: [
+        'Range breakouts: price escapes a sideways box it has been stuck in for hours.',
+        'Session breakouts: price breaks the high or low of the London or New York session.',
+        'Round-number breakouts: price pushes through a big psychological level like $4,000.',
+        'News breakouts: a major release such as CPI or NFP sends price through a level in seconds.',
+      ] },
+      { type: 'h2', text: 'Why so many breakouts fail' },
+      { type: 'p', text: 'Gold is famous for false breakouts — price pokes above a level, triggers the buy orders waiting there, then falls straight back inside the range. This often happens around news releases, when spreads widen and price whipsaws in both directions, or during quiet hours when a small order can push price through a thin level. A common way traders try to filter these out is to wait for confirmation: a candle that closes beyond the level rather than just touching it, or price coming back to retest the broken level and holding above it before continuing. Neither method guarantees anything — a confirmed breakout can still reverse — but waiting for a close filters out many of the quickest fake-outs.' },
+      { type: 'h2', text: 'A simple breakout routine for beginners' },
+      { type: 'list', items: [
+        'Mark the level first: draw the range or the previous high and low before the session starts, not while price is already moving.',
+        'Decide the confirmation rule in advance — for example, a 15-minute candle closing beyond the level — and do not change it mid-trade.',
+        'Place the stop loss back inside the range, where the idea is proven wrong, not at an arbitrary distance.',
+        'Risk the same small amount on every breakout idea, no more than 1% of the account, because several breakouts in a row can fail.',
+        'Check the economic calendar: a breakout minutes before a major release is often just noise ahead of the real move.',
+      ] },
+      { type: 'p', text: 'Breakouts work best as one idea inside a plan, not as a strategy on their own. Mark the level, wait for your confirmation, size the trade so a failure costs almost nothing, and accept that many breakouts will fail — the edge, if there is one, comes from keeping the losses small and letting the real moves run. No pattern, including a breakout, can promise a profit, and gold can reverse without warning. Learn the pattern on demo or a small cent account first, and judge it over dozens of trades, never over a single lucky move.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-cent-vs-standard-account',
+    title: 'PrimeBot on a Cent Account vs a Standard Account: Which Setup Fits Your Budget',
+    excerpt:
+      'The same PrimeBot, the same settings logic — but very different money at risk. How cent and standard accounts differ, which one fits your budget, and what stays exactly the same either way.',
+    category: 'Guides',
+    date: '2026-11-06',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'One of the first questions new PrimeBot buyers ask is whether to run the bot on a cent account or a standard account. The honest answer is that both work — the bot itself does not care which account type it is attached to. What changes is the amount of money at risk on every trade, and that makes the choice mostly a question of budget and comfort, not of performance. Understanding the difference before you fund an account saves the most common beginner mistake: starting on a standard account with more money at risk than intended.' },
+      { type: 'h2', text: 'How cent and standard accounts differ' },
+      { type: 'list', items: [
+        'Money at risk: on a standard account, a 0.01 lot of gold moves roughly $1 per $1 of price movement. On a cent account, the same 0.01 lot moves about one cent per $1 — one hundredth of the risk.',
+        'Balance display: a $100 deposit shows as 10,000 cents on a cent account. The numbers look bigger, but the real money is the same $100.',
+        'Price feed: both account types usually run on the same broker prices and spreads, so the bot sees the same market either way.',
+        'Lot sizes: the bot uses the same lot logic on both. The difference is only what each lot is worth in real money.',
+      ] },
+      { type: 'h2', text: 'Which one fits your budget' },
+      { type: 'p', text: 'A cent account fits a small starting budget. With $50–$200 you can run the bot with realistic lot sizes and let it trade through normal ups and downs without a single losing run threatening the whole deposit. That breathing room is exactly why many buyers start there: they learn how the bot behaves, how drawdown feels, and how settings work, while the real money at stake stays small. A standard account fits a larger budget, where the same lot sizes represent a meaningful but still affordable risk — typically a deposit where risking 1% per idea leaves plenty of room for the strategy to work. The wrong setup in either direction is the same mistake: a standard account funded so thinly that one normal losing run ends the account, or a cent account treated as play money and ignored completely.' },
+      { type: 'h2', text: 'What stays exactly the same' },
+      { type: 'list', items: [
+        'The same EA file: you install the identical PrimeBot on MT5, whichever account type you choose.',
+        'The same license: your account-number license covers the trading account you registered, cent or standard.',
+        'The same settings logic: risk settings, news filter and session behaviour work identically on both.',
+        'The same VPS need: if you run the bot around the clock, a VPS keeps MT5 online on either account type.',
+      ] },
+      { type: 'p', text: 'Starting on a cent account does not lock you in. Many traders begin there, get comfortable with the bot over a few weeks, and later move to a standard account with a bigger deposit once they understand the drawdown and the pace of trading. If you switch accounts, remember that the license is tied to an account number, so check the license guide before moving — a new account number may need the license updated. And whichever account you choose, keep expectations honest: no account type changes the fact that trading carries risk, and no bot can promise profits. The right setup is simply the one where you can leave the bot running, sleep well, and judge it over weeks rather than over a single day.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
