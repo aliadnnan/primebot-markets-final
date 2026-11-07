@@ -1289,6 +1289,65 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Starting on a cent account does not lock you in. Many traders begin there, get comfortable with the bot over a few weeks, and later move to a standard account with a bigger deposit once they understand the drawdown and the pace of trading. If you switch accounts, remember that the license is tied to an account number, so check the license guide before moving — a new account number may need the license updated. And whichever account you choose, keep expectations honest: no account type changes the fact that trading carries risk, and no bot can promise profits. The right setup is simply the one where you can leave the bot running, sleep well, and judge it over weeks rather than over a single day.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'gold-us-dollar-correlation-explained',
+    title: 'Gold and the US Dollar: Why They Usually Move in Opposite Directions',
+    excerpt:
+      'When the dollar rises, gold often falls — and the other way around. The reason is simpler than most traders think, and the exceptions are just as important as the rule.',
+    category: 'Gold Trading',
+    date: '2026-11-07',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Watch gold and the US dollar index side by side for a week and a pattern jumps out: when the dollar strengthens, gold usually weakens, and when the dollar slides, gold often climbs. It is one of the most repeated relationships in trading — and one of the most misunderstood. The link is real, but it is a tendency, not a law, and knowing why it exists is the difference between using it and being fooled by it. The first reason is simple: gold is traded worldwide in US dollars, so the dollar is the measuring stick for gold itself. When the dollar rises, gold becomes more expensive for buyers holding euros, rupees or yen, and demand softens; when the dollar falls, the same gold becomes cheaper for those buyers, and demand rises.' },
+      { type: 'h2', text: 'Three forces that push them apart' },
+      { type: 'list', items: [
+        'Interest rates: when US rates rise, the dollar usually strengthens because investors chase higher yields — and gold, which pays no interest, becomes less attractive by comparison.',
+        'Safe-haven flows: in a crisis, money often runs to both the dollar and gold at once, which is when the usual inverse link breaks down.',
+        'Inflation expectations: when traders expect inflation to rise, gold often climbs as a store of value, while the dollar can weaken if markets expect the Federal Reserve to keep rates low.',
+      ] },
+      { type: 'h2', text: 'When the rule breaks — and why beginners get hurt' },
+      { type: 'p', text: 'The correlation is strongest in calm markets and weakest exactly when it matters most. During wars, banking stress or a stock-market crash, both gold and the dollar can rise together as traders buy safety in every form. A trader who shorts gold simply because the dollar is rising, without checking the news, can be caught by exactly that move. The same applies in reverse: a falling dollar does not guarantee rising gold if real interest rates are climbing at the same time.' },
+      { type: 'h2', text: 'How traders use the relationship sensibly' },
+      { type: 'list', items: [
+        'Use the dollar index (DXY) as context, not as a signal — a weak dollar supports a gold-buying idea, it does not create one.',
+        'Check the reason behind the dollar move: a rate-driven dollar rally hits gold harder than a risk-driven one.',
+        'Watch real interest rates, not just the dollar: gold cares most about what you earn after inflation, and the dollar is only part of that picture.',
+        'Never size a trade on correlation alone — a stop loss and a position-size rule still decide whether you survive being wrong.',
+      ] },
+      { type: 'p', text: 'The gold-dollar link is one of the most useful pieces of context a trader can carry — and one of the most dangerous to trade blindly. Treat it as background music for your analysis, not as the trade itself, and always let your risk rules have the final word.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-vs-manual-trading',
+    title: 'PrimeBot vs Manual Trading: What Automation Changes — and What It Does Not',
+    excerpt:
+      'A bot never sleeps, never panics and never hesitates. But it also never thinks. An honest comparison of automated and manual trading, so you can choose the right approach for you.',
+    category: 'Product Guide',
+    date: '2026-11-07',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every trader eventually asks the same question: should I trade by hand, or let a bot do it? The honest answer is that automation changes some things completely and leaves others exactly as they were. Understanding which is which is the first step to choosing well — and to avoiding disappointment either way.' },
+      { type: 'h2', text: 'What automation actually changes' },
+      { type: 'list', items: [
+        'Consistency: a bot applies the same rules to every trade, at 3 a.m. as reliably as at 3 p.m. It never gets tired, bored or distracted.',
+        'Emotion: a bot cannot revenge-trade after a loss, double its size out of frustration, or move a stop loss because closing at a loss hurts.',
+        'Coverage: it watches the market around the clock and never misses its setup — including the London–New York overlap hours when you are asleep or at work.',
+        'Speed: entries, basket management and exits happen the moment the rules are met, with no hesitation and no second-guessing.',
+      ] },
+      { type: 'h2', text: 'What automation does not change' },
+      { type: 'p', text: 'A bot does not remove risk, and it does not turn a losing strategy into a winning one. The strategy inside the bot is still a human idea, tested on past data, and markets change. Drawdowns still happen — a bot in a losing run can lose money faster than a manual trader simply because it keeps trading while a human would have stopped. And a bot cannot judge context the way a person can: an unusual news event, a holiday-thin market, or a broker outage still needs a human to notice and act.' },
+      { type: 'h2', text: 'Who should choose which' },
+      { type: 'list', items: [
+        'Choose automation if your struggle is discipline — you have a plan but keep breaking it, or you cannot watch the market during the hours your strategy needs.',
+        'Choose manual trading if you enjoy reading the market, trade a small number of well-chosen setups, and want full control over every decision.',
+        'Many experienced traders use both: a bot running a tested system on one account, and manual trades on another, so neither approach carries the whole account.',
+      ] },
+      { type: 'p', text: 'If you go the automation route, start the right way: read the strategy logic in plain words before you buy, test the bot on a demo or cent account for several weeks, and learn its settings — especially the drawdown stop and the news filter — before it ever touches real money. That preparation is what separates automation that helps from automation that hurts. If you would like help deciding which PrimeBot tier fits your account size and experience, our WhatsApp support will point you to the right one — even if it is the cheapest.' },
+    ],
+  },
+
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
