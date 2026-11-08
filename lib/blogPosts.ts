@@ -1348,6 +1348,69 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
   },
 
+  {
+    blog: 'trading',
+    slug: 'economic-calendar-cpi-nfp-fomc-gold-traders',
+    title: 'How to Read an Economic Calendar: CPI, NFP and FOMC for Gold Traders',
+    excerpt:
+      'Most gold traders lose money on the same three days every month. Learn to read an economic calendar in two minutes, spot the releases that move XAUUSD, and plan your trades around them.',
+    category: 'Trading Basics',
+    date: '2026-11-08',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Gold can sit quietly for hours, then jump $30 in sixty seconds — and almost always, the reason was printed on the economic calendar days in advance. The calendar lists every major economic release, its time, and how important traders expect it to be. Reading it takes two minutes a morning, and it is the cheapest insurance a gold trader can buy.' },
+      { type: 'h2', text: 'What an economic calendar actually shows' },
+      { type: 'list', items: [
+        'The event: for example US CPI inflation, Non-Farm Payrolls, or a Federal Reserve rate decision.',
+        'The time: shown in your own timezone — set it to Pakistan time once, and check it every morning.',
+        'The forecast and the previous value: what analysts expect, and what the number was last time.',
+        'The impact level: usually marked low, medium or high. Only the high-impact events move gold hard — the rest is noise you can mostly ignore.',
+      ] },
+      { type: 'h2', text: 'The three releases that move gold the most' },
+      { type: 'list', items: [
+        'CPI (inflation): comes out monthly. Higher-than-expected inflation usually pushes gold up, because it raises expectations of rate cuts — but a big surprise in either direction can move the price $20–$40 in minutes.',
+        'NFP (US jobs report): released on the first Friday of most months. A much stronger or weaker jobs number than expected moves gold sharply, because it changes what traders think the Fed will do next.',
+        'FOMC (Fed rate decision and press conference): the rate decision itself is usually expected, but the words in the press conference afterwards are what move the market — one sentence can reverse the whole day.',
+      ] },
+      { type: 'h2', text: 'A simple routine for gold traders' },
+      { type: 'list', items: [
+        'Check the calendar before your first trade of the day, and mark any high-impact US releases in Pakistan time.',
+        'If a big release is due within the hour, do not open new trades — spreads widen sharply and prices can gap past your stop loss.',
+        'Wait 15–30 minutes after the release before trading again. The first move is often a fake-out that reverses; the cleaner move usually comes after.',
+        'If you run an EA, check that its news filter is switched on — it pauses new entries around these releases automatically, while existing trades keep managing normally.',
+      ] },
+      { type: 'p', text: 'The calendar tells you when the market will move, not which way it will go. A "good" jobs number can push gold up one month and down the next, depending on what traders already expected. Never trade a release on a guess about the direction — the calendar is a tool for avoiding the storm, not for predicting it. Mark the red-flag events, step aside for half an hour, and trade the market that exists after the news, not the one you hoped for before it.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-daily-target-hit-what-happens-next',
+    title: 'Your PrimeBot Hit Its Daily Target: What Happens Next (and What to Do)',
+    excerpt:
+      'The bot stopped trading for the day — and that is exactly what it is supposed to do. What the daily target is, what happens when it is hit, and the three things you should (and should not) do next.',
+    category: 'Product Guide',
+    date: '2026-11-08',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'You check your MT5 in the afternoon and the bot has gone quiet. No new trades, no errors — just silence. Before you worry that something is broken, check one thing: did it hit its daily target? If it did, the bot is doing exactly what you asked it to do.' },
+      { type: 'h2', text: 'What the daily target is' },
+      { type: 'p', text: 'The daily target is a profit level you set in the bot settings. When the bot\'s profit for the day reaches that level, it stops opening new trades until tomorrow. It is a simple idea with a serious purpose: the most dangerous trades of the day are usually the ones taken after a good day, when confidence runs high and discipline runs low. The target locks in the good day before it can be given back.' },
+      { type: 'h2', text: 'What happens when the target is hit' },
+      { type: 'list', items: [
+        'No new trades are opened — the bot waits quietly for the next trading day.',
+        'Existing open trades keep managing normally, with their own take-profits and stop-losses still working.',
+        'The next morning the counter resets, and the bot starts trading again with the same settings.',
+        'On a cent account, remember the target is entered in cents — a $20 daily goal is entered as 2000. A target entered in the wrong unit is the most common reason the target seems to trigger too early or never at all.',
+      ] },
+      { type: 'h2', text: 'What you should do next' },
+      { type: 'list', items: [
+        'Leave it alone. The hardest part of a daily target is not touching it. Do not restart the bot, change the target mid-day, or open manual trades to "keep going" — that defeats the whole point of the protection.',
+        'Review the day calmly: open the Experts and Journal tabs in MT5 and look at how the bot traded — the entries, the exits, and how it handled any drawdown along the way.',
+        'Consider withdrawing part of the profit regularly. Money in your bank account cannot be given back to the market tomorrow.',
+      ] },
+      { type: 'p', text: 'Do not raise the target just because it was hit early — a target that keeps moving is not a target, it is a wish. And do not lower it in frustration on a losing day, either. The daily target is set once, in a calm moment, in the setup guide for your bot — and it is changed only after a proper review, on a demo or cent account, never in the middle of a live session. If you are unsure what target fits your account size, message our WhatsApp support and we will help you choose one. A bot that stops when it has done its job is not a bot that stopped working. It is a bot with discipline built in — let it do its job, and come back tomorrow.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
