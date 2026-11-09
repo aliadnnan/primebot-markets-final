@@ -1411,6 +1411,67 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Do not raise the target just because it was hit early — a target that keeps moving is not a target, it is a wish. And do not lower it in frustration on a losing day, either. The daily target is set once, in a calm moment, in the setup guide for your bot — and it is changed only after a proper review, on a demo or cent account, never in the middle of a live session. If you are unsure what target fits your account size, message our WhatsApp support and we will help you choose one. A bot that stops when it has done its job is not a bot that stopped working. It is a bot with discipline built in — let it do its job, and come back tomorrow.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'trend-vs-range-market-explained',
+    title: 'Trend vs Range: How to Tell Which Market You Are In',
+    excerpt:
+      'Every trading strategy assumes the market is either trending or ranging — and when the assumption is wrong, the strategy loses. How to spot the staircase and the sideways box on a gold chart before you trade.',
+    category: 'Trading Basics',
+    date: '2026-11-09',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every trading strategy assumes something about the market: either that price will keep going in one direction, or that it will turn back. When the assumption matches the market, even a simple idea can work well. When it does not, the same idea loses trade after trade. That is why the first skill a gold trader needs is not an indicator or a bot setting — it is the ability to look at a chart and answer one question: is this market trending, or is it ranging?' },
+      { type: 'h2', text: 'What a trending market looks like' },
+      { type: 'list', items: [
+        'Higher highs and higher lows in an uptrend, or lower highs and lower lows in a downtrend — the staircase pattern is the clearest sign of a trend.',
+        'Price spends most of its time on one side of a moving average, for example above the 50-period average in an uptrend, and the average itself slopes in the direction of the trend.',
+        'Pullbacks are shallow and short: price dips, finds buyers, and pushes to a new high instead of falling back to where it started.',
+        'Trends on gold can last for weeks, especially when a big driver — a central bank decision, a shift in the dollar, or a risk-off rush — keeps pushing in the same direction.',
+      ] },
+      { type: 'h2', text: 'What a ranging market looks like' },
+      { type: 'list', items: [
+        'Price moves sideways between a clear ceiling and a clear floor, touching both several times without breaking through either.',
+        'Highs and lows stay roughly equal instead of climbing or falling in a staircase, and the chart looks flat when you zoom out.',
+        'Moving averages flatten out and price crosses them back and forth — a sign the average has no direction to follow.',
+        'Ranges often appear after a big move, when the market pauses to digest the news, or during quiet holiday weeks when fewer traders are active.',
+      ] },
+      { type: 'h2', text: 'Why the difference changes your whole plan' },
+      { type: 'p', text: 'Trend tools and range tools are opposites. A moving-average crossover or a breakout entry is built for trends: it buys strength and expects more of it. In a range, the same signal fires at the top of the range — exactly where price turns back down — and stops you out again and again. A range trader does the reverse: they buy near the floor and sell near the ceiling, expecting the turn. Used in a trend, that means selling into a market that keeps climbing. Before you take any trade, name the market type first, then choose the tool that belongs to it. An automated bot faces the same choice: check how your PrimeBot behaves in each condition on demo, and do not expect one set of settings to suit both a strong trend and a flat range.' },
+      { type: 'p', text: 'The honest truth is that the market spends more time ranging than trending, and many traders lose money by trading a range as if it were a trend. Learn to spot the staircase and the sideways box, wait for the market to show you which one it is in, and trade only the plan that fits. No indicator removes the risk — but trading with the market type instead of against it removes one of the most common reasons trades fail.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-change-broker-move-license',
+    title: 'Changing Broker or Account Number? How to Move Your PrimeBot License',
+    excerpt:
+      'Every PrimeBot license is locked to one MT5 account number — so a broker change needs a license move, not a file copy. The short process with support, and what to check before you switch.',
+    category: 'Product Guide',
+    date: '2026-11-09',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Sooner or later many traders change broker — a better spread, a faster server, or an account that fits their plan better. The question that follows is always the same: what happens to my PrimeBot? Because every PrimeBot license is locked to one MT5 account number, moving broker is not a matter of copying files. It is a short process with support, and knowing it in advance saves you a stuck bot on a new account.' },
+      { type: 'h2', text: 'Why the license is tied to your account number' },
+      { type: 'p', text: 'The license lock is a protection, not a restriction. When you buy a PrimeBot, the license is issued for your MT5 account number, and the bot checks that number every time it starts. If the number does not match, the bot will not trade. That is what stops one license from being passed around between traders — and it is also why a new account number, even on the same broker, needs a license update. Your settings, your charts and your trading history do not move with the license; only the permission to run the bot on the new number changes.' },
+      { type: 'h2', text: 'The steps to move your license' },
+      { type: 'list', items: [
+        'Open your new MT5 account first and confirm it is fully verified and showing the correct server and account number.',
+        'Message PrimeBot support on WhatsApp with your old account number, your new account number, and your order details so they can find your license.',
+        'Wait for confirmation that the license has been moved before you attach the bot — attaching it early will only show a license error.',
+        'Install the bot on the new account exactly as in the setup guide, and run it on demo or a cent account first to confirm it trades normally.',
+        'Keep the old account running until the new one is confirmed working, if you can — never leave a live account without a working bot mid-week.',
+      ] },
+      { type: 'h2', text: 'What to check before you switch' },
+      { type: 'list', items: [
+        'Spread and commission on XAUUSD: a broker with wider gold spreads can change how a bot trades, so compare before you move.',
+        'Server time and trading conditions: check that the new broker allows automated trading and that its swap and margin rules suit your bot.',
+        'Do not switch brokers in the middle of open trades. Close them or let the bot finish its basket first, then move a clean account.',
+        'Update the daily target and lot settings for the new account size — a license move is a good moment to review the numbers rather than copying them blindly.',
+      ] },
+      { type: 'p', text: 'A license move is a normal request and support handles it regularly — but it is not instant, so plan the switch for a weekend or a quiet market day rather than a Monday morning before the London open. Tell support early, confirm the move in writing, and test on demo before going live. The bot will run on the new account exactly as it did on the old one — same settings, same strategy — once the number matches. If anything looks wrong after the move, message support with a screenshot of the Experts tab; that is the fastest way to get a clear answer.' },
+    ],
+  },
 ];
 
 export function postsFor(blog: BlogKind): BlogPost[] {
