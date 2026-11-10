@@ -1472,8 +1472,63 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'A license move is a normal request and support handles it regularly — but it is not instant, so plan the switch for a weekend or a quiet market day rather than a Monday morning before the London open. Tell support early, confirm the move in writing, and test on demo before going live. The bot will run on the new account exactly as it did on the old one — same settings, same strategy — once the number matches. If anything looks wrong after the move, message support with a screenshot of the Experts tab; that is the fastest way to get a clear answer.' },
     ],
   },
-];
 
+  {
+    blog: 'trading',
+    slug: 'spread-commission-swap-hidden-costs-gold-trading',
+    title: 'Spread, Commission and Swap: The Hidden Costs of Every Gold Trade',
+    excerpt:
+      'Every gold trade has a cost before it can profit — the spread, the commission and the overnight swap. What each one is, how they add up on XAUUSD, and how beginners keep them under control.',
+    category: 'Trading Basics',
+    date: '2026-11-10',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every gold trade starts in the red. The moment your order fills, your account shows a small loss — and that loss is not the market moving against you. It is the cost of the trade itself. Three charges make up that cost: the spread, the commission and the swap. Beginners who ignore them wonder why a strategy that wins half its trades still loses money. This guide explains each one in plain language, using XAUUSD as the example.' },
+      { type: 'h2', text: 'The three costs, in plain language' },
+      { type: 'list', items: [
+        'The spread is the gap between the buy price and the sell price of gold. If the buy price is 3,900.50 and the sell price is 3,900.20, the spread is 30 cents — and every trade pays it the moment it opens. On a standard account, 0.01 lot of gold is worth roughly $1 per $1 move, so a 30-cent spread costs about 30 cents on that trade before the market moves at all. Spreads are tightest during the London and New York overlap and widest around major news releases and in the quiet Asian hours.',
+        'Commission is a separate fee some accounts charge per lot, on top of the spread. Others build everything into a wider spread. Neither is automatically better — what matters is the total. A raw-spread account with a $7 commission per lot can be cheaper than a zero-commission account with a spread twice as wide, or more expensive; it depends on the numbers, not the label. Add spread plus commission together for the same trade size and compare that total across brokers.',
+        'Swap is the interest charged (or sometimes paid) for holding a trade overnight, applied once a day, usually around midnight broker time. On gold, swap is normally a cost in both directions — you pay to hold, whether you are buying or selling. On Wednesdays, most brokers charge triple swap to cover the weekend. The exact amount depends on your broker and lot size, and it is shown in the symbol specification in MT5.',
+      ] },
+      { type: 'h2', text: 'How the three costs add up' },
+      { type: 'p', text: 'Take a 0.01 lot gold trade held for two nights: a 30-cent spread costs about $0.30, the commission (if any) adds a few cents more, and two nights of swap add a little extra. On one trade it is small change. But a scalper taking twenty trades a day pays that spread twenty times — and suddenly the cost is larger than the profit target of several of those trades. This is why high-frequency strategies need tight spreads to survive, while swing traders barely notice them: the same cost, spread over a hundred-dollar move, is almost invisible.' },
+      { type: 'h2', text: 'Five ways to keep costs down' },
+      { type: 'list', items: [
+        'Trade during the London–New York overlap, when spreads are tightest and fills are fairest.',
+        'Stay out of the minutes around major news releases, when spreads widen sharply.',
+        'Compare the total cost — spread plus commission — not the headline spread alone.',
+        'Know your swap before holding overnight, and be aware of the triple charge on Wednesdays.',
+        'Count the cost in your plan: a trade that needs a $2 move to profit after costs is a different trade from one that needs $0.50.',
+      ] },
+      { type: 'p', text: 'Costs do not make trading impossible — they make sloppy trading expensive. A trader who knows what each trade costs before opening it can choose better entries, better hours and better holding times. Check the spread on your own chart today, look up the swap for XAUUSD in MT5, and you will already understand your trading better than most beginners. Trading always carries risk, and no cost saving removes that risk — but keeping costs small is one of the few edges a trader controls completely.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'primebot-payment-methods-explained',
+    title: 'PrimeBot Payment Methods Explained: How to Pay and How Verification Works',
+    excerpt:
+      'Which payment methods you can use to buy a PrimeBot, what happens after you pay, and how the automatic slip verification works — the full picture before you order.',
+    category: 'Buying Guide',
+    date: '2026-11-10',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Buying a trading bot online raises one question before any other: how do I pay, and what happens after I pay? This guide answers both for PrimeBot Markets — the payment methods, the verification step and the delivery that follows — so you know the full journey before you place an order.' },
+      { type: 'h2', text: 'Which payment methods are accepted' },
+      { type: 'p', text: 'PrimeBot orders are paid through the payment methods shown at checkout on this site. The exact options are listed there, because they can change over time — what does not change is the process: you pay, you keep the payment slip, and you share that slip with your email, phone and WhatsApp number so the order can be verified and delivered. No payment is taken in chat and no one will ever ask you for your card details or banking password — the checkout page is the only place payment happens.' },
+      { type: 'h2', text: 'Why we ask for a payment slip — and how verification works' },
+      { type: 'list', items: [
+        'The slip proves the payment was made, with the name, transaction ID and amount visible. It links the payment to your order — your email and phone number on the order must match the details you share.',
+        'Our system reads those details and cross-checks them against your order. A full match is approved automatically and your order unlocks — no phone calls, no waiting days for a manual check.',
+        'If the slip is unclear or a detail does not match, you will simply be asked to upload a clearer one — no payment is ever lost in the process. Keep the slip until your order is delivered; it is the one document that resolves any question about the payment.',
+      ] },
+      { type: 'h2', text: 'Delivery after approval' },
+      { type: 'p', text: 'Once verification passes, the Download button unlocks on your order page and a copy of your EA is emailed to you. Your license is locked to the MT5 account number you gave at checkout, so double-check that number before you pay — a wrong account number means the bot will not trade on your account, and a re-issue takes a message to support. After delivery, follow the Urdu setup video for your bot, test on demo or a cent account first, and message our WhatsApp support if anything is unclear. A real person answers.' },
+      { type: 'p', text: 'Before you pay, check three things: you have watched the demo video on the bot’s product card and understand what it does — and what it does not do; you have the correct MT5 account number ready for the license lock; and you know the price tier — five bots, $200 to $1,000, lifetime license, no monthly fees. Payment is the easy part of buying a bot. The part that matters is what comes after: understanding the settings, testing on demo, and running the bot with realistic expectations. Trading carries risk and no bot can promise profit — but a clear, honest buying process is the first sign of a seller worth trusting. If you are unsure which tier fits your account, message us on WhatsApp with your account size and experience and we will point you to the right one — even if it is the cheapest.' },
+    ],
+  },
+];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
     b.date.localeCompare(a.date),
