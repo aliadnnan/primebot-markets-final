@@ -1528,6 +1528,66 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Before you pay, check three things: you have watched the demo video on the bot’s product card and understand what it does — and what it does not do; you have the correct MT5 account number ready for the license lock; and you know the price tier — five bots, $200 to $1,000, lifetime license, no monthly fees. Payment is the easy part of buying a bot. The part that matters is what comes after: understanding the settings, testing on demo, and running the bot with realistic expectations. Trading carries risk and no bot can promise profit — but a clear, honest buying process is the first sign of a seller worth trusting. If you are unsure which tier fits your account, message us on WhatsApp with your account size and experience and we will point you to the right one — even if it is the cheapest.' },
     ],
   },
+
+  {
+    blog: 'trading',
+    slug: 'position-sizing-lot-size-calculation-gold',
+    title: 'Position Sizing Explained: How to Calculate the Right Lot Size for Every Gold Trade',
+    excerpt:
+      'The lot size is the one number that decides how much a gold trade can win or lose. How to calculate it from your account size, your risk and your stop loss — in plain numbers, no guesswork.',
+    category: 'Risk Management',
+    date: '2026-11-11',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Ask ten losing traders what went wrong and most will blame the entry — the wrong direction, the wrong time, a bad signal. Ask a professional and you will get a different answer: the trade was too big. Position sizing — choosing the lot size for each trade — is the one decision that controls how much you can lose on a single idea, and it matters far more than picking the perfect entry. On a standard account, 0.01 lot of gold is worth roughly $1 for every $1 the price moves — so an ordinary $10 move is $10 on a 0.01 lot trade, $100 on a 0.10 lot trade, and $1,000 on a 1.00 lot trade. Same chart, same entry, same direction — wildly different outcomes. The entry decides whether the trade wins or loses; the lot size decides how much either outcome is worth.' },
+      { type: 'h2', text: 'The 1% rule: your starting point' },
+      { type: 'p', text: 'The most widely used rule is simple: risk no more than 1% of your account on any single trade. On a $1,000 account, that is $10. On a $500 cent account, it is $5 in cent terms. The percentage is the point — it keeps one loss small no matter the account size, and it means a run of ten losing trades in a row costs roughly 10% of the account, not the account itself. Beginners sometimes find 1% too small to feel exciting, which is exactly the point: position sizing is risk management, not entertainment.' },
+      { type: 'h2', text: 'The formula, in three steps' },
+      { type: 'list', items: [
+        'Step 1 — Decide your risk in money: 1% of your account balance. On a $1,000 account, that is $10.',
+        'Step 2 — Measure your stop loss in dollars: the distance from your entry to your stop. If you buy gold at 3,900 and place your stop at 3,890, the distance is $10.',
+        'Step 3 — Divide risk by distance: $10 of risk divided by a $10 stop gives 0.01 lot, because 0.01 lot is worth about $1 per $1 move. If the stop were only $5 away, the same $10 of risk allows 0.02 lot. A wider stop means a smaller lot; a tighter stop means a larger one — the money at risk stays the same.',
+      ] },
+      { type: 'h2', text: 'Three mistakes beginners make' },
+      { type: 'list', items: [
+        'Sizing by feeling: doubling the lot after a win, or after a loss to “win it back”, breaks the rule exactly when discipline matters most.',
+        'The same lot for every trade: a 0.10 lot trade with a $20 stop risks ten times more than the same lot with a $2 stop. The lot size means nothing without the stop distance.',
+        'Ignoring the account type: on a cent account, the numbers are one hundredth of a standard account — a 0.10 lot on a cent account behaves like 0.001 lot in dollar terms. Know which account you are on before you calculate.',
+      ] },
+      { type: 'p', text: 'Calculate the lot size before you open the trade, not after — write the account size, the risk, the stop distance and the lot on paper or in your journal, and check the maths once more before clicking buy or sell. A trade sized this way can still lose; no formula removes the risk of trading. What it removes is the surprise — you know the worst case before it happens, and no single loss can end your trading. That is the whole job of position sizing.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'primebot-stopped-trading-troubleshooting-checklist',
+    title: 'Your PrimeBot Stopped Trading? A Step-by-Step Troubleshooting Checklist',
+    excerpt:
+      'A quiet bot is usually a simple fix, not a broken bot. Work through this checklist — connection, AutoTrading, chart, news filter and daily target — before changing any setting.',
+    category: 'Guides',
+    date: '2026-11-11',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'You open MT5, look at the chart, and realise your PrimeBot has not opened a trade in hours — or days. The first instinct is to assume something is broken. In practice, a bot that stops trading usually has a simple, visible cause, and most of them are fixed in under a minute. This checklist walks through them in order, from the most common to the least, so you can find the answer before touching a single setting.' },
+      { type: 'h2', text: 'First, the five quick checks' },
+      { type: 'list', items: [
+        'Is MT5 connected? Look at the bottom-right corner: a green or blue connection bar with numbers means you are logged in. A red “No connection” means the bot cannot see the market at all — check your internet or VPS first.',
+        'Is AutoTrading on? The AutoTrading button in the MT5 toolbar must be pressed in. If it is off, no expert advisor can trade, and the bot will simply wait.',
+        'Is the bot still on the chart? The bot’s name should appear in the top-right corner of the chart with a small face icon. If the chart was closed, or a new chart was opened without the bot, nothing will trade.',
+        'Is it the weekend? The gold market closes on Friday evening and reopens on Monday. A bot that is quiet from Friday night to Monday morning is behaving normally.',
+        'Is your VPS or computer running? A bot on a VPS only trades while the VPS is on. After a restart, MT5 must be opened again — it does not start trading by itself.',
+      ] },
+      { type: 'h2', text: 'If the basics are fine, check these three' },
+      { type: 'list', items: [
+        'The news filter: PrimeBots pause trading around major news releases such as CPI, NFP and FOMC. A quiet bot on a news day is the filter doing its job — check the economic calendar and wait for the pause to pass.',
+        'The daily target: if the bot already reached its daily target, it stops for the day by design. The next trading day it starts again automatically — this is protection, not a fault.',
+        'Spread and market conditions: if spreads are unusually wide or the market is moving in a tight range, the bot may simply have no valid setup. No trade is often the correct decision, not a missed one.',
+      ] },
+      { type: 'h2', text: 'What to send support if it is still quiet' },
+      { type: 'p', text: 'If every check passes and the bot still has not traded for a full trading day, message support with three things: a screenshot of the Experts tab in MT5 (it shows what the bot is actually doing), a screenshot of the Journal tab, and your MT5 account number plus the bot version. That is usually enough for support to name the cause in one reply — guessing without the logs wastes a day of back-and-forth.' },
+      { type: 'p', text: 'Two things not to do while troubleshooting: do not change lot sizes, targets or the multiplier in the middle of an open basket — settings changes mid-trade are the fastest way to turn a small problem into a real one — and do not reinstall the bot or attach a second copy to the same chart, which can open duplicate trades. Work the list top to bottom, change one thing at a time, and give the bot one full trading session after each fix. A quiet bot is usually telling you something: the market is closed, the news filter is working, or the target is already hit. Listen first, fix second — and if you are ever unsure, message support before you change anything. Trading carries risk, and no troubleshooting step changes that — but a calm, methodical check keeps a small hiccup from becoming a costly mistake.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
