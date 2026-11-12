@@ -174,6 +174,40 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'No pattern predicts the next move with certainty — markets can and do invalidate textbook setups every day. Treat candle reading as a language for describing what already happened, combine it with risk rules (a stop loss on every trade), and practise reading live candles on a demo or cent account for a few weeks before trusting any pattern with real money.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'margin-call-stop-out-explained',
+    title: 'Margin Call and Stop-Out Explained: How Traders Lose Accounts — and How to Avoid It',
+    excerpt:
+      'A margin call is not a fine or a fee — it is your broker warning you that your account can no longer support your open trades. Here is how margin, margin calls and stop-outs actually work on gold.',
+    category: 'Risk Management',
+    date: '2026-11-12',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Every trader who has blown an account remembers the moment the broker started closing their trades one by one. That moment has a name — a stop-out — and it is almost always preceded by a warning called a margin call. Neither is a punishment and neither is random. Both follow simple arithmetic that every trader can learn in ten minutes, and understanding them is one of the cheapest lessons in trading.' },
+      { type: 'h2', text: 'What margin actually is' },
+      { type: 'p', text: 'When you open a leveraged trade, your broker does not lend you the full value of the position for free. It sets aside part of your balance as a deposit, called margin, to cover the trade while it is open. That margin is not a cost — it is returned to you when the trade closes. What matters is how much of your balance stays free. Free margin is your balance minus the margin locked up in open trades, and it is the cushion that absorbs losses. When losses eat into that cushion, the broker starts to worry, because the remaining money may no longer cover the trades you hold.' },
+      { type: 'h2', text: 'Margin call: the warning' },
+      { type: 'p', text: 'A margin call happens when your account equity — balance plus or minus the profit and loss of open trades — falls close to the margin your open trades require. Most brokers express this as a margin level, which is equity divided by used margin, times one hundred. When that number drops to the broker’s margin-call level, often 100%, the broker warns you: deposit more money, or close some trades to free up margin. A margin call does not close anything by itself. It is the last clear chance to act before the broker acts for you.' },
+      { type: 'h2', text: 'Stop-out: when the broker closes your trades' },
+      { type: 'list', items: [
+        'If losses keep growing, the margin level falls further until it reaches the broker’s stop-out level, often 50% or 20% depending on the broker.',
+        'At that point the broker automatically closes your most losing trade, then the next, until the margin level is back above the stop-out line.',
+        'You do not get to choose which trades close, and they close at whatever price the market offers in that moment — often during fast, volatile moves.',
+        'A stop-out can leave an account with very little equity, even though the balance technically stays above zero on most brokers with negative-balance protection.',
+      ] },
+      { type: 'h2', text: 'A simple example with numbers' },
+      { type: 'p', text: 'Imagine a $1,000 account that opens a 0.10 lot gold trade with a broker offering 1:100 leverage. The margin required is roughly $265 at a gold price near $2,650, leaving about $735 of free margin. Gold moves about $1 per 0.01 lot for every $1 of price movement, so a 0.10 lot loses about $10 for every $1 gold falls. If gold drops $30 against the trade, the account is down $300 and equity is $700 — still above the margin used, so nothing happens yet. But if gold drops $70, the loss is $700, equity is $300, and the margin level is close to the stop-out line. A few more dollars of movement and the broker closes the trade, locking in the loss. Now imagine the same account opening 0.01 lots instead: the same $70 move costs $70, not $700, and the account survives easily. The market did not change — the size did.' },
+      { type: 'h2', text: 'Four habits that keep you away from a margin call' },
+      { type: 'list', items: [
+        'Size every trade to the account: risk no more than 1% of your balance on one idea, and know the margin each trade will use before you open it.',
+        'Use a stop loss on every trade: a stop loss caps the loss before the broker ever needs to step in.',
+        'Keep free margin generous: if most of your balance is locked up as margin, you have no cushion left for a normal losing run.',
+        'Check your margin level after news: big moves around CPI, NFP and FOMC can shrink equity in seconds — know your level before the release, not after.',
+      ] },
+      { type: 'p', text: 'A margin call is not bad luck — it is a position that was too big for the account that held it. Traders who survive for years are rarely the ones with the cleverest entries; they are the ones whose accounts never get close to a margin call in the first place. Keep your sizes small, your stops in place, and your free margin wide, and the broker will never have to make a decision for you. Trading carries risk, and no rule removes it — but understanding margin turns one of the most common ways of losing an account into something you can see coming and avoid.' },
+    ],
+  },
   // ============================ SALES BLOG ==============================
   {
     blog: 'sales',
@@ -1586,6 +1620,37 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'h2', text: 'What to send support if it is still quiet' },
       { type: 'p', text: 'If every check passes and the bot still has not traded for a full trading day, message support with three things: a screenshot of the Experts tab in MT5 (it shows what the bot is actually doing), a screenshot of the Journal tab, and your MT5 account number plus the bot version. That is usually enough for support to name the cause in one reply — guessing without the logs wastes a day of back-and-forth.' },
       { type: 'p', text: 'Two things not to do while troubleshooting: do not change lot sizes, targets or the multiplier in the middle of an open basket — settings changes mid-trade are the fastest way to turn a small problem into a real one — and do not reinstall the bot or attach a second copy to the same chart, which can open duplicate trades. Work the list top to bottom, change one thing at a time, and give the bot one full trading session after each fix. A quiet bot is usually telling you something: the market is closed, the news filter is working, or the target is already hit. Listen first, fix second — and if you are ever unsure, message support before you change anything. Trading carries risk, and no troubleshooting step changes that — but a calm, methodical check keeps a small hiccup from becoming a costly mistake.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'moving-primebot-new-computer-reinstall-guide',
+    title: 'Moving Your PrimeBot to a New Computer: Reinstalling Without Losing Your License',
+    excerpt:
+      'Got a new laptop or a fresh VPS? Your PrimeBot license follows your MT5 account number, not your computer — here is the safe way to move it, and the two mistakes that cause the most support tickets.',
+    category: 'Guides',
+    date: '2026-11-12',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'A new laptop, a fresh VPS, or a Windows reinstall — sooner or later every trader moves their setup to a new machine, and the first worry is always the same: will the bot still work, or is the license lost with the old computer? The good news is simple. A PrimeBot license is locked to your MT5 account number, not to your computer, so moving to a new machine is a reinstall, not a repurchase. The steps below take about fifteen minutes if you do them in order.' },
+      { type: 'h2', text: 'Your license follows your account, not your computer' },
+      { type: 'p', text: 'When you bought your PrimeBot, the license was tied to the MT5 account number you supplied at checkout. That is the whole point of the account-number lock: it stops the file being shared around, while letting the real owner move freely between machines. As long as you log in to the same MT5 account on the new computer, the same license covers the same bot. If you change your broker or your account number, that is a different job — your license needs to be moved, and support handles that — but a new computer with the same account is a normal reinstall.' },
+      { type: 'h2', text: 'The move, step by step' },
+      { type: 'list', items: [
+        'Install MT5 on the new computer from your broker, then log in to the exact same MT5 account — same account number, same server, same password.',
+        'Get your PrimeBot file: use the download link from your original delivery email, or ask support to resend it. Do not copy the file from a backup of the old machine if you can avoid it — a fresh download guarantees you have the current version.',
+        'Place the bot file in the new MT5 Experts folder (File, then Open Data Folder, then MQL5, then Experts) and restart MT5 so it appears in the Navigator.',
+        'Attach the bot to a fresh XAUUSD chart, then set your usual settings — lot size, risk, daily target and news filter — or load your saved settings file if you kept one.',
+        'Turn on AutoTrading, check that the bot’s name shows in the top-right corner of the chart, and watch the Experts tab for its startup messages before leaving it alone.',
+      ] },
+      { type: 'h2', text: 'Settings and history: what transfers and what does not' },
+      { type: 'p', text: 'Your settings travel with you only if you saved them — MT5 can export your bot inputs to a .set file, which you can load on the new machine in seconds. Your trading history does not need to move at all: it lives on the broker’s server, tied to your account, so it shows up on the new computer the moment you log in. What does not travel is anything stored only on the old machine: custom templates, your trading journal file, and any saved .set files you never backed up. Before you wipe the old computer, copy those small files to a USB stick or cloud folder. They take seconds to save and hours to rebuild from memory.' },
+      { type: 'h2', text: 'Two mistakes to avoid' },
+      { type: 'list', items: [
+        'Running the bot on both machines at once: two copies attached to the same account can open duplicate trades. Stop the bot on the old computer before you start it on the new one — and shut the old machine down if you are unsure it is fully stopped.',
+        'Changing settings mid-move: if the new setup behaves differently, resist the urge to change lots or targets on the spot. Run the same settings as the old machine for at least one full trading day, so any difference is the machine, not a setting you changed by accident.',
+      ] },
+      { type: 'p', text: 'One last check before you call the move done: after the first trading session on the new machine, confirm the bot opened and closed trades normally and that the daily target behaved as expected. If anything looks wrong — no trades, error messages in the Experts tab, or a license message — stop the bot and message support with your account number, the bot version, and a screenshot of the Experts tab. A reinstall is routine, support handles it every day, and a fifteen-minute move beats a week of guessing. Trading carries risk, and a clean move does not change that — but it does mean your new machine starts exactly where the old one left off.' },
     ],
   },
 ];
