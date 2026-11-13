@@ -208,6 +208,36 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'A margin call is not bad luck — it is a position that was too big for the account that held it. Traders who survive for years are rarely the ones with the cleverest entries; they are the ones whose accounts never get close to a margin call in the first place. Keep your sizes small, your stops in place, and your free margin wide, and the broker will never have to make a decision for you. Trading carries risk, and no rule removes it — but understanding margin turns one of the most common ways of losing an account into something you can see coming and avoid.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'risk-reward-ratio-explained-gold-traders',
+    title: 'Risk-Reward Ratio Explained: Why a 1:2 Trade Beats a High Win Rate',
+    excerpt:
+      'A trader who wins 7 trades out of 10 can still lose money — if every loss is bigger than every win. How the risk-reward ratio works, how to set one before you enter, and the mistakes that break it.',
+    category: 'Risk Management',
+    date: '2026-11-13',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'New traders obsess over win rate: how many trades they win out of ten. It feels like the number that matters. But a trader who wins seven trades out of ten can still lose money overall — if every loss is bigger than every win. The number that decides whether a strategy survives is not the win rate. It is the risk-reward ratio: how much you stand to gain compared with how much you risk on each trade.' },
+      { type: 'h2', text: 'What risk-reward actually means' },
+      { type: 'p', text: 'A 1:2 risk-reward trade means risking $10 to aim for $20. If you win, you gain twice what you would have lost; if you lose, the loss is half the size of the win you were chasing. The maths is what makes it powerful: with a 1:2 ratio you can win only four trades out of ten and still come out ahead — four wins of $20 against six losses of $10 is $80 gained and $60 lost. With a 1:1 ratio the same trader needs to win more than half of all trades just to break even, and with a 1:0.5 ratio — risking $10 to win $5 — you would need to win two out of every three trades to survive. The ratio, not the win rate, sets how good you need to be.' },
+      { type: 'h2', text: 'How to set a ratio before you enter' },
+      { type: 'list', items: [
+        'Decide your stop first: the price where your idea is wrong. That distance — from entry to stop — is your risk, in dollars, once you know your lot size.',
+        'Look for a target at least one and a half to two times that distance away: a real level on the chart, such as the next support or resistance zone, not a number you hope the price reaches.',
+        'If the chart does not offer that distance, skip the trade. A setup with a $15 stop and only a $10 target is a bad trade however confident you feel about the direction.',
+        'Write the ratio in your journal before you enter — “risk $10, target $20, ratio 1:2” — so you can check later whether you actually traded the plan.',
+      ] },
+      { type: 'h2', text: 'The mistakes that break the ratio' },
+      { type: 'list', items: [
+        'Cutting winners short: closing a trade at $8 of profit when the target was $20 turns a planned 1:2 trade into a 1:0.8 trade — and quietly ruins the maths that made the strategy work.',
+        'Moving the stop further away when the trade goes wrong: widening the risk from $10 to $25 after entry turns a planned 1:2 into a 1:0.8 in the other direction. The stop was the plan; moving it is abandoning the plan at the worst moment.',
+        'Chasing trades with no ratio at all: entering because gold “looks like it is going up” without knowing where the stop and the target are means the ratio is decided by luck, and luck is not a strategy.',
+      ] },
+      { type: 'p', text: 'A practical habit ties it together: at the end of each week, look at your last ten trades and work out your average win and your average loss. If the average win is smaller than the average loss, your ratio is the problem — not your entries, not the market, and not your broker. Fix the ratio first, and the win rate starts to matter far less. No ratio removes the risk of trading; gold can gap past a stop, and a good plan can still lose. But a trader who risks $10 to make $20 only needs to be right four times in ten — and that is a much kinder game to play than needing to be right almost every time.' },
+    ],
+  },
+
   // ============================ SALES BLOG ==============================
   {
     blog: 'sales',
@@ -1651,6 +1681,33 @@ export const BLOG_POSTS: BlogPost[] = [
         'Changing settings mid-move: if the new setup behaves differently, resist the urge to change lots or targets on the spot. Run the same settings as the old machine for at least one full trading day, so any difference is the machine, not a setting you changed by accident.',
       ] },
       { type: 'p', text: 'One last check before you call the move done: after the first trading session on the new machine, confirm the bot opened and closed trades normally and that the daily target behaved as expected. If anything looks wrong — no trades, error messages in the Experts tab, or a license message — stop the bot and message support with your account number, the bot version, and a screenshot of the Experts tab. A reinstall is routine, support handles it every day, and a fifteen-minute move beats a week of guessing. Trading carries risk, and a clean move does not change that — but it does mean your new machine starts exactly where the old one left off.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'reading-mt5-trade-history-primebot',
+    title: 'Reading Your MT5 Trade History: How to Check What Your PrimeBot Actually Did',
+    excerpt:
+      'Your bot trades while you sleep — the MT5 History tab tells you the truth about it. Where to find your trade history, what to check each day, and the two numbers that matter more than the balance.',
+    category: 'Guides',
+    date: '2026-11-13',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Your PrimeBot trades while you sleep, while you work, and while you are not looking at the screen — which is exactly the point of an automated trader. But that also means you need a reliable way to check what it actually did. The answer is already in your MT5 terminal: the History tab. It is a plain record of every closed trade, and five minutes with it each day tells you more about your bot than watching the chart for an hour.' },
+      { type: 'h2', text: 'Where to find your trade history' },
+      { type: 'p', text: 'Open MT5 and look at the Toolbox panel at the bottom of the screen. The History tab sits next to the Trade tab. Right-click inside it and you can choose the period to show — today, the last week, the last month, or a custom date range. Each row is one closed trade, with columns for the time it opened and closed, the symbol, buy or sell, the lot size, the open and close prices, and the profit or loss in your account currency. The Comment column often shows which expert advisor placed the trade, which is useful if more than one bot runs on the same account.' },
+      { type: 'h2', text: 'What to check each day' },
+      { type: 'list', items: [
+        'How many trades closed today, and whether that matches what you expect — a bot that should trade several times a day and shows zero trades deserves a look at the Experts tab.',
+        'The total profit or loss for the day, and whether any single trade lost far more than the others — one outsized loss usually has a cause worth finding, such as a news spike or a wide spread.',
+        'Open positions in the Trade tab next to it: trades still running are not in the History yet, so check both tabs before judging the day.',
+        'The dates and times: a gap in trading on a normal weekday, with no news filter pause, is the first sign that something changed — a closed chart, AutoTrading switched off, or a VPS restart.',
+      ] },
+      { type: 'h2', text: 'Two numbers that matter more than the balance' },
+      { type: 'p', text: 'The balance only tells you where you are, not how you got there. Two numbers from the History tab tell you more: your win rate, and your average win compared with your average loss. A bot that wins six trades out of ten but loses twice as much on each loss as it wins is drifting towards trouble, even while the balance still climbs. The reverse is also true — a bot with a modest win rate and wins twice the size of its losses can be perfectly healthy. If your average win starts shrinking week by week while the number of trades stays the same, that is worth a message to support before it becomes a real problem, not after.' },
+      { type: 'h2', text: 'When the history tells you to call support' },
+      { type: 'p', text: 'Most days the History tab will simply confirm that everything is normal. Three things are worth a message to support: duplicate trades you did not expect, a busy trading day with no trades at all and no news-filter reason, or trades that opened and closed within seconds with losses. Send a screenshot of the History tab for that day, a screenshot of the Experts tab, and your MT5 account number plus the bot version — that is usually enough for support to name the cause in one reply.' },
+      { type: 'p', text: 'Make it a habit: five minutes at the end of the trading day, History tab open, one look at the count, the total, and the biggest loss. The record simply shows what happened, and a trader who reads it every day is never surprised by their own account. Checking the history does not remove the risk of trading, but it does remove the guesswork — the difference between running a bot and hoping one works.' },
     ],
   },
 ];
