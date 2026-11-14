@@ -1710,6 +1710,69 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Make it a habit: five minutes at the end of the trading day, History tab open, one look at the count, the total, and the biggest loss. The record simply shows what happened, and a trader who reads it every day is never surprised by their own account. Checking the history does not remove the risk of trading, but it does remove the guesswork — the difference between running a bot and hoping one works.' },
     ],
   },
+
+  {
+    blog: 'trading',
+    slug: 'market-structure-explained-higher-highs-lower-lows',
+    title: 'Market Structure Explained: Higher Highs, Higher Lows, and How Traders Read the Trend',
+    excerpt:
+      'Before any indicator, traders read market structure: the pattern of highs and lows that tells you whether gold is trending up, trending down, or going nowhere at all.',
+    category: 'Trading Basics',
+    date: '2026-11-14',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Open a gold chart and remove every indicator. What is left is a line of peaks and valleys — and that line is the market structure. It is the oldest form of technical reading there is, and it answers the one question every trader asks first: is this market trending up, trending down, or going nowhere? Everything else — indicators, entries, stop losses — works better once you can read that answer at a glance.' },
+      { type: 'h2', text: 'The two building blocks: swing highs and swing lows' },
+      { type: 'list', items: [
+        'A swing high is a peak where the price turned down — a local top that stands out from the candles around it.',
+        'A swing low is a valley where the price turned up — a local bottom that stands out the same way.',
+        'Structure is simply the sequence of these swings: each new high and low either continues the pattern or breaks it.',
+        'On gold, a $10 swing on a 15-minute chart is noise; the same pattern on the daily chart is the trend most traders actually care about.',
+      ] },
+      { type: 'h2', text: 'Reading an uptrend, a downtrend and a range' },
+      { type: 'p', text: 'An uptrend is a staircase of higher highs and higher lows: each rally reaches further than the last, and each pullback stops above the previous valley. Buyers are in control, and the structure says so without any indicator. A downtrend is the mirror image — lower highs and lower lows, each rally weaker than the last. And when the price keeps bouncing between the same high and the same low, making neither higher highs nor lower lows, that is a range: a market with no direction, where trend-following ideas usually fail and patience pays more than action. Structure changes the moment a swing is broken: in an uptrend, the warning sign is a lower low, and confirmation comes when the next rally fails to make a higher high. Traders call this a break of structure — it does not mean the trend has reversed for certain, only that the evidence for the old trend has gone, and the plan built on it needs rethinking.' },
+      { type: 'h2', text: 'How traders use structure in practice' },
+      { type: 'list', items: [
+        'Plan entries with the structure, not against it: in a clear uptrend, traders look for entries near the last swing low, with a stop just below it — a clear line for being wrong.',
+        'Place stops behind structure: a stop below a swing low in an uptrend, or above a swing high in a downtrend, sits where the idea itself is proven wrong, not at an arbitrary distance.',
+        'Read the higher timeframe first: a market structure that looks like an uptrend on the 15-minute chart can be a small bounce inside a daily downtrend. The bigger picture decides the direction; the smaller chart times the entry.',
+        'Wait for the retest: after a swing breaks, price often comes back to test the broken level before moving on — patient traders wait for that test rather than chasing the first move.',
+      ] },
+      { type: 'p', text: 'Indicators can confirm what structure already says, but they cannot replace it. Learn to spot higher highs and higher lows, lower highs and lower lows, and the flat range between them — and practise on a demo or cent account until reading a chart without indicators feels natural. The market will still surprise you, and no reading removes the risk of trading, but a trader who knows which way the staircase is pointing is already ahead of one who only watches the last candle.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'primebot-offline-computer-vps-what-happens',
+    title: 'What Happens If Your Computer or VPS Goes Offline While PrimeBot Is Running?',
+    excerpt:
+      'Your PrimeBot runs on your computer or VPS — so what happens to open trades if the machine shuts down, the internet drops, or the power goes out? The honest answer, and how traders protect themselves.',
+    category: 'Setup Guide',
+    date: '2026-11-14',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'A PrimeBot is software that runs inside MetaTrader 5 on your computer or on a VPS — a small rented server that stays online for you. That raises an obvious question every buyer should ask before going live: what happens if the machine goes offline while trades are open? The answer is calmer than most people fear, but it is worth understanding properly before real money is involved.' },
+      { type: 'h2', text: 'What actually happens when the computer goes off' },
+      { type: 'list', items: [
+        'Your open trades stay open. They live on your broker’s server, not on your computer — switching your machine off does not close them.',
+        'Your stop losses and take profits stay active. Those orders are held by the broker, so the protection you set on a trade keeps working even with your computer off.',
+        'The bot stops thinking. While it is offline, PrimeBot cannot open new trades, manage a basket, close trades at a daily target, or react to the news filter.',
+        'When the machine comes back, the bot restarts and reads the open trades again. It continues managing them from where it left off — it does not forget what is open.',
+      ] },
+      { type: 'h2', text: 'What the bot cannot do while it is offline' },
+      { type: 'p', text: 'The gap matters most for the features that need the bot to be awake. A daily profit target will not trigger while the machine is off, so trades can run past the target until the bot returns. Basket management pauses too — a recovery sequence waits exactly where it was. And if a major news release arrives during the outage, the news filter cannot pause new entries, because there is no bot running to do the pausing. None of this closes your trades or loses your license; it simply means the automation is asleep until the machine wakes up.' },
+      { type: 'h2', text: 'How traders protect themselves' },
+      { type: 'list', items: [
+        'Use a VPS: a rented server runs your MT5 day and night, so your home internet and power cuts never touch the bot. This is what most serious EA traders do, and our VPS setup guide walks through it step by step.',
+        'Set MT5 to start automatically: on a home computer, place MT5 in the Windows startup folder so a restart brings the terminal — and the bot — back without you remembering.',
+        'Keep stop losses on every trade: the broker-side stop loss is your safety net during any outage, and it is the one protection that never depends on your machine being online.',
+        'Check in daily: five minutes with the History tab each evening, as our trade-history guide explains, tells you quickly whether the bot has been running or whether a machine problem has silently stopped it.',
+        'Know the support route: if the bot behaves strangely after an outage, send a screenshot of the Experts tab to our WhatsApp support — a restart usually clears it, and support can confirm in one reply.',
+      ] },
+      { type: 'p', text: 'An outage is an inconvenience, not a disaster — as long as you planned for it. A VPS, broker-side stop losses, and a daily five-minute check are the whole protection plan, and they cost very little compared with the account they protect. Trading carries risk, and no setup removes it, but a bot that is always online is a bot that is always doing the job you bought it for.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
