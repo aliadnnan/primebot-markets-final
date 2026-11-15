@@ -1773,6 +1773,82 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'An outage is an inconvenience, not a disaster — as long as you planned for it. A VPS, broker-side stop losses, and a daily five-minute check are the whole protection plan, and they cost very little compared with the account they protect. Trading carries risk, and no setup removes it, but a bot that is always online is a bot that is always doing the job you bought it for.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'trendlines-explained-gold-charts',
+    title: 'Trendlines Explained: How to Draw and Use Them on Gold Charts',
+    excerpt:
+      'A trendline is just a line drawn between two or more price points — but drawn correctly, it shows the direction of the market, the strength of a move, and where the trend may be changing.',
+    category: 'Trading Basics',
+    date: '2026-11-15',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'A trendline is one of the simplest tools on a chart — a straight line drawn through two or more price points to show the direction the market is moving. Gold traders use them every day because they answer the first question of any trade: is this market going up, going down, or going nowhere? Learning to draw them correctly is a skill worth a few practice sessions on a demo or cent account.' },
+      { type: 'h2', text: 'How to draw a trendline correctly' },
+      { type: 'list', items: [
+        'Uptrend line: connect two or more rising lows — the bottoms of the swings — and extend the line forward. The price should stay above it while the uptrend lasts.',
+        'Downtrend line: connect two or more falling highs — the tops of the swings — and extend it forward. The price should stay below it while the downtrend lasts.',
+        'Three touches or more: a line with only two points is a guess; a line that has been touched three or more times has been tested by the market and means far more.',
+        'Use the wicks, not just the bodies: the true extremes of price are the highs and lows, so draw through the wicks for the most honest line.',
+        'Draw on the higher timeframe first: a trendline on the daily chart carries far more weight than one drawn on the 5-minute chart.',
+      ] },
+      { type: 'h2', text: 'What a trendline actually tells you' },
+      { type: 'p', text: 'A rising trendline is a rising support level — buyers keep stepping in at higher and higher prices. A falling trendline is a falling resistance level — sellers keep capping rallies at lower and lower prices. The angle of the line matters too: a steep line means a fast, aggressive move that often corrects sharply, while a gentle line means a slow, steady trend that tends to last longer. The line does not predict where price will go; it simply shows what the market has been doing, and gives you a reference for whether that behaviour is continuing or breaking down.' },
+      { type: 'h2', text: 'Three ways beginners use trendlines' },
+      { type: 'list', items: [
+        'Trade with the trend: in an uptrend, look for buying opportunities near the rising trendline, with a stop below it — the line is where the idea is wrong, which makes risk easy to define.',
+        'Watch the break: when price closes clearly beyond a well-tested trendline and stays there, the trend may be changing. One candle piercing the line is not a break — confirmation comes from a close beyond it, or a retest that fails.',
+        'Combine with support and resistance: a trendline that meets a horizontal support zone is a stronger area than either one alone — two independent reasons for the price to react at the same place.',
+      ] },
+      { type: 'h2', text: 'The mistakes that make trendlines useless' },
+      { type: 'list', items: [
+        'Forcing the line to fit: if you have to bend the line through the middle of candles to make it touch, the trendline is wrong — the honest line is the one that connects clean highs or clean lows.',
+        'Drawing too many lines: a chart covered in ten trendlines says nothing. One or two well-tested lines per timeframe are enough.',
+        'Trading every touch: not every touch of a trendline is a trading signal. Wait for the touch to happen in the right context — with the session, the news calendar and your risk plan in agreement.',
+        'Forgetting the stop: a trendline break can move fast on gold. Never trade a trendline bounce without a stop loss just beyond the line.',
+      ] },
+      { type: 'p', text: 'Practise drawing trendlines on old charts before using them live: mark the lines, watch what happened next, and notice how often the third touch held — and how often a clean break really did change the trend. That practice costs nothing on demo and teaches more than any indicator. Trendlines will not make a bad risk plan good, and no line removes the risk of trading — but a trader who can read the direction of the market at a glance is a trader who stops fighting it, and that alone saves many accounts.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-basket-management-explained',
+    title: 'Basket Management Explained: How PrimeBot Handles Groups of Open Trades',
+    excerpt:
+      'A PrimeBot often manages several open trades as one basket — with shared targets, break-even logic and a recovery plan. Here is how the basket works, in plain language, and what it can and cannot do.',
+    category: 'Product News',
+    date: '2026-11-15',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'When you watch a PrimeBot work, you will often see it holding several open trades at once on the same symbol. Those trades are not independent accidents — they are managed together as one basket, with shared rules for when the group closes, when it protects itself, and what happens when the market moves against it. Understanding the basket is understanding how the bot thinks.' },
+      { type: 'h2', text: 'What a basket is' },
+      { type: 'list', items: [
+        'A basket is a group of open trades on the same symbol and direction, opened by the bot according to its strategy rules.',
+        'The bot tracks the basket as a whole: its combined profit and loss, its average entry price, and how far it is from its target.',
+        'New trades are added to the basket only while the strategy conditions allow it — the bot does not open trades at random.',
+        'The basket closes when its combined target is reached, or when its protection rules trigger — whichever comes first.',
+      ] },
+      { type: 'h2', text: 'How the basket target works' },
+      { type: 'p', text: 'Instead of closing each trade at its own small profit, the bot aims for a target on the basket as a whole. The target is a money amount, set in the bot’s settings — and on a cent account it is entered in cents, so a $5 target is written as 500. The target is reached when the combined profit of all the trades in the basket hits that number. Because later trades in a basket are often opened at better prices than the first, the basket can reach its target even when the first trade is still underwater — that is the point of managing trades as a group rather than one by one.' },
+      { type: 'h2', text: 'Break-even and recovery: the protection inside the basket' },
+      { type: 'list', items: [
+        'Break-even logic: as a basket moves into profit, the bot can move its protection so that a winning basket cannot turn into a losing one.',
+        'Recovery sizing: if the market moves against the basket, the bot may open further trades with larger lot sizes, following the multiplier setting you chose — this is designed to bring the basket’s average entry closer to the current price.',
+        'A hard maximum: recovery trades stop at a maximum number set in the inputs. The basket never grows without limit.',
+        'Drawdown control: a maximum drawdown setting can stop new entries and close the basket if the floating loss reaches the limit you set.',
+      ] },
+      { type: 'h2', text: 'What basket management cannot do' },
+      { type: 'p', text: 'This is the honest part, and it matters more than the features. Recovery sizing increases the size of the basket — which also increases the risk if the market keeps moving against it. A basket that keeps recovering into a strong trend can reach its drawdown limit, and no setting removes that risk. Markets can gap past stops, news can move gold $30 in minutes, and a basket that was working yesterday can be in deep drawdown today. Basket management is a tool for disciplined, rules-based trade management — it is not a promise that a basket will close in profit, and no bot can promise that.' },
+      { type: 'h2', text: 'How to watch a basket sensibly' },
+      { type: 'list', items: [
+        'Check the floating drawdown daily — the History tab shows what closed, but the open basket shows what you are actually risking right now.',
+        'Know your target and your maximum before you start: write them down, and do not change them in the middle of a drawdown.',
+        'Test on demo or a cent account first, and watch a full basket cycle — including a losing one — before deciding the settings suit your account.',
+        'If anything looks wrong, open the Experts and Journal tabs in MT5 and send a screenshot to our WhatsApp support — a real person will explain what the bot decided.',
+      ] },
+      { type: 'p', text: 'A basket is the bot doing what a human trader struggles to do: managing many trades with one plan, without fear or greed, and stopping exactly where the rules say to stop. Learn the settings, watch a few full cycles on demo, and you will know exactly what your bot is doing — and exactly what it is not doing. Our setup video for your bot shows where each basket setting lives and what the recommended values are.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
