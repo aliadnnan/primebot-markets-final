@@ -1849,6 +1849,60 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'A basket is the bot doing what a human trader struggles to do: managing many trades with one plan, without fear or greed, and stopping exactly where the rules say to stop. Learn the settings, watch a few full cycles on demo, and you will know exactly what your bot is doing — and exactly what it is not doing. Our setup video for your bot shows where each basket setting lives and what the recommended values are.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'trailing-stop-explained-lock-in-gold-profits',
+    title: 'Trailing Stop Explained: How Traders Lock In Profits on Gold',
+    excerpt:
+      'A trailing stop follows the price as it moves in your favour, turning an open profit into a protected one. How it works on MT5, the right distance for gold, and the mistakes that stop traders out too early.',
+    category: 'Risk Management',
+    date: '2026-11-16',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'A winning trade can turn into a losing one in minutes on gold. The price runs $15 in your favour, you wait for more, and then a sudden reversal wipes out the profit — and sometimes the stop loss too. A trailing stop is the tool traders use to stop that happening: it follows the price as it moves in your favour, locking in profit while still giving the trade room to breathe. It is one of the few tools that protects a profit you already have instead of only limiting a loss.' },
+      { type: 'h2', text: 'How a trailing stop actually works' },
+      { type: 'p', text: 'Imagine you buy gold at $2,650 with a trailing stop distance of $10. If the price rises to $2,660, your stop automatically moves up to $2,650 — your entry price. If the price reaches $2,680, the stop follows to $2,670, locking in $20 of profit. If the price then falls, the stop stays where it is and closes the trade at $2,670. The stop only ever moves in your favour. It never moves backwards, and it never widens.' },
+      { type: 'h2', text: 'Fixed stop vs trailing stop' },
+      { type: 'list', items: [
+        'A fixed stop loss stays at one price. It protects you from a big loss, but it never protects a profit that is already on the table.',
+        'A trailing stop moves with the price. It turns an open profit into a protected profit, step by step, without you watching the screen.',
+        'A fixed stop is set once and forgotten. A trailing stop needs a sensible distance — too tight and normal gold swings will close the trade early.',
+      ] },
+      { type: 'h2', text: 'The mistakes traders make with trailing stops' },
+      { type: 'list', items: [
+        'Setting the distance too tight: gold regularly moves $5–$10 in minutes. A $3 trail gets stopped out by ordinary market noise.',
+        'Trailing through major news: a CPI or NFP release can spike gold $30 in seconds and trigger the trail at a bad price. Check the calendar first.',
+        'Expecting it to replace a plan: a trailing stop manages the exit, but it cannot fix a bad entry or an oversized position.',
+      ] },
+      { type: 'p', text: 'Used well, a trailing stop is one of the simplest risk tools on MT5. It is built into the platform, it costs nothing, and it works while you are away from the screen. Like every tool in trading, it reduces risk but never removes it. Test it on a demo account first, find a distance that survives gold\'s normal swings, and never trade with money you cannot afford to lose. A trade that ends in a small protected profit beats a trade that ends in a loss, every single time.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'what-to-expect-first-week-primebot',
+    title: 'What to Expect in Your First Week with PrimeBot: Setup, First Trades and Realistic Timelines',
+    excerpt:
+      'The first week with a trading bot is about setup, checks and learning the routine — not judging results. A day-by-day guide to installation, the first trades, and what one week can and cannot tell you.',
+    category: 'Buying Guide',
+    date: '2026-11-16',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Buying a trading bot feels like the finish line, but the first week is really the starting line. Installation, settings, a demo run and a few small live trades — done in the right order, the first week builds the habit that keeps a bot running safely for months. Here is what to expect, day by day, with no hype and no promises.' },
+      { type: 'h2', text: 'Days 1–2: installation and setup' },
+      { type: 'p', text: 'Copy the PrimeBot file into the MQL5 Experts folder in MT5, attach it to the chart, tick "Allow Algo Trading", and load the recommended settings. Your license is locked to your MT5 account number, so check the number digit by digit — one wrong digit is the most common reason a new bot refuses to trade. Every bot has an Urdu setup video that walks through each screen; follow it instead of guessing.' },
+      { type: 'h2', text: 'Days 3–4: watching the first trades' },
+      { type: 'list', items: [
+        'Start on a demo account or a small cent account, so the first trades teach you the routine without real pressure.',
+        'Watch the Experts and Journal tabs in MT5: they show exactly what the bot did and why.',
+        'Notice the news filter at work — the bot pauses around major releases like CPI and NFP, which is normal and by design.',
+        'Check the daily target behaviour: when the target is reached, the bot stops for the day. That is the plan working, not a problem.',
+      ] },
+      { type: 'h2', text: 'What the first week will not tell you' },
+      { type: 'p', text: 'One week is too short to judge any strategy. Gold has quiet weeks and wild weeks, and a bot can look brilliant or useless depending on which week you happened to start in. Judge over weeks and months, keep a simple journal of what the bot did each day, and resist the urge to change settings after two quiet days — nine out of ten support cases trace back to a setting changed mid-drawdown.' },
+      { type: 'h2', text: 'Help is included from day one' },
+      { type: 'p', text: 'If anything looks wrong, message PrimeBot support on WhatsApp with a screenshot of the MT5 Experts or Journal tab and the name of the bot you bought. A real person answers — not a chatbot — and the setup help that comes with your lifetime license covers installation, settings and license questions. Support can make sure the tool runs correctly; it cannot promise profit or change how the market behaves. That is the honest deal: one payment, a lifetime license with updates, Urdu setup videos, and a real person on WhatsApp when you need one.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
