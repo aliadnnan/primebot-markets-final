@@ -1903,6 +1903,57 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'If anything looks wrong, message PrimeBot support on WhatsApp with a screenshot of the MT5 Experts or Journal tab and the name of the bot you bought. A real person answers — not a chatbot — and the setup help that comes with your lifetime license covers installation, settings and license questions. Support can make sure the tool runs correctly; it cannot promise profit or change how the market behaves. That is the honest deal: one payment, a lifetime license with updates, Urdu setup videos, and a real person on WhatsApp when you need one.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'scalping-vs-swing-trading-gold',
+    title: 'Scalping vs Swing Trading on Gold: Which Style Fits Your Time and Temperament',
+    excerpt:
+      'Scalping and swing trading are opposite ways to trade the same gold chart — one grabs small moves in minutes, the other holds for days. How each style works, what it demands from you, and how to tell which one fits your schedule.',
+    category: 'Trading Styles',
+    date: '2026-11-17',
+    readMins: 4,
+    content: [
+      { type: 'p', text: 'Gold can be traded in minutes or in days, and the style you choose changes almost everything about the experience: how long you sit at the screen, how many trades you take, how much each trade costs you in spread, and how much stress you carry. Two of the most popular styles sit at opposite ends of that scale. Scalping grabs small price moves that last minutes. Swing trading holds positions for days, waiting for a bigger move to play out. Neither style is better in general — the right one depends on your time, your temperament and your account. This guide explains both honestly, so you can choose with your eyes open.' },
+      { type: 'h2', text: 'What scalping on gold actually looks like' },
+      { type: 'p', text: 'A scalper opens and closes many trades in a single session, often holding each one for only a few minutes. The target on each trade is small — a few dollars of gold movement — so the scalper needs many winning trades to make the day worthwhile. That means constant attention: the screen stays open, the chart stays on a 1-minute or 5-minute timeframe, and decisions happen fast. Scalping also magnifies costs. Every trade pays the spread, and on gold the spread plus commission can eat a large share of a small target. A scalper therefore needs a broker with tight spreads and a calm head under pressure, because a single rushed decision can undo ten careful trades.' },
+      { type: 'h2', text: 'What swing trading on gold actually looks like' },
+      { type: 'p', text: 'A swing trader does the opposite: a few trades a week, held for days, aiming for moves of $30, $50 or more. The chart is checked on the 1-hour or 4-hour timeframe, and often only once or twice a day. Entries are planned around support and resistance, the stop loss sits wide enough to survive normal daily swings, and the trader accepts that most days nothing happens at all. Swing trading demands patience instead of speed. An open trade can sit in a small loss for two days before turning around, and the trader must resist closing it early out of boredom or fear. It also means holding through the night, when news can move gold while you sleep — so position size must stay small enough that a gap against you is survivable.' },
+      { type: 'h2', text: 'The real differences, side by side' },
+      { type: 'list', items: [
+        'Time at the screen: scalping needs hours of unbroken attention; swing trading needs 20 to 30 minutes a day.',
+        'Number of trades: a scalper may take 10 to 20 trades a day; a swing trader may take 3 to 5 a week.',
+        'Costs: spreads and commissions hit scalpers hardest, because each trade only aims for a small move.',
+        'Stress: scalping is fast and intense; swing trading is slow and tests patience instead.',
+        'Learning curve: both styles punish the same mistakes — no stop loss, oversized positions, trading without a plan — but scalping punishes them within minutes.',
+      ] },
+      { type: 'p', text: 'If you work a full-time job, swing trading is usually the realistic choice, because scalping cannot be done properly in ten spare minutes between meetings. If you have free hours, a fast connection and a temperament that stays calm under pressure, scalping can suit you — but practise it on a demo account first and measure your costs honestly, because a style that looks profitable before spreads can lose money after them. Whichever style you pick, the rules do not change: risk a small fixed percentage per trade, keep a journal, and never trade with money you cannot afford to lose. Gold rewards the trader whose style matches their life, not the one who copies somebody else.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-on-mac-what-mac-users-need-to-know',
+    title: 'Can You Run PrimeBot on a Mac? What Mac Users Need to Know',
+    excerpt:
+      'PrimeBot runs on MetaTrader 5, and MT5 has a Mac version — but there are a few things Mac users should check before buying. The honest options: native MT5 for Mac, a VPS, and what does not work.',
+    category: 'Setup Guide',
+    date: '2026-11-17',
+    readMins: 4,
+    content: [
+      { type: 'p', text: 'One of the most common questions from new buyers is simple: I use a Mac — will PrimeBot work for me? The short answer is yes, with the right setup. PrimeBot is a MetaTrader 5 expert advisor, so it runs wherever MT5 runs, and MT5 has a version for macOS. But the details matter: the Mac version of MT5 is not identical to the Windows version, and a few common Mac habits — like trying to run a Windows installer — will not work. This guide covers the options honestly, so Mac users know exactly what to expect before they buy.' },
+      { type: 'h2', text: 'Option 1: MT5 for Mac' },
+      { type: 'p', text: 'MetaQuotes, the company behind MetaTrader, offers a native MT5 app for macOS. Install it, log in with your broker account, and attach PrimeBot exactly as you would on Windows: copy the bot file into the MQL5 Experts folder, drag it onto a gold chart, tick Allow Algo Trading, and load the recommended settings. Your license is locked to your MT5 account number, not to your computer, so the same license works on Mac and Windows. Before going live, run the bot on a demo account for a few days and check the Experts and Journal tabs — that is the fastest way to confirm everything behaves as expected on your machine.' },
+      { type: 'h2', text: 'Option 2: a Windows VPS' },
+      { type: 'p', text: 'The second option is the one many serious traders choose regardless of their computer: a Windows virtual private server, a small rented computer in the cloud that runs MT5 and PrimeBot around the clock. You connect to it from your Mac with a remote desktop app, set the bot up once, and it keeps trading even when your Mac is switched off or asleep. A basic VPS costs a few dollars a month, and it removes the two biggest Mac worries — the computer going to sleep and the internet dropping mid-trade. If you plan to run PrimeBot long term, this is the setup our support team usually recommends.' },
+      { type: 'h2', text: 'What does not work on a Mac' },
+      { type: 'list', items: [
+        'Windows .exe installers: PrimeBot is delivered as an MT5 expert advisor file, not a Windows program — never try to install it with a .exe.',
+        'MT4 files: PrimeBot is built for MT5 only. An MT4 terminal cannot run it.',
+        'Running the bot with the Mac asleep: if MT5 is closed or the Mac is asleep, the bot cannot trade. Use a VPS if you need it running overnight.',
+        'Unverified copies: only install the file sent after your license is verified. Files from other sources are not supported and may be unsafe.',
+      ] },
+      { type: 'p', text: 'Mac users can run PrimeBot the same as anyone else — the only real choice is whether to run it directly in MT5 for Mac or on a VPS for round-the-clock uptime. If you are unsure which fits you, message PrimeBot support on WhatsApp before you buy, and mention that you use a Mac: the team will walk through the setup for your exact machine, and the Urdu setup videos cover the Mac screens too. As always, start on demo, confirm the bot behaves as expected, and only then move to a live account.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
