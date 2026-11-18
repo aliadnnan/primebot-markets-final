@@ -1954,6 +1954,57 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Mac users can run PrimeBot the same as anyone else — the only real choice is whether to run it directly in MT5 for Mac or on a VPS for round-the-clock uptime. If you are unsure which fits you, message PrimeBot support on WhatsApp before you buy, and mention that you use a Mac: the team will walk through the setup for your exact machine, and the Urdu setup videos cover the Mac screens too. As always, start on demo, confirm the bot behaves as expected, and only then move to a live account.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'breakout-trading-gold-spot-real-breakouts',
+    title: 'Breakout Trading on Gold: How to Spot a Real Breakout (and Avoid the Fake Ones)',
+    excerpt:
+      'Gold spends most of its time inside a range — then it breaks out and trends. What a breakout is, how traders confirm one, and why chasing the first candle through resistance is the mistake that costs beginners the most.',
+    category: 'Trading Strategies',
+    date: '2026-11-18',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Gold spends most of its time moving inside a range — bouncing between a support level below and a resistance level above. Then, sometimes, the price pushes through one of those levels and keeps going. That moment is called a breakout, and it is one of the most watched events in gold trading. Breakouts can start strong trends, but they can also trap traders who jump in too early. This guide explains what a breakout is, how traders try to confirm one, and the mistakes that turn a good idea into a loss.' },
+      { type: 'h2', text: 'What exactly is a breakout?' },
+      { type: 'p', text: 'A breakout happens when the price of gold moves through a level where it has repeatedly stopped before — a resistance level above or a support level below — and closes beyond it. The idea is simple: while the price was stuck inside the range, buyers and sellers were roughly balanced. A break through resistance suggests buyers have taken control, while a break below support suggests sellers have. Traders watch breakouts because they often come before a larger move: once a level breaks, many traders enter in the same direction, and stop losses from traders on the wrong side can add to the push.' },
+      { type: 'h2', text: 'How traders try to confirm a breakout' },
+      { type: 'list', items: [
+        'A close beyond the level, not just a quick spike: a candle that closes above resistance carries more weight than a wick that pokes above it and falls back.',
+        'Volume and momentum: a breakout with strong, fast movement looks more convincing than a slow drift across the line.',
+        'A retest of the level: after breaking out, price often comes back to the broken level and bounces off it — that retest can be a second, calmer entry point.',
+        'The bigger picture: a breakout that agrees with the daily trend is more likely to follow through than one that fights it.',
+        'News in the background: breakouts around CPI, NFP or a Fed speech can be sharp but unstable — the move may reverse once the news is digested.',
+      ] },
+      { type: 'h2', text: 'The fakeout: when a breakout fails' },
+      { type: 'p', text: 'The most common breakout mistake is buying the first push through resistance, only to watch the price fall straight back into the range. This is called a fakeout, and on gold it happens often — especially in quiet hours, when a small amount of buying can push price a few dollars beyond a level without any real strength behind it. Fakeouts are why experienced traders wait for confirmation instead of chasing the first candle, and why they keep their stop loss just inside the broken level: if the breakout was real, the price should not come back.' },
+      { type: 'p', text: 'Breakouts reward patience more than speed. Wait for a close beyond the level, check the trend and the news calendar, and size the trade so that a fakeout costs you a small, planned loss — not your account. A missed breakout costs you nothing. A chased one can cost you the week.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-license-multiple-mt5-accounts',
+    title: 'Can One PrimeBot License Run on Multiple MT5 Accounts? What the License Covers',
+    excerpt:
+      'One PrimeBot license is locked to one MT5 account number. What that means if you trade with a second broker or account, how moving a license works, and what to check with support before you buy.',
+    category: 'Licensing',
+    date: '2026-11-18',
+    readMins: 4,
+    content: [
+      { type: 'p', text: 'One of the most common questions after buying a PrimeBot is whether the same license can run on a second MT5 account — maybe a second broker, or a cent account alongside a standard one. The answer is short: one PrimeBot license is locked to one MT5 account number. This guide explains what that means in practice, what happens if you want to run the bot on another account, and how moving a license works.' },
+      { type: 'h2', text: 'How the license lock works' },
+      { type: 'p', text: 'When your PrimeBot is delivered, the license is tied to the MT5 account number you gave during ordering. The bot checks that number when it starts: on the matching account it runs normally, on any other account it does not trade. This protects buyers as much as it protects PrimeBot — it means nobody else can run your copy of the bot on their account. The lock is on the account number, not on your computer, so the same license works if you reinstall MT5 or move to a new laptop, as long as the account number stays the same.' },
+      { type: 'h2', text: 'Running the bot on a second account' },
+      { type: 'list', items: [
+        'A second live account needs a second license: each license covers exactly one MT5 account number.',
+        'A demo account for testing is arranged through support — message them before you buy and they will explain the options.',
+        'Two accounts mean two separate sets of trades: results on one account do not carry over to the other, and each account needs its own risk settings.',
+        'Changing broker changes your account number, so the license has to move with it — that is a support request, not a new purchase.',
+      ] },
+      { type: 'h2', text: 'Moving a license to a new account number' },
+      { type: 'p', text: 'If you switch brokers or open a new account and want the bot on the new number, contact PrimeBot support on WhatsApp with your order details and the new account number. Support verifies the order and moves the license to the new number. The old number stops working with that license once the move is done, so finish any open trades on the old account first and attach the bot to the new account only after support confirms the move.' },
+      { type: 'p', text: 'The rule is simple to remember: one license, one account number. If your setup changes — a new broker, a second account, a new computer — message support first and they will tell you the exact step for your case. That keeps your license valid, your bot running on the right account, and your money in the right place.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
