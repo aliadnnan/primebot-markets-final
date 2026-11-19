@@ -2005,6 +2005,72 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'The rule is simple to remember: one license, one account number. If your setup changes — a new broker, a second account, a new computer — message support first and they will tell you the exact step for your case. That keeps your license valid, your bot running on the right account, and your money in the right place.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'what-is-a-trading-edge-gold-traders',
+    title: 'What Is a Trading Edge? How Gold Traders Find an Advantage That Actually Works',
+    excerpt:
+      'Every trader wants an edge, but few can say what one is. A plain explanation of what a trading edge really means, where a real one comes from, and how to test whether yours survives contact with the market.',
+    category: 'Trading Basics',
+    date: '2026-11-19',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Ask ten traders what their edge is and you will get ten different answers — a secret indicator, a special pattern, a gut feeling about gold. Most of those answers are not edges at all. An edge is simply a repeatable reason to expect that, over many trades, your wins will outweigh your losses after costs. It is not a prediction about the next trade, and it is not a feeling. It is a small, measurable advantage that shows up only across dozens or hundreds of trades.' },
+      { type: 'h2', text: 'What an edge actually is' },
+      { type: 'p', text: 'Think of it as a tilted coin. A fair coin pays you even money and you break even over time. An edge is a coin that lands your way 52 times out of 100 instead of 50 — a tiny tilt, but one that compounds into profit if you flip it often enough and keep each bet small. In trading, the "tilt" might be entering a trend earlier than the crowd, placing a stop where few others do, or simply avoiding the expensive hours when spreads eat your profit. The size of the tilt matters far less than whether it is real and repeatable.' },
+      { type: 'h2', text: 'Where a real edge comes from' },
+      { type: 'list', items: [
+        'Timing: trading the liquid London–New York overlap instead of thin, quiet hours when gold whipsaws on little volume.',
+        'Discipline: a written plan with a stop loss on every trade — most beginners have no plan at all, so consistency alone is an advantage.',
+        'Risk control: risking 1% per trade and a favourable risk-reward ratio means you can be wrong often and still survive.',
+        'Information: knowing the economic calendar — when CPI, NFP or a Fed decision lands — and staying out of the chaos minutes.',
+        'Patience: waiting for the setup instead of forcing trades. A trader who takes five good trades a week beats one who takes fifty average ones.',
+      ] },
+      { type: 'h2', text: 'How traders test whether an edge is real' },
+      { type: 'p', text: 'An edge cannot be proven by five winning trades, or even twenty. The honest test is a journal: record every trade with its entry, exit, risk and reason, then review at least 50 to 100 trades. If the average win is larger than the average loss, and the total is positive after spreads and swaps, you may have something. Backtesting on historical data helps, but only if the rules were written before looking at the results — a strategy fitted to past charts after the fact is called curve-fitting, and it usually fails on live data. The gold standard is a forward test on a demo or cent account, where the strategy meets real spreads, real slippage and real emotions.' },
+      { type: 'h2', text: 'The edge that is not an edge' },
+      { type: 'list', items: [
+        'A new indicator: every indicator is built from the same price history, so a different line on the chart rarely creates new information.',
+        'A "secret" pattern someone sold you: if thousands of traders know the same pattern, the advantage is already priced in.',
+        'A hot streak: winning ten trades in a row feels like skill, but luck produces streaks too — the journal, not the feeling, tells you which it was.',
+        'Trading more often: taking more trades does not create an edge; it usually multiplies costs and mistakes.',
+      ] },
+      { type: 'p', text: 'The uncomfortable truth is that most traders do not have an edge yet — they have a hope, a habit, or a hunch. That is not a reason to quit; it is a reason to build one properly. Start with the basics: a written plan, strict risk rules, a journal, and a strategy tested on demo or a cent account long enough to see a full losing streak. An edge is not something you buy or discover in an afternoon. It is something you prove, trade by trade, until the numbers — not your feelings — say it is real.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-which-symbols-markets-can-it-trade',
+    title: 'Do PrimeBots Work on Gold Only? Which Symbols and Markets Your Bot Can Trade',
+    excerpt:
+      'PrimeBot Expert Advisors are built and tested for gold (XAUUSD) — but what does that mean if you also trade currencies or other metals? The honest answer, and what to check with support before changing a symbol.',
+    category: 'Product News',
+    date: '2026-11-19',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Every PrimeBot demo video shows the same chart: XAUUSD, gold against the US dollar. That is no accident — PrimeBot Expert Advisors are designed, tested and tuned for gold, and the setup guides all start with an XAUUSD chart. But traders naturally ask the next question: can the same bot trade EURUSD, silver, or another symbol? Here is the honest answer.' },
+      { type: 'h2', text: 'Built for gold first' },
+      { type: 'p', text: 'Gold moves differently from currency pairs. It has wider daily ranges, sharper news reactions and its own rhythm around the London and New York sessions. PrimeBot strategies are written around that behaviour — the entry logic, the lot sizing, the basket management and the news filter all assume gold\'s typical movement. That focus is what makes the bot predictable on XAUUSD: the settings in your guide were tested on gold, and the demo videos show how the bot behaves on gold. Running it on a symbol it was never tested on means running settings that were built for a different market.' },
+      { type: 'h2', text: 'What the symbol setting does' },
+      { type: 'list', items: [
+        'The chart you attach the bot to decides what it trades: drag it onto an XAUUSD chart and it trades gold; drag it onto another symbol and it would trade that symbol instead.',
+        'The strategy does not change when the symbol changes — the same entry rules run on different price behaviour, which is why results can differ sharply.',
+        'The news filter still watches the same high-impact events (CPI, NFP, FOMC), because those releases move gold hardest — but they move other symbols differently.',
+        'Lot sizing stays in the same units, so a lot size that is sensible for gold may be far too large or too small on another symbol.',
+      ] },
+      { type: 'h2', text: 'Can you run it on other symbols?' },
+      { type: 'p', text: 'The short answer is: only if support confirms it for that symbol. Some PrimeBot versions are built for gold only, and attaching them elsewhere is not supported. Others may have versions or settings for different symbols — but that is a question for the support team, not something to guess by changing the chart. Message support on WhatsApp with the symbol you have in mind, and they will tell you whether your bot version supports it and which settings to use. Never test an unconfirmed symbol on a live account.' },
+      { type: 'h2', text: 'What to check before you change anything' },
+      { type: 'list', items: [
+        'Confirm with support first: is this symbol supported by your exact bot version?',
+        'Use the settings they recommend for that symbol — gold settings on another symbol are not a starting point.',
+        'Test on demo first, for at least a few weeks, and watch a full losing cycle before judging it.',
+        'Check the spread and swap on the new symbol: costs that are small on gold can be large elsewhere.',
+        'Remember the license: one license covers one MT5 account number, whatever symbol the bot trades on that account.',
+      ] },
+      { type: 'p', text: 'Gold is where PrimeBot is at home, and most buyers should keep it there — the guides, the demos and the support answers are all written for XAUUSD. If you want to trade something else as well, ask support first, test on demo, and keep the gold setup running the way it was designed. A bot is only as good as the market it was built for, and running it outside that market is a new strategy, not the same one.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
