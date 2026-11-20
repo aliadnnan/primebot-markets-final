@@ -2071,6 +2071,73 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Gold is where PrimeBot is at home, and most buyers should keep it there — the guides, the demos and the support answers are all written for XAUUSD. If you want to trade something else as well, ask support first, test on demo, and keep the gold setup running the way it was designed. A bot is only as good as the market it was built for, and running it outside that market is a new strategy, not the same one.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'divergence-explained-gold-traders-momentum-shifts',
+    title: 'Divergence Explained: How Gold Traders Spot Momentum Shifts Before the Price Turns',
+    excerpt:
+      'When the gold price makes a new high but your momentum indicator does not, something is changing under the surface. A plain explanation of divergence, the two types that matter, and why it is a warning — not a buy signal.',
+    category: 'Technical Analysis',
+    date: '2026-11-20',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Gold is pushing to a new high, but the RSI is lower than it was at the last high. The price says "stronger", the indicator says "weaker" — and that disagreement has a name: divergence. It is one of the most useful warnings in technical analysis, and one of the most misunderstood. It does not tell you to buy or sell. It tells you the energy behind the move is fading, and a turn may be coming.' },
+      { type: 'h2', text: 'What divergence actually is' },
+      { type: 'p', text: 'Divergence is a disagreement between price and a momentum indicator, usually the RSI or the MACD. Price makes a higher high, but the indicator makes a lower high — or price makes a lower low while the indicator makes a higher low. The logic is simple: an indicator measures how fast price is moving, so when price reaches further but with less speed, the move is running on weaker momentum. Think of a car climbing a hill: still moving forward, but the speed is falling. It has not stopped yet — but the climb is getting harder.' },
+      { type: 'h2', text: 'The two types that matter' },
+      { type: 'list', items: [
+        'Regular bearish divergence: gold makes a higher high, but the RSI or MACD makes a lower high. The uptrend may be losing strength, and a pullback or reversal becomes more likely.',
+        'Regular bullish divergence: gold makes a lower low, but the RSI or MACD makes a higher low. Sellers pushed price further down but with less force, so the downtrend may be tiring.',
+        'Hidden divergence: price makes a higher low while the indicator makes a lower low in an uptrend — a sign the trend may continue rather than reverse. It is the type most beginners mix up with the regular kind.',
+      ] },
+      { type: 'h2', text: 'How traders spot it on a gold chart' },
+      { type: 'p', text: 'Start on a higher timeframe — the 1-hour or 4-hour chart — because divergence on a 1-minute chart appears constantly and means very little. Add the RSI (14) or the MACD, then mark the two most recent swing highs or lows in price and draw a line between them. Draw a second line between the matching peaks or troughs on the indicator. If the two lines slope in opposite directions, you have divergence. On gold, the clearest signals appear after a strong, fast move, such as the reaction to a CPI or NFP release, when momentum is most likely to be exhausted.' },
+      { type: 'h2', text: 'Why divergence alone is not a trade signal' },
+      { type: 'p', text: 'This is where most beginners lose money. Divergence can appear early — sometimes hours or days before price actually turns — and a strong trend can keep pushing while divergence sits on the chart. Gold can print bearish divergence and still climb another $30 before it pulls back. So experienced traders treat divergence as a warning light, not a trigger. They wait for confirmation: a break of a trendline, a lower high forming, or a candlestick pattern showing sellers have stepped in. Without confirmation, divergence is only a reason to be careful — to tighten a stop or avoid chasing a new entry at the worst moment.' },
+      { type: 'h2', text: 'Common divergence mistakes' },
+      { type: 'list', items: [
+        'Trading every divergence on a low timeframe: on 1-minute and 5-minute charts, divergence appears so often it is mostly noise.',
+        'Shorting into a strong uptrend the moment divergence appears: the trend is still the trend until price proves otherwise.',
+        'Using only one indicator: RSI and MACD can disagree with each other, so check both before acting.',
+        'Ignoring the news calendar: divergence formed just before a major US data release can vanish in seconds when the news hits.',
+        'Forgetting the bigger picture: divergence on the 1-hour chart means little if the daily chart is in a powerful trend the other way.',
+      ] },
+      { type: 'p', text: 'Divergence is a genuinely useful tool, but only in its proper place: a heads-up that momentum is fading, used alongside trend, levels and confirmation. Learn to spot it on the higher timeframes, wait for price to agree, and it will save you from chasing exhausted moves. Treat it as a guaranteed reversal signal, and it will cost you. Like every indicator, it describes the past and hints at the future — it never promises it. Trading always carries risk, and no signal works every time.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'manual-trading-while-primebot-runs',
+    title: 'Can You Trade Manually While PrimeBot Runs? Manual Trades on the Same MT5 Account',
+    excerpt:
+      'PrimeBot is running on your gold chart and you spot a setup of your own. Can you take it manually on the same account? Yes — but only if you keep the bot’s trades separate, watch your margin, and follow a few simple rules.',
+    category: 'Product News',
+    date: '2026-11-20',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'PrimeBot is doing its job on the XAUUSD chart, and then you see a setup of your own — a clean trendline break, a level you have watched all week. Can you take the trade yourself on the same MT5 account while the bot is running? The short answer is yes, MetaTrader allows manual trades alongside an Expert Advisor. But it is not as simple as clicking buy, because your manual trade and the bot’s trades share one balance, one margin and one account.' },
+      { type: 'h2', text: 'Keep the bot’s trades separate' },
+      { type: 'p', text: 'Every trade PrimeBot opens carries its own magic number — an internal tag that tells the bot "this trade is mine". That is how the bot tracks its own positions, manages its baskets and closes its trades at its targets. Your manual trades have no magic number, so the bot simply ignores them. That separation is what makes manual trading possible — but it also sets the first rule: never close, modify or interfere with a trade that carries the bot’s magic number. If you close one of the bot’s positions by hand, you break the basket logic it was managing, and the bot may open replacement trades or behave in ways you did not expect.' },
+      { type: 'h2', text: 'The margin problem most traders forget' },
+      { type: 'list', items: [
+        'Shared margin: your manual trade uses the same free margin as the bot. A large manual position can leave the bot without enough margin to open its next trade — or trigger a stop-out on the whole account.',
+        'Shared risk: the bot’s risk settings were calculated for its own trades. A manual loss on top of the bot’s open basket can push drawdown further than either would alone.',
+        'News overlap: if you open a manual trade just before a big news release while the bot’s news filter has paused its own trading, you are taking the exact risk the filter was designed to avoid.',
+        'Size small: if you do trade manually, use a small lot size and a stop loss on every trade.',
+      ] },
+      { type: 'h2', text: 'When manual trading makes sense — and when it does not' },
+      { type: 'p', text: 'Manual trading alongside the bot makes most sense when it is deliberate and occasional: one planned setup, small size, on a symbol or timeframe the bot is not trading, with your own stop loss in place. It makes the least sense when it is emotional — revenge trading after a losing day, doubling up because the bot is in drawdown, or scalping all day on the same chart the bot is working. The bot follows a fixed strategy; the moment your manual trades start fighting it for margin or undoing its positions, both approaches suffer. Many traders who want to trade manually as well simply use a second account — one for the bot, one for themselves — and keep the two completely apart.' },
+      { type: 'h2', text: 'A simple checklist before you click buy' },
+      { type: 'list', items: [
+        'Check free margin first: is there enough margin for your trade plus the bot’s next entries?',
+        'Check the economic calendar: is high-impact news due in the next hour?',
+        'Check the bot’s open trades: is it already in a large basket that needs margin to breathe?',
+        'Use a stop loss, always — a manual trade without one can hurt the bot’s account too.',
+        'Never touch the bot’s own trades, and never change the bot’s settings to make room for a manual idea.',
+      ] },
+      { type: 'p', text: 'Running a bot does not mean giving up manual trading — it means the two have to share one account carefully. Keep the bot’s trades untouched, keep your manual size small, and keep an eye on margin and news. And if manual trading is something you want to do every day, the cleanest setup is still a separate account for your own trades, with the bot running undisturbed on its own. Trading always carries risk, and automation does not remove it — so trade only money you can afford to lose.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
