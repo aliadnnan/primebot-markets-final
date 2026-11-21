@@ -2138,6 +2138,71 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Running a bot does not mean giving up manual trading — it means the two have to share one account carefully. Keep the bot’s trades untouched, keep your manual size small, and keep an eye on margin and news. And if manual trading is something you want to do every day, the cleanest setup is still a separate account for your own trades, with the bot running undisturbed on its own. Trading always carries risk, and automation does not remove it — so trade only money you can afford to lose.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'overtrading-explained-gold-traders-too-many-trades',
+    title: 'Overtrading Explained: How Too Many Trades Quietly Drain a Gold Account',
+    excerpt:
+      'Overtrading is not one big mistake — it is a dozen small ones. Why gold traders take too many trades, what it costs in spread and discipline, and the simple rules that keep trade count under control.',
+    category: 'Trading Psychology',
+    date: '2026-11-21',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Most blown accounts are not destroyed by one terrible trade. They are worn down by fifty ordinary ones. Overtrading — taking far more trades than your plan allows — is one of the quietest ways to lose money in gold trading, because every trade feels justified in the moment. The chart always offers another setup, another level, another reason to click. The damage only shows up later, in the statement: dozens of trades, most of them small losses, and an account that is smaller than when the week began.' },
+      { type: 'h2', text: 'What overtrading actually looks like' },
+      { type: 'list', items: [
+        'Trading every small move: entering on every 1-minute or 5-minute wiggle instead of waiting for a setup on your planned timeframe.',
+        'Revenge entries: opening a new trade seconds after a loss, to "win it back" before you have even reviewed what went wrong.',
+        'Boredom trades: opening positions because the market is quiet and you are watching the screen, not because a setup appeared.',
+        'Doubling up: adding to a losing trade or opening a second trade on the same idea because the first one is not moving yet.',
+        'News chasing: jumping in during the wild minutes after CPI or NFP, when spreads are wide and price whipsaws both ways.',
+      ] },
+      { type: 'h2', text: 'Why it costs more than it looks' },
+      { type: 'p', text: 'Every gold trade carries a cost before it can profit: the spread, and on many accounts a commission and swap. Take ten extra trades a day and those costs alone can eat several dollars per lot — money that has to be earned back before the day breaks even. Then comes the second cost, which is worse: decision fatigue. The more trades you take, the worse each decision gets. Traders who take three planned trades a day usually execute them well. Traders who take thirty trades a day are trading on impulse by the afternoon, and impulse is where the big losses live. Overtrading also hides the real problem — a trader who cannot see which trades were planned and which were impulse cannot fix the strategy, because there is no strategy left to measure.' },
+      { type: 'h2', text: 'Simple rules that keep trade count under control' },
+      { type: 'list', items: [
+        'Set a daily trade limit before the session starts — for most beginners, two to four trades a day is plenty — and stop when you reach it, win or lose.',
+        'Write the setup down before you enter: if you cannot name the reason in one sentence, there is no trade.',
+        'After a loss, wait at least 30 minutes before the next trade, and review the loss first.',
+        'Trade only your planned session hours. When the session ends, close the platform.',
+        'Keep a journal of every trade and mark the ones that were not in the plan — most overtraders are shocked by the count.',
+        'If you use an automated strategy, let it trade and do not add manual trades on top of it in the same session.',
+      ] },
+      { type: 'p', text: 'Gold will be there tomorrow, and the day after. The traders who last are the ones who treat their trade count like a budget — spent carefully, on the best setups only, and never on impulse. Fewer, better trades beat a busy screen every time. Trading always carries risk, and no rule removes it — but a trader who controls how often they trade has already removed the most common way accounts are lost.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-trial-demo-test-before-you-buy',
+    title: 'Does PrimeBot Offer a Trial? How to Test a Bot Before You Buy',
+    excerpt:
+      'There is no free trial of the live bot — and that is honest. Here is how you can still test a PrimeBot properly before you buy: demo accounts, backtests, demo videos and the exact questions to ask support first.',
+    category: 'Product News',
+    date: '2026-11-21',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'The most common question before any PrimeBot order is a fair one: can I try it before I pay? The honest answer is that there is no free trial copy of the live bot — the license is locked to one MT5 account number, and a trial copy would be a full copy. That does not mean you have to buy blind. There are several real ways to test and verify a PrimeBot before you spend anything, and a careful buyer should use all of them.' },
+      { type: 'h2', text: 'Start with the demo videos and the guides' },
+      { type: 'p', text: 'Every PrimeBot version has demo videos showing the bot running on a live MT5 chart: entries, basket management, news-filter pauses and closes at target. Watch a full video, not just the highlights — look at how the bot behaves during a losing stretch, not only during the wins. Then read the setup guide for that version. It lists the account type, the minimum balance, the recommended settings and the symbols the bot is built for. If any of that does not match your account, ask support before ordering — the wrong account type is the most common reason a new buyer is unhappy on day one.' },
+      { type: 'h2', text: 'Test on a demo account first' },
+      { type: 'list', items: [
+        'Open a free demo MT5 account with your broker, ideally a cent demo if you plan to run a cent account live.',
+        'Run the bot on demo for at least two to four weeks, through both winning and losing days, before judging it.',
+        'Watch a full losing cycle: every strategy has one, and you need to see how deep the drawdown goes and how the bot recovers.',
+        'Compare the demo behaviour with the demo videos — the entry style, the lot sizes and the basket logic should match what you saw.',
+        'Test the practical things too: does your VPS stay online, does the bot survive a weekend gap, does the news filter pause trading as described?',
+      ] },
+      { type: 'h2', text: 'Questions to ask support before you order' },
+      { type: 'list', items: [
+        'Which version fits my account balance and account type — cent or standard?',
+        'What is the minimum balance for this version, and what happens if my balance is below it?',
+        'What support and updates are included after purchase, and for how long?',
+        'How does the license work if I change broker or account number later?',
+        'What are the payment methods, and how does verification work?',
+      ] },
+      { type: 'p', text: 'A bot you have tested on demo, watched through a losing cycle and understood before buying is a bot you will run with confidence instead of panic. Take the time to test properly — it costs nothing but a few weeks, and it is the cheapest insurance in trading. And remember: automation manages entries and exits, it does not remove risk. Trade only money you can afford to lose.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
