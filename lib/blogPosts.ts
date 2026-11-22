@@ -2203,6 +2203,64 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'A bot you have tested on demo, watched through a losing cycle and understood before buying is a bot you will run with confidence instead of panic. Take the time to test properly — it costs nothing but a few weeks, and it is the cheapest insurance in trading. And remember: automation manages entries and exits, it does not remove risk. Trade only money you can afford to lose.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'gold-us-dollar-why-xauusd-moves-with-dollar',
+    title: 'Gold and the US Dollar: Why XAUUSD Moves When the Dollar Moves',
+    excerpt:
+      'Gold is priced in US dollars, so when the dollar rises or falls, gold usually moves the other way. How the relationship works, why it sometimes breaks, and what gold traders watch in the dollar index.',
+    category: 'Trading Basics',
+    date: '2026-11-22',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Ask any gold trader what moved XAUUSD today and the answer often starts with the dollar. Gold is priced in US dollars all over the world, so the two are tied together by simple arithmetic: when the dollar gets stronger, gold usually gets cheaper, and when the dollar weakens, gold usually gets more expensive. It is one of the most reliable relationships in the market — and one of the most misunderstood. Understanding why it works, and when it does not, helps a trader read a gold chart instead of just reacting to it.' },
+      { type: 'h2', text: 'Why gold is priced in dollars' },
+      { type: 'p', text: 'Gold is traded globally in US dollars because the dollar is the world\'s reserve currency. A buyer in London, Dubai or Karachi all pay a dollar price for an ounce of gold, even if they convert from their own currency afterwards. That means the price of gold is really two things at once: the value of gold itself, and the value of the dollar it is measured in. If gold\'s real value stays exactly the same but the dollar rises by 1%, the dollar price of gold falls by about 1% — nothing about gold changed, only the measuring stick did. This is the first reason the two move in opposite directions, and it works mechanically, every day, whether traders are paying attention or not.' },
+      { type: 'h2', text: 'What a stronger dollar usually means for gold' },
+      { type: 'list', items: [
+        'A stronger dollar makes gold more expensive for buyers using other currencies, which can reduce demand and push the price down.',
+        'A stronger dollar often comes with higher US interest rates, and higher rates make gold less attractive because gold pays no interest — money parked in gold earns nothing while a dollar deposit earns a yield.',
+        'A weaker dollar does the opposite: gold becomes cheaper for foreign buyers, and the yield argument against holding gold gets weaker.',
+        'The US Dollar Index (DXY) is the quickest way to watch this: when DXY climbs, gold traders expect pressure on XAUUSD, and when DXY falls, they expect support.',
+        'Big dollar moves around US data — CPI, jobs reports, Federal Reserve decisions — often show up in gold within minutes, so gold traders check the dollar before they check gold.',
+      ] },
+      { type: 'h2', text: 'When the usual relationship breaks down' },
+      { type: 'p', text: 'The dollar-gold link is a tendency, not a law, and it breaks whenever a bigger force takes over. In a crisis, both the dollar and gold can rise together, because investors buy the dollar for safety and gold for safety at the same time. When central banks buy large amounts of gold, or when inflation fears push people into gold regardless of the dollar, gold can climb while the dollar climbs too. And on quiet days, gold often ignores the dollar entirely and moves on its own chart levels, profit-taking or a large order. A trader who treats the dollar as a perfect mirror of gold will be wrong on exactly the days that matter most.' },
+      { type: 'p', text: 'The practical habit is simple: before trading gold, glance at the dollar index and the day\'s US news calendar. If the dollar is trending strongly in one direction, expect gold to lean the other way — but trade the gold chart in front of you, not the dollar chart beside it. The dollar explains a lot of gold\'s movement, but it never guarantees it. Trading always carries risk, and no relationship between two markets removes it.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'reading-primebot-trade-logs-mt5-journal-experts',
+    title: 'How to Read PrimeBot\'s Trade Logs in MT5: What the Journal and Experts Tabs Tell You',
+    excerpt:
+      'When a bot behaves oddly, the answer is usually already written in MT5. Where to find the Journal and Experts tabs, what the common messages mean, and what to send support when you need help.',
+    category: 'Guides',
+    date: '2026-11-22',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Every PrimeBot leaves a written trail of what it did and why. When a bot does not trade, closes a trade early, or shows an error, the answer is usually already sitting in MetaTrader 5 — in two small tabs at the bottom of the screen that many traders never open. Learning to read those logs turns a confusing problem into a five-minute check, and it is also the fastest way to get useful help from support, because the log shows exactly what happened instead of a guess. This guide explains where the logs live and what the common lines mean.' },
+      { type: 'h2', text: 'Where the logs live in MT5' },
+      { type: 'list', items: [
+        'Open the Toolbox at the bottom of MT5 (press Ctrl+T if it is hidden) and look for the Experts tab and the Journal tab side by side.',
+        'The Experts tab shows messages from the bot itself: entries, basket updates, target closes, news-filter pauses, and any setting the bot could not apply.',
+        'The Journal tab shows messages from the MT5 terminal: logins, connection drops, trade requests sent to the broker, and errors the broker returned.',
+        'Both tabs keep a running history for the session. Right-click inside a tab and choose Open to see the full log file saved on your computer, which is what you send to support.',
+        'If the Toolbox is empty, the bot may not be attached to a chart at all — check that the chart shows the bot\'s name and a smiley face in the top-right corner.',
+      ] },
+      { type: 'h2', text: 'What the Experts tab tells you' },
+      { type: 'p', text: 'The Experts tab is the bot talking. A normal day shows a steady rhythm: the bot loading, checking the spread, opening trades, updating the basket, and closing at the daily target. The lines worth attention are the ones that repeat or stop the rhythm — for example, a message that trading is paused because the spread is too wide, or that the news filter has paused entries until after a major release. Those are not errors; they are the bot following its rules. A real problem looks different: the same error line repeating every few seconds, a message that a setting value was rejected, or silence where entries used to appear. Note the exact time of the first unusual line — that time is the key to finding the cause.' },
+      { type: 'h2', text: 'What the Journal tab tells you' },
+      { type: 'list', items: [
+        'Trade request accepted or rejected: the Journal records every order the bot sends and whether the broker filled it, requoted it, or refused it — a refused order often means the price moved, the market was closed, or the symbol name is wrong.',
+        'Connection messages: login success, disconnection, and reconnection lines show whether the problem is the bot or the internet connection to the broker.',
+        'Off quotes and invalid stops: these usually appear during fast news moves or on a symbol with a wide spread, and they explain why a trade did not open at the expected price.',
+        'No connection: if the Journal shows repeated connection failures, check the VPS or internet first — no bot can trade without a live connection to the broker.',
+        'Authorisation messages: a failed login in the Journal means the account number, password or server is wrong, and the bot cannot trade until MT5 itself is logged in.',
+      ] },
+      { type: 'p', text: 'When you do need support, send three things: the exact time the problem started, a screenshot or copy of the unusual lines from both tabs, and which PrimeBot version and account type you are running. With those three, most issues are diagnosed in one reply instead of five. The logs are not there to frighten you — they are the bot\'s own diary, and a trader who reads it spends far less time guessing. Automation manages entries and exits; it does not remove risk, and it does not replace checking that the setup is healthy.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
