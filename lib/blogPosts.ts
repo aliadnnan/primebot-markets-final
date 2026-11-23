@@ -2261,6 +2261,55 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'When you do need support, send three things: the exact time the problem started, a screenshot or copy of the unusual lines from both tabs, and which PrimeBot version and account type you are running. With those three, most issues are diagnosed in one reply instead of five. The logs are not there to frighten you — they are the bot\'s own diary, and a trader who reads it spends far less time guessing. Automation manages entries and exits; it does not remove risk, and it does not replace checking that the setup is healthy.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'pullback-trading-explained-gold',
+    title: 'Pullback Trading Explained: How Gold Traders Enter After the Price Retraces',
+    excerpt:
+      'Chasing a fast move usually means buying the top. A pullback entry waits for gold to breathe, then joins the trend at a better price — if you know how to read one.',
+    category: 'Gold Trading',
+    date: '2026-11-23',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Gold rarely moves in a straight line. Even on its strongest days, the price pushes up, pauses, dips a little, and then pushes again. That dip is called a pullback — a temporary move against the trend — and many traders prefer to enter there instead of chasing the original push. The idea is simple: buy the dip in an uptrend, or sell the bounce in a downtrend, at a price that was not available a few candles earlier.' },
+      { type: 'h2', text: 'Pullback vs reversal: the difference that matters' },
+      { type: 'p', text: 'A pullback is a pause inside a trend; a reversal is the trend ending. Confusing the two is how traders buy a dip that keeps falling. The simplest check is market structure: in a healthy uptrend the price still makes higher highs and higher lows, and the pullback stops above the previous low. If the price breaks that previous low and closes below it, the uptrend is in doubt and the "pullback" may be a reversal in disguise. Never assume a dip is safe just because the bigger trend is up.' },
+      { type: 'h2', text: 'Where traders look for pullback entries' },
+      { type: 'list', items: [
+        'A broken resistance level that now acts as support: the price pushes through a level, then comes back to test it from above.',
+        'A moving average: in a strong trend, gold often dips to the 20- or 50-period moving average before continuing.',
+        'A Fibonacci retracement zone: the 38.2% and 50% levels of the last push are the zones most traders watch.',
+        'A previous swing high or low: old turning points attract orders, which is why the price often pauses exactly there.',
+      ] },
+      { type: 'h2', text: 'Waiting for confirmation' },
+      { type: 'p', text: 'Entering the moment the price touches a level is a guess. Patient traders wait for a sign the dip is over: a bullish candle closing back above the level, a smaller timeframe turning up, or the price simply holding the level for several candles instead of slicing through it. One confirmation does not guarantee success, but it filters out many of the levels that fail. A stop below the level that should have held keeps any single idea to a small, planned loss, and position size should still follow the 1% rule. On gold, where a $5 move can happen in a minute, that filter is worth more than the few dollars of price you give up by waiting.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'first-week-with-primebot-realistic-timeline',
+    title: 'What to Expect in Your First Week with a PrimeBot: A Realistic Timeline',
+    excerpt:
+      'Day one is setup, not profit. A plain week-by-week look at what actually happens after you buy a PrimeBot — install, demo testing, and the first careful live trades.',
+    category: 'Guides',
+    date: '2026-11-23',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Buying a trading bot is not like buying a phone — it does not simply switch on and start working. The first week with a PrimeBot is mostly setup, checking, and learning how the bot behaves on your own account. Traders who expect instant results usually end up disappointed; traders who treat the first week as a setup week usually end up with a system they understand. Here is what that week realistically looks like. One honest note up front: trading always carries risk, and no bot can promise profits — one week proves the setup works, not that any result will follow.' },
+      { type: 'h2', text: 'Day 1–2: delivery, install and the first checks' },
+      { type: 'p', text: 'After payment and verification, you receive the bot file and your license details, which are locked to your MT5 account number. Installation means copying the file into MT5, attaching it to a gold chart, and checking the smiley face in the top-right corner of the chart — that face confirms the bot is allowed to trade. Then come the first checks: the right symbol name, the right timeframe, auto-trading switched on, and the settings matching the guide for your account type. If anything looks wrong, the MT5 Experts and Journal tabs usually say exactly what it is.' },
+      { type: 'h2', text: 'Day 3–4: demo testing before real money' },
+      { type: 'p', text: 'Before the bot touches a live account, run it on a demo account — or a small cent account — for a few days. Watch how it opens trades, how the basket builds, and how it closes at the daily target. This is also when you learn its rhythm: PrimeBots pause around major news releases, and they do not trade every hour of the day. A bot that does nothing for an afternoon is not broken; it is following its rules. Demo testing is where you learn to tell the difference between normal behaviour and a real problem.' },
+      { type: 'h2', text: 'Day 5–7: going live, small and supervised' },
+      { type: 'list', items: [
+        'Start with the default settings and the smallest lot your account allows — changing five settings on day one makes it impossible to know what caused any result.',
+        'Check the account once or twice a day, not every five minutes. The bot manages entries and exits; your job is to confirm it is running and healthy.',
+        'Read the trade log at the end of each day so you recognise normal entries, basket updates and target closes when you see them again.',
+        'Keep the VPS or computer online. If the machine goes offline, the bot cannot manage open trades until it is back.',
+      ] },
+    ],
+  },
+,
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
