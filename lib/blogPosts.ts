@@ -2309,6 +2309,65 @@ export const BLOG_POSTS: BlogPost[] = [
       ] },
     ],
   },
+{
+  blog: 'trading',
+  slug: 'build-your-first-trading-plan-gold',
+  title: 'How to Build Your First Trading Plan: A Simple Template for Gold Traders',
+  excerpt:
+    'A trading plan turns random trades into a repeatable process. Here is a one-page template for gold traders — market, setup, entry, exit, risk and review — and the weekly habit that makes it work.',
+  category: 'Trading Basics',
+  date: '2026-11-24',
+  readMins: 6,
+  content: [
+    { type: 'p', text: 'Most beginners do not lose money because their strategy is bad. They lose because they do not have a strategy written down anywhere — every trade is a fresh decision made in the moment, under pressure, with real money on the line. A trading plan fixes that. It is a one-page document that decides, in advance, what you trade, when you trade it, how much you risk, and when you stop. The market still decides whether you win or lose, but the plan decides how you behave either way — and behaviour is the part you can control.' },
+    { type: 'h2', text: 'The six parts every plan needs' },
+    { type: 'list', items: [
+      'Market and session: which symbol you trade (for most readers here, XAUUSD) and which hours — for example, the London–New York overlap, when gold moves most and spreads are tightest.',
+      'Setup: the exact conditions that must be true before you even consider a trade — a trend direction, a level, a candle pattern. If the conditions are not all true, there is no trade.',
+      'Entry: the precise trigger — a close above resistance, a pullback to support — written so clearly that someone else could read it and take the same trade.',
+      'Exit: your stop loss and your target, decided before you enter. A trade without both is not a plan; it is a hope.',
+      'Risk: how much of your account one trade may lose — most disciplined traders cap it at 1% — and a daily loss limit after which you stop trading for the day.',
+      'Review: when you look back at your trades (weekly works well) and what you check — did you follow the plan, or did you improvise?',
+    ] },
+    { type: 'h2', text: 'A one-page template you can copy' },
+    { type: 'p', text: 'Write it in plain sentences, not jargon, and keep it to one page — a plan you cannot read in thirty seconds is a plan you will not follow at 3 p.m. when gold is moving. Something like this: "I trade XAUUSD only, during London and New York hours. I only buy when the daily trend is up and price pulls back to a support level I marked yesterday. I enter on a bullish candle at that level, with my stop $5 below it and my target at the next resistance — at least twice the distance of my stop. I risk 1% per trade and stop for the day after a 3% loss. Every Sunday I review the week’s trades and write down one thing I did well and one thing to fix." That is a complete plan. It fits on an index card, and it answers every question you will face while trading.' },
+    { type: 'h2', text: 'The review habit that makes it work' },
+    { type: 'p', text: 'A plan is only useful if you check whether you followed it. Once a week, open your journal and ask two questions: did I take only the trades my plan allowed, and did I respect the risk limits? Most traders discover the same thing in their first month — the plan was fine, but they broke it. That discovery is the point: without a written plan, every loss feels like bad luck; with one, every loss is either a normal losing trade inside a working plan, or a rule you broke and can fix next week. The second kind is the only kind you can actually improve.' },
+    { type: 'p', text: 'Start small. Write the plan tonight, trade it on a demo or cent account for a month, and judge it by one measure: did following it feel boring and repeatable? If yes, it is working. Trading plans do not remove risk — gold can gap past a stop and any plan can lose — but they turn trading from a daily argument with yourself into a process you can test, fix and trust. That is the whole job.' },
+  ],
+},
+
+{
+  blog: 'sales',
+  slug: 'primebot-trade-alerts-phone-notifications',
+  title: 'Get PrimeBot Trade Alerts on Your Phone: MT5 Push Notifications Setup',
+  excerpt:
+    'Your PrimeBot trades while you are away from the computer — MT5 push notifications put every open, close and alert on your phone. Here is the five-minute setup and what the alerts can and cannot do.',
+  category: 'Setup Guide',
+  date: '2026-11-24',
+  readMins: 5,
+  content: [
+    { type: 'p', text: 'A trading bot runs on your computer or VPS around the clock, but you do not sit in front of it around the clock. That gap is what MT5 push notifications close: every time your PrimeBot opens or closes a trade, or a protection rule triggers, your phone buzzes with the details. Setting it up takes about five minutes, costs nothing, and works on both Android and iPhone — here is how.' },
+    { type: 'h2', text: 'What the alerts tell you' },
+    { type: 'list', items: [
+      'Trade opened: the symbol, direction, lot size and entry price — so you always know what your bot just did.',
+      'Trade closed: the exit price and the result, so you can follow a basket from open to close without opening the laptop.',
+      'Protection events: daily target reached, drawdown limit hit, or the news filter pausing new entries — the moments that actually matter.',
+      'Connection warnings: if your terminal goes offline, the alerts stop — which is itself a signal to check the VPS or computer.',
+    ] },
+    { type: 'h2', text: 'Setup in five steps' },
+    { type: 'list', items: [
+      '1. On your phone, install the MetaTrader 5 app and log in to the same account your bot runs on.',
+      '2. In the phone app, open Settings and find your MetaQuotes ID — a short code the app shows you. Copy it.',
+      '3. On the computer, open MT5 and go to Tools → Options → Notifications.',
+      '4. Tick "Enable Push Notifications", paste your MetaQuotes ID, and press Test — your phone should buzz within seconds.',
+      '5. Make sure "Notify on trade operations" is on, then run the bot normally. Alerts arrive for every trade it opens or closes.',
+    ] },
+    { type: 'h2', text: 'What phone alerts cannot do' },
+    { type: 'p', text: 'An alert is information, not control. You cannot change the bot’s settings, close a trade, or fix a problem from a notification — for that you need the MT5 app itself or access to the computer or VPS. And alerts only arrive while your terminal is running: if the VPS restarts or the internet drops, the alerts stop too, so a quiet phone is worth checking, not celebrating. Used honestly, phone notifications do one job well: they keep you informed without chaining you to the screen. Set them up once, test them with a demo trade, and let the bot do its work while you get on with your day. If anything in the setup does not work, send a screenshot of the Notifications tab to our WhatsApp support and we will walk you through it.' },
+  ],
+},
+
 ,
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
