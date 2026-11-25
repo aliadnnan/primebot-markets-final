@@ -2368,6 +2368,67 @@ export const BLOG_POSTS: BlogPost[] = [
   ],
 },
 
+{
+    blog: 'trading',
+    slug: 'breakout-trading-explained-gold',
+    title: 'Breakout Trading Explained: How Gold Traders Trade Price Breaks',
+    excerpt:
+      'When gold pushes through a level it has respected for days, traders call it a breakout. What a breakout really is, how traders tell a real one from a false one, and the risk rules that keep it honest.',
+    category: 'Trading Basics',
+    date: '2026-11-25',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Gold spends most of its time moving inside a range — bouncing between a floor traders call support and a ceiling they call resistance. A breakout happens when the price pushes through one of those boundaries and stays there. It is one of the most talked-about ideas in trading, and one of the most misunderstood: a breakout is not a prediction, it is a signal that the balance between buyers and sellers has shifted, and even a genuine breakout can fail. Understanding what a breakout is — and what it is not — is the first step to trading it without getting hurt.' },
+      { type: 'h2', text: 'What a breakout actually is' },
+      { type: 'p', text: 'A level becomes important because price has tested it several times. Each test leaves orders behind — buyers waiting at support, sellers waiting at resistance. When price finally closes beyond the level, it means those orders have been overwhelmed. A single candle poking through and snapping back is not a breakout; traders usually want to see the price close beyond the level, ideally on a higher timeframe such as the one-hour or four-hour chart, before they take it seriously. The longer a level has held, the more attention its break attracts — and the more traders are watching the same line.' },
+      { type: 'h2', text: 'The false breakout trap' },
+      { type: 'list', items: [
+        'A wick through the level that closes back inside the range — the market tested the level and rejected it.',
+        'A break during thin hours: the Asian session has low volume, so a small push can look like a breakout and reverse when London opens.',
+        'A break straight into major news: CPI or NFP can shove price through a level and drag it back within minutes.',
+        'A break with no follow-through: price crosses the level, then drifts sideways instead of continuing — a sign the move had no real buying or selling behind it.',
+      ] },
+      { type: 'h2', text: 'How traders confirm a breakout before acting' },
+      { type: 'list', items: [
+        'Wait for a close beyond the level, not just a touch — a candle closing outside the range carries far more weight than a wick.',
+        'Watch the retest: old resistance often becomes new support. A clean bounce off the broken level is stronger confirmation than the break itself.',
+        'Check the session and the calendar: a break during the busy London–New York overlap, away from major news, is more trustworthy than one in quiet hours.',
+        'Look at the wider trend: a breakout in the direction of the daily trend has better odds than one fighting against it.',
+      ] },
+      { type: 'p', text: 'The risk rules matter more than the entry. A sensible stop sits just back inside the broken level, so a failed breakout costs a small, planned amount rather than a painful surprise. Size the trade so that stop costs no more than 1% of the account, and never chase a breakout that has already run far past the level — the best entry is usually the retest, not the first push. Breakouts reward patience twice: once for waiting for confirmation, and once for waiting for the price to come back to you. Trading carries risk, and no pattern removes it — but a trader who treats breakouts as a process, not a promise, is far less likely to be the one buying the top of a false move.' },
+    ],
+  },
+
+{
+    blog: 'sales',
+    slug: 'primebot-vs-manual-trading-honest-comparison',
+    title: 'PrimeBot vs Manual Trading: An Honest Comparison for Beginners',
+    excerpt:
+      'A bot trades without sleep or emotion; a human adapts to news a bot was never coded for. A plain comparison of automation and manual trading — and the honest middle ground most buyers actually use.',
+    category: 'Buying Guide',
+    date: '2026-11-25',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Every buyer asks the same question before ordering a bot: is automated trading actually better than trading by hand? The honest answer is that neither side wins outright — a bot and a human are good at different things, and most buyers end up using both. Here is the plain comparison, without the sales talk.' },
+      { type: 'h2', text: 'What a bot does better' },
+      { type: 'list', items: [
+        'It never sleeps: a bot watches gold around the clock and never misses its setup at 3 a.m.',
+        'It has no emotions: it follows the same sizing and exit rules on the tenth trade as on the first, with no revenge trading after a loss.',
+        'It never forgets its protections: the news filter, the daily target and the drawdown limit are enforced on every trade, automatically.',
+        'It is consistent: the strategy you tested is the strategy it runs, trade after trade, without improvising.',
+      ] },
+      { type: 'h2', text: 'What a human does better' },
+      { type: 'list', items: [
+        'It reads context a bot was never coded for: a sudden headline, a central-bank surprise, or a market that has simply changed character.',
+        'It knows when to stand aside: a human can decide the conditions are wrong today and simply not trade — a bot needs its rules told in advance.',
+        'It learns from experience: a trader who has watched gold through a news shock recognises the next one faster than any backtest.',
+        'It asks why: when a strategy starts losing, a human can investigate and adapt, instead of running the same losing rules on repeat.',
+      ] },
+      { type: 'h2', text: 'The honest middle ground most buyers use' },
+      { type: 'p', text: 'In practice, most PrimeBot buyers do not hand the keys over and walk away. The bot runs the system — opening and managing trades exactly as configured — while the owner checks in daily: reading the Journal and Experts tabs in MT5, reviewing the week in a journal, and deciding whether the settings still fit the market. That combination is the point of automation: the machine supplies discipline, and the human supplies judgement. Neither replaces the other.' },
+      { type: 'p', text: 'One last honest note: a bot is software, not a promise. No PrimeBot can guarantee profit, and every product video on this site is demo footage — we never publish fake profit screenshots. Start on a demo or cent account, follow the Urdu setup video for your bot, and message our WhatsApp support if you get stuck. A real person answers, and we will tell you plainly if a bot is not the right tool for what you want. Test first, decide slowly, and scale only when you understand how the bot behaves in a drawdown.' },
+    ],
+  },
 ,
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
