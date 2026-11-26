@@ -2429,7 +2429,62 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'One last honest note: a bot is software, not a promise. No PrimeBot can guarantee profit, and every product video on this site is demo footage — we never publish fake profit screenshots. Start on a demo or cent account, follow the Urdu setup video for your bot, and message our WhatsApp support if you get stuck. A real person answers, and we will tell you plainly if a bot is not the right tool for what you want. Test first, decide slowly, and scale only when you understand how the bot behaves in a drawdown.' },
     ],
   },
-,
+
+  {
+    blog: 'trading',
+    slug: 'pending-orders-explained-buy-stop-sell-limit',
+    title: 'Pending Orders Explained: Buy Stop, Sell Limit and the Orders Beginners Mix Up',
+    excerpt:
+      'A market order buys or sells right now. A pending order waits for the price you choose. The four pending orders on MT5, explained in plain English — and the mix-ups that cost beginners money.',
+    category: 'Trading Basics',
+    date: '2026-11-26',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Open the order window on MT5 and you will see two choices: buy or sell at the current price, or place a pending order. A market order executes immediately. A pending order sits quietly on your chart and only becomes a live trade when gold reaches the price you set — even if you are asleep or away from the screen. Beginners often avoid pending orders because the names sound confusing, but they are simply four ways of saying “trade for me when the price gets here”.' },
+      { type: 'h2', text: 'The four pending orders, in plain English' },
+      { type: 'list', items: [
+        'Buy stop: buy when the price rises to your level. You use it when you expect a breakout above resistance — for example, gold is at $2,640 and you want to buy only if it breaks above $2,650.',
+        'Sell stop: sell when the price falls to your level. You use it when you expect a breakdown below support — for example, sell only if gold drops below $2,620.',
+        'Buy limit: buy when the price falls to your level. You use it when you want a cheaper entry at support — for example, buy only if gold pulls back to $2,630.',
+        'Sell limit: sell when the price rises to your level. You use it when you want to sell into resistance — for example, sell only if gold rallies up to $2,670.',
+      ] },
+      { type: 'h2', text: 'Buy stop vs buy limit: the mix-up that costs beginners' },
+      { type: 'p', text: 'The confusion is simple: both are buy orders, but they sit on opposite sides of the current price. A buy stop must be placed above the current price, and a buy limit must be placed below it. Mix them up and MT5 will reject the order with an “invalid price” error — annoying, but harmless. The real cost comes when a trader actually means “buy the breakout” and instead places a buy limit below the price, then watches gold run higher without them. Before you confirm any pending order, say the plan out loud: “I am buying if price goes up to this level” means a buy stop; “I am buying if price comes down to this level” means a buy limit.' },
+      { type: 'h2', text: 'Where beginners go wrong' },
+      { type: 'list', items: [
+        'Placing the order too close to the current price, so normal market noise triggers it before the real move begins.',
+        'Forgetting the expiry: a pending order with no expiry stays live until you cancel it, and can trigger days later on a move you no longer believe in.',
+        'Placing orders just before major news — CPI, NFP or a Fed decision — where a price spike can trigger the order and then reverse in seconds.',
+        'Attaching no stop loss: a pending order that triggers becomes a normal trade, and it needs the same stop loss and position size as any other trade.',
+      ] },
+      { type: 'p', text: 'Pending orders are a planning tool, not a shortcut. They let you decide your entry calmly, away from the excitement of a moving chart — but they cannot decide whether the trade is a good idea. Practise all four types on a demo account until you can place each one without thinking, always attach a stop loss, and review your triggered orders in your journal each week. The trader who plans entries in advance trades with a clear head; the trader who chases price usually pays for the hurry.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'primebot-myths-what-a-trading-bot-can-and-cannot-do',
+    title: 'Common PrimeBot Myths: What a Trading Bot Can and Cannot Do',
+    excerpt:
+      '“A bot guarantees profit.” “Set it and forget it.” Four myths every buyer hears before ordering — answered plainly, with what a PrimeBot actually does and what still depends on you.',
+    category: 'Buying Guide',
+    date: '2026-11-26',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Before anyone orders a trading bot, they hear the same claims — from sellers, from forums, from friends who “know a guy”. Some of it is true, much of it is exaggerated, and a little of it is flat-out wrong. Here are the four myths buyers ask us about most, answered the way we answer them on WhatsApp support: plainly, with no sales talk.' },
+      { type: 'h2', text: 'Four myths, answered plainly' },
+      { type: 'list', items: [
+        'Myth 1 — “A bot guarantees profit.” No software can guarantee profit, and any seller who promises it is not being honest. A PrimeBot follows its rules exactly, but gold can move against any strategy, and losing days are part of trading. What the bot does guarantee is discipline: it will not revenge-trade, over-trade, or abandon its stop loss after a loss.',
+        'Myth 2 — “Set it and forget it.” A bot runs on its own, but it still needs a running computer or VPS, a stable internet connection, and an owner who checks in daily. The buyers who do best are the ones who read the MT5 Journal tab each morning and review the week in a journal — five minutes a day, not five hours.',
+        'Myth 3 — “A bot removes all risk.” It removes emotional risk, not market risk. The news filter, the daily target and the drawdown limit protect you from the worst days, but every trade still carries risk, which is why we recommend starting on a demo or cent account.',
+        'Myth 4 — “More trades means more profit.” The opposite is usually true. A bot that trades ten times a day pays spread and commission ten times, and most of those trades add noise, not profit. PrimeBots are built to wait for their setup — fewer, better trades — and the daily target exists precisely so the bot stops while it is ahead.',
+      ] },
+      { type: 'h2', text: 'What a bot actually does well' },
+      { type: 'p', text: 'A bot is good at exactly three things: watching the market around the clock, following the same rules on the tenth trade as on the first, and enforcing its protections without exception. That is the whole value of automation — consistency a human cannot sustain. It does not predict the market, it does not read headlines, and it cannot tell you whether today is a good day to trade. That judgement stays with you.' },
+      { type: 'h2', text: 'The honest way to start' },
+      { type: 'p', text: 'Start on a demo or cent account, run the bot with its default settings, and watch it for two or three weeks before judging anything — one quiet week proves nothing, good or bad. Keep a simple journal of what the bot did each day. And remember that every product video on this site is demo footage: we never publish fake profit screenshots, and if a bot is not the right tool for what you want, our support team will tell you so. Test first, decide slowly, and scale only when you understand how the bot behaves in a drawdown.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
