@@ -2485,6 +2485,64 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'Start on a demo or cent account, run the bot with its default settings, and watch it for two or three weeks before judging anything — one quiet week proves nothing, good or bad. Keep a simple journal of what the bot did each day. And remember that every product video on this site is demo footage: we never publish fake profit screenshots, and if a bot is not the right tool for what you want, our support team will tell you so. Test first, decide slowly, and scale only when you understand how the bot behaves in a drawdown.' },
     ],
   },
+
+  {
+    blog: 'trading',
+    slug: 'fundamental-vs-technical-analysis-gold-traders',
+    title: 'Fundamental vs Technical Analysis: Two Ways Gold Traders Read the Market',
+    excerpt:
+      'One group of traders stares at charts, the other reads the news — and both are trying to answer the same question: where is gold going next? How the two approaches work, where each one fails, and how traders combine them.',
+    category: 'Trading Basics',
+    date: '2026-11-27',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'Ask ten gold traders how they decide when to buy or sell, and you will hear two very different answers. One group stares at charts, drawing trendlines and watching indicators. The other group reads the news, watches the US dollar and waits for inflation data. The first group practises technical analysis, the second practises fundamental analysis — and both are trying to answer the same question: where is gold going next?' },
+      { type: 'h2', text: 'Technical analysis: reading the chart' },
+      { type: 'list', items: [
+        'Price is the evidence: a technical trader believes everything known about gold is already reflected in its price, so the chart is the whole story.',
+        'Trend first: the trader asks whether gold is in an uptrend, a downtrend or a range, using moving averages, trendlines and market structure — higher highs and higher lows.',
+        'Levels matter: support and resistance zones show where price has bounced or been rejected before, and they are used to plan entries and place stop losses.',
+        'Indicators add context: RSI shows when momentum is stretched, MACD shows when it is shifting, and Bollinger Bands show when volatility is expanding or contracting.',
+        'Patterns are hints, not promises: a hammer, an engulfing candle or a breakout tells the trader what buyers and sellers just did — never what they will do next.',
+      ] },
+      { type: 'h2', text: 'Fundamental analysis: reading the economy' },
+      { type: 'list', items: [
+        'The US dollar: gold is priced in dollars, so a stronger dollar usually makes gold more expensive for the rest of the world and pushes its price down.',
+        'Interest rates: when traders expect rate cuts, gold — which pays no interest — becomes more attractive; when rates are expected to rise, the opposite happens.',
+        'Inflation data: CPI releases tell traders whether prices are rising faster or slower than expected, and gold often reacts within minutes.',
+        'Jobs and the Fed: Non-Farm Payrolls and FOMC decisions move gold sharply, because they change what the market expects the Federal Reserve to do next.',
+        'Fear and safety: wars, banking stress and market crashes push money into gold as a safe haven, sometimes regardless of what the charts say.',
+      ] },
+      { type: 'h2', text: 'How most traders combine the two' },
+      { type: 'p', text: 'Each approach has a blind spot: technical analysis cannot see a news release coming, so a perfect chart setup can be destroyed in seconds by a CPI surprise — which is why experienced chart traders check the economic calendar and pause around major releases. Fundamental analysis has the opposite weakness: it can explain why gold should rise over the next month, but it cannot tell you the exact price to enter, where to place your stop, or when to take profit. In practice, many gold traders use both: fundamentals decide the bias and the calendar, technicals decide the entry. A trader might read that the dollar is weakening and expect gold to be supported, then wait for the chart to show a pullback to a support level before buying — with a stop loss just below it. The news filter on an automated system does the same job: it keeps the bot out of the chaos window around a release and lets the chart-based rules work in calmer conditions. Neither approach removes risk — gold can gap past a stop loss, and a sound analysis can still be wrong — but combining a reason for the direction with a precise plan for the entry is how careful traders turn two half-answers into one working process. Practise both on a demo or cent account, keep your risk to 1% per trade, and let your journal tell you which approach you actually follow when it matters.' },
+    ],
+  },
+
+  {
+    blog: 'sales',
+    slug: 'primebot-lot-sizes-start-lot-multiplier-explained',
+    title: 'PrimeBot Lot Sizes Explained: Start Lot, Multiplier and Risk Settings',
+    excerpt:
+      'Lot size is the single most important setting on your bot — it decides how much every dollar of gold movement is worth to your account. What the start lot, the multiplier and the protections around them actually do.',
+    category: 'Product News',
+    date: '2026-11-27',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'Of all the settings on a PrimeBot, one matters more than the rest: lot size. It decides how much every dollar of gold movement is worth to your account — and therefore how fast you win, how fast you lose, and how deep a drawdown can go. The strategy, the entry logic and the protections all matter, but they all operate through the lot size you choose. Here is what the three lot settings on your bot actually do.' },
+      { type: 'h2', text: 'Start lot: your base trade size' },
+      { type: 'p', text: 'The start lot is the size of the first trade in a sequence — the smallest lot the bot opens. On a standard account, 0.01 lots of gold means roughly $1 of profit or loss for every $1 the price moves; on a cent account the same 0.01 lot is one hundredth of that. Most buyers start with the smallest lot their account allows and only increase it when the account has grown enough to carry the risk comfortably. A bigger start lot does not make the strategy better — it simply makes every win and every loss bigger.' },
+      { type: 'h2', text: 'The multiplier: how recovery lots grow' },
+      { type: 'p', text: 'When a trade moves against the bot, PrimeBots can open the next trade in the sequence slightly larger, using a multiplier. The idea is simple: a larger recovery trade needs a smaller price move back in your favour for the whole basket to close in profit. It is the recovery logic built into the strategy, and it is also the setting that most changes the risk. A higher multiplier recovers faster when price returns, but it also builds a bigger open position — and a bigger floating drawdown — if price keeps moving against you. That is why the default settings are conservative, and why changing the multiplier is not a small tweak: it changes the whole character of the bot.' },
+      { type: 'h2', text: 'The protections around lot size' },
+      { type: 'list', items: [
+        'Maximum lot cap: the largest lot the bot is allowed to open, so a recovery sequence cannot grow without limit.',
+        'Daily target: once the day’s profit target is reached, the bot stops opening new trades.',
+        'Drawdown limit: a maximum floating loss the bot will tolerate before it stops and waits for you.',
+        'News filter: new entries pause around major releases such as CPI, NFP and FOMC, when a sudden move can turn a normal lot into a painful one.',
+      ] },
+      { type: 'p', text: 'For your own account, the rule is simple: small or cent accounts use the smallest start lot and the default multiplier, never raise the lot size by hand after a loss to “win it back”, and test any setting change on a demo account for at least a week — changing one setting at a time so you know what caused any difference. The Urdu setup video for your bot shows the recommended settings for each account size, step by step. Lot settings control risk, not profit. No combination of start lot and multiplier can guarantee a winning month, and every product video on this site is demo footage — we never publish fake profit screenshots. Choose the smallest size your account can carry, keep the protections switched on, and message our WhatsApp support if you are unsure which settings fit your account. A real person answers, and we will tell you plainly if the settings you want are too aggressive for your balance.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
