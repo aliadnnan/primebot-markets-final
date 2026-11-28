@@ -2543,6 +2543,66 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'p', text: 'For your own account, the rule is simple: small or cent accounts use the smallest start lot and the default multiplier, never raise the lot size by hand after a loss to “win it back”, and test any setting change on a demo account for at least a week — changing one setting at a time so you know what caused any difference. The Urdu setup video for your bot shows the recommended settings for each account size, step by step. Lot settings control risk, not profit. No combination of start lot and multiplier can guarantee a winning month, and every product video on this site is demo footage — we never publish fake profit screenshots. Choose the smallest size your account can carry, keep the protections switched on, and message our WhatsApp support if you are unsure which settings fit your account. A real person answers, and we will tell you plainly if the settings you want are too aggressive for your balance.' },
     ],
   },
+  {
+    blog: 'trading',
+    slug: 'slippage-explained-gold-trade-fills',
+    title: 'Slippage Explained: Why Your Gold Trade Fills at a Different Price',
+    excerpt:
+      'You click buy at $2,650 and the trade opens at $2,651.50. That gap is called slippage — what causes it on gold, when it is normal, and what traders do to keep it small.',
+    category: 'Trading Basics',
+    date: '2026-11-28',
+    readMins: 6,
+    content: [
+      { type: 'p', text: 'You tap buy on gold at $2,650, but the trade opens at $2,651.50. You did nothing wrong, and your broker did not cheat you — what you just saw is called slippage, the small difference between the price you expected and the price your order actually filled at. It happens on every market, but gold traders notice it most, because gold moves fast and a single dollar of movement is worth real money. Understanding slippage matters because it is a real trading cost, just like the spread — and like the spread, you can keep it small with the right habits.' },
+      { type: 'h2', text: 'Why slippage happens on gold' },
+      { type: 'list', items: [
+        'Gold moves fast. In a normal minute gold can move a dollar or two; around CPI, NFP or a Fed decision it can jump $10 or more in seconds. A market order sent during that jump fills at the next available price, not the price on your screen a second earlier.',
+        'Your order takes time to travel. The price you see, the click, and the broker server are never perfectly in sync — in a fast market, even a fraction of a second is enough for the price to move.',
+        'Liquidity dries up at quiet hours. During the Asian session or just before the weekend close, fewer traders are placing orders, so there may be nobody willing to take the other side at your exact price.',
+        'Market orders accept any price. A market order says buy now at the best available price, so it guarantees execution but not the price. A limit order does the opposite — it guarantees the price but not the execution.',
+      ] },
+      { type: 'h2', text: 'Positive slippage exists too' },
+      { type: 'p', text: 'Slippage is not always against you. If gold jumps in your favour between your click and the fill, a buy can open cheaper than you expected, or a sell can close higher than your target — that is positive slippage, and most brokers pass it on to you. The reason traders talk mostly about the negative kind is simple: losses hurt more than equal-sized gains feel good, so a fill $1.50 worse sticks in the memory while a fill $1.50 better is forgotten by lunchtime.' },
+      { type: 'h2', text: 'How traders keep slippage small' },
+      { type: 'list', items: [
+        'Avoid the first minutes after major news. If you must trade CPI or NFP, wait for the first wild minute to pass before placing an order.',
+        'Use limit orders for entries. A buy limit only fills at your price or better, so the entry price is never a surprise — the trade-off is that the order may never fill at all.',
+        'Trade the busy sessions. London and New York hours have the most buyers and sellers, so fills are usually closer to the price you see.',
+        'Do not hold market orders over the weekend. Gold can gap on the Monday open, and any stop loss or pending order can fill far from where you placed it.',
+        'Check your broker execution. A good broker shows you the requested price and the fill price for every trade in the MT5 history — compare them regularly and keep a note in your journal.',
+      ] },
+      { type: 'p', text: 'Slippage is not a sign that trading is rigged, and it is not something you can remove completely — every trader pays it sometimes, on every broker, in every market. What you can do is measure it, keep it small with limit orders and sensible timing, and count it as part of your real trading cost before judging any strategy. A strategy that looks profitable on paper but ignores slippage and spread is not a strategy yet. Trade on a demo account first, watch your fill prices for a few weeks, and you will know exactly how much slippage your style of trading really costs.' },
+    ],
+  },
+  {
+    blog: 'sales',
+    slug: 'primebot-backup-settings-save-restore',
+    title: 'How to Back Up Your PrimeBot Settings: Save, Restore and Move Your Setup',
+    excerpt:
+      'Your PrimeBot settings are worth protecting. How to save your EA inputs, restore them after a reinstall, and move the same setup to a new computer or VPS without losing your license.',
+    category: 'Setup Guide',
+    date: '2026-11-28',
+    readMins: 5,
+    content: [
+      { type: 'p', text: 'When your PrimeBot is running well, the last thing you want is to lose the settings that made it run well. A Windows update, a new VPS, or a fresh MT5 install can wipe your charts — and with them the start lot, multiplier, daily target and news filter you spent time choosing. The good news is that backing up a PrimeBot setup takes about a minute, and restoring it takes even less. Here is exactly what to save, and where to keep it.' },
+      { type: 'h2', text: 'What exactly are your settings?' },
+      { type: 'list', items: [
+        'EA inputs: the numbers on the Inputs tab of your PrimeBot — start lot, multiplier, daily target, drawdown limit, trading hours and the news filter.',
+        'Chart template: the chart your bot is attached to, including the timeframe, indicators and the EA itself.',
+        'Your license: your PrimeBot license is locked to your MT5 account number, not to your computer, so moving computers does not use up your license — but you still need your account number and broker server details to log in again.',
+      ] },
+      { type: 'h2', text: 'Saving your settings in MT5' },
+      { type: 'p', text: 'Open the Inputs tab of your PrimeBot, click Save, and MT5 will save all the inputs into a small .set file. Give it a clear name, such as PrimeBot-Gold-Default-2026-11-28.set, and store a copy outside your computer — email it to yourself, or save it in Google Drive. Do the same for your chart template: right-click the chart, choose Template, then Save Template. While you are there, write down your account number, broker server name and the bot version in a simple text note, so a rebuild never depends on your memory.' },
+      { type: 'h2', text: 'Restoring after a reinstall' },
+      { type: 'list', items: [
+        'Install MT5, log in to your trading account, and attach the same PrimeBot version to a fresh gold chart.',
+        'On the Inputs tab, click Load, choose your saved .set file, and every input returns exactly as it was.',
+        'Apply your saved chart template, then check the Experts and Journal tabs for errors before the market opens.',
+        'Run the bot on a demo account for a day first, and compare its first trades with your journal — if anything looks different, stop and message support.',
+      ] },
+      { type: 'p', text: 'One backup habit protects you from the most common support call we receive: a trader who rebuilt a computer and cannot remember the settings that were working. Save the .set file every time you change a setting, keep one copy off the computer, and keep a second copy with a different name after any change that works well. And remember that every product video on this site is demo footage — we never publish fake profit screenshots, and our WhatsApp support will tell you plainly if a setting is too aggressive for your account. A bot is only as good as its setup, and a backed-up setup is one you never have to rebuild from memory.' },
+    ],
+  },
 ];
 export function postsFor(blog: BlogKind): BlogPost[] {
   return BLOG_POSTS.filter((p) => p.blog === blog).sort((a, b) =>
